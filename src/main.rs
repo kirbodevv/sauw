@@ -39,7 +39,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         Player,
     ));
 
-    let tile_texture: Handle<Image> = asset_server.load("grass.png");
+    let tile_texture: Handle<Image> = asset_server.load("blocks/grass.png");
     for y in 0..9 {
         for x in 0..16 {
             commands.spawn((
