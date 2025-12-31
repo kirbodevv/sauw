@@ -1,4 +1,6 @@
-use bevy::{camera::ScalingMode, prelude::*};
+use bevy::{camera::ScalingMode, ecs::system::NonSendMarker, prelude::*};
+use bevy_winit::WINIT_WINDOWS;
+use winit::window::Icon;
 const TILE_SIZE: f32 = 32.0;
 const WORLD_WIDTH: f32 = 16.0;
 const VIEWPORT_WIDTH: f32 = WORLD_WIDTH * TILE_SIZE;
@@ -6,8 +8,10 @@ const VIEWPORT_WIDTH: f32 = WORLD_WIDTH * TILE_SIZE;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .insert_resource(IconSet::default())
         .insert_resource(ClearColor(Color::linear_rgb(0.0, 0.0, 0.0)))
         .add_systems(Startup, setup)
+        .add_systems(Update, set_window_icon_once)
         .add_systems(Update, (player_movement, camera_follow).chain())
         .run();
 }
@@ -16,6 +20,39 @@ fn main() {
 struct Player;
 #[derive(Component)]
 struct MainCamera;
+
+#[derive(Resource, Default)]
+struct IconSet(bool);
+
+fn set_window_icon_once(_marker: NonSendMarker, mut icon_set: ResMut<IconSet>) {
+    if icon_set.0 {
+        return;
+    }
+
+    WINIT_WINDOWS.with_borrow(|winit_windows| {
+        if winit_windows.windows.len() == 0 {
+            return;
+        }
+
+        let (icon_rgba, icon_width, icon_height) = {
+            let image = image::open("assets/icon/icon_128.png")
+                .expect("Failed to open icon path")
+                .into_rgba8();
+            let (width, height) = image.dimensions();
+            let rgba = image.into_raw();
+            (rgba, width, height)
+        };
+
+        let icon = Icon::from_rgba(icon_rgba, icon_width, icon_height).unwrap();
+
+        for window in winit_windows.windows.values() {
+            window.set_window_icon(Some(icon.clone()));
+        }
+
+        icon_set.0 = true;
+        info!("Window icon set");
+    });
+}
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
