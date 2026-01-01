@@ -21,8 +21,8 @@ impl BlockTextures {
 pub fn load_block_textures(asset_server: &Res<AssetServer>) -> BlockTextures {
     let mut textures = BlockTextures::new();
 
-    textures.add("blocks/grass", asset_server);
-    textures.add("blocks/tree", asset_server);
+    textures.add("block/grass", asset_server);
+    textures.add("block/tree", asset_server);
 
     textures
 }
