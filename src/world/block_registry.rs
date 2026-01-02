@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use bevy::ecs::resource::Resource;
+
 use crate::world::block::*;
 
 pub struct BlockDefinition {
@@ -9,6 +11,7 @@ pub struct BlockDefinition {
     pub texture: Option<&'static str>,
 }
 
+#[derive(Resource)]
 pub struct BlockRegistry {
     blocks: HashMap<BlockId, BlockDefinition>,
 }
@@ -33,7 +36,7 @@ impl BlockRegistry {
                 name: "grass",
                 solid: false,
                 behavior: BlockBehavior::None,
-                texture: Some("blocks/grass"),
+                texture: Some("block/grass"),
             },
         );
 
@@ -43,7 +46,7 @@ impl BlockRegistry {
                 name: "tree",
                 solid: true,
                 behavior: BlockBehavior::Solid,
-                texture: Some("blocks/tree"),
+                texture: Some("block/tree"),
             },
         );
 

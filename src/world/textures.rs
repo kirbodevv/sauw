@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use std::collections::HashMap;
 
+#[derive(Resource)]
 pub struct BlockTextures(HashMap<&'static str, Handle<Image>>);
 
 impl BlockTextures {
@@ -11,6 +12,7 @@ impl BlockTextures {
     pub fn add(&mut self, name: &'static str, asset_server: &Res<AssetServer>) {
         self.0
             .insert(name, asset_server.load(format!("{}.png", name)));
+        info!("Asset {} loaded", name);
     }
 
     pub fn get(&self, name: &str) -> Option<&Handle<Image>> {
@@ -18,11 +20,10 @@ impl BlockTextures {
     }
 }
 
-pub fn load_block_textures(asset_server: &Res<AssetServer>) -> BlockTextures {
-    let mut textures = BlockTextures::new();
-
-    textures.add("block/grass", asset_server);
-    textures.add("block/tree", asset_server);
-
-    textures
+pub fn load_block_textures(
+    asset_server: Res<AssetServer>,
+    mut block_textures: ResMut<BlockTextures>,
+) {
+    block_textures.add("block/grass", &asset_server);
+    block_textures.add("block/tree", &asset_server);
 }

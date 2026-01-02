@@ -5,21 +5,22 @@ use crate::world::{
     block_registry::BlockRegistry,
     chunk::Chunk,
     systems::spawn_chunk,
-    textures::load_block_textures,
+    textures::BlockTextures,
     world::{ChunkPos, World},
 };
 
-pub fn spawn_tiles(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let textures = load_block_textures(&asset_server);
-    let registry = BlockRegistry::new();
-    let mut game_world = World::new();
-
+pub fn spawn_tiles(
+    mut commands: Commands,
+    mut game_world: ResMut<World>,
+    registry: Res<BlockRegistry>,
+    textures: Res<BlockTextures>,
+) {
     for x in 0..5 {
         for y in 0..5 {
             let pos = ChunkPos { x, y };
             let chunk = game_world.get_chunk_mut(pos);
             fill_chunk_border(chunk, BlockId(2));
-            spawn_chunk(&mut commands, &game_world, &registry, &textures, pos);
+            spawn_chunk(&mut commands, &mut game_world, &registry, &textures, pos);
         }
     }
 }

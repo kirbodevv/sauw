@@ -1,4 +1,3 @@
-// plugins/game.rs
 use bevy::prelude::*;
 
 use crate::{
@@ -7,7 +6,13 @@ use crate::{
         window_icon::{IconSet, set_window_icon_once},
     },
     player::systems::{player_movement, spawn_player},
-    world::tiles::spawn_tiles,
+    startup::StartupSet,
+    world::{
+        block_registry::BlockRegistry,
+        textures::{BlockTextures, load_block_textures},
+        tiles::spawn_tiles,
+        world::World,
+    },
 };
 
 pub struct GamePlugin;
@@ -16,7 +21,19 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(IconSet::default())
             .insert_resource(ClearColor(Color::BLACK))
-            .add_systems(Startup, (spawn_camera, spawn_tiles, spawn_player))
+            .insert_resource(World::new())
+            .insert_resource(BlockRegistry::new())
+            .insert_resource(BlockTextures::new())
+            .add_systems(Startup, load_block_textures.in_set(StartupSet::Assets))
+            .add_systems(Startup, spawn_tiles.in_set(StartupSet::World))
+            .add_systems(
+                Startup,
+                (spawn_camera, spawn_player).in_set(StartupSet::Actors),
+            )
+            .configure_sets(
+                Startup,
+                (StartupSet::Assets, StartupSet::World, StartupSet::Actors).chain(),
+            )
             .add_systems(
                 Update,
                 (set_window_icon_once, player_movement, camera_follow).chain(),

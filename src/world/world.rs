@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use bevy::ecs::resource::Resource;
+
 use crate::world::chunk::Chunk;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -8,6 +10,7 @@ pub struct ChunkPos {
     pub y: i32,
 }
 
+#[derive(Resource)]
 pub struct World {
     chunks: HashMap<ChunkPos, Chunk>,
 }
