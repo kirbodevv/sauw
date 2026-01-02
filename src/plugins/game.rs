@@ -1,10 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    core::{
-        camera::{camera_follow, spawn_camera},
-        window_icon::{IconSet, set_window_icon_once},
-    },
+    core::camera::{camera_follow, spawn_camera},
     player::systems::{player_movement, spawn_player},
     startup::StartupSet,
     world::{
@@ -19,8 +16,7 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(IconSet::default())
-            .insert_resource(ClearColor(Color::BLACK))
+        app.insert_resource(ClearColor(Color::BLACK))
             .insert_resource(World::new())
             .insert_resource(BlockRegistry::new())
             .insert_resource(BlockTextures::new())
@@ -34,9 +30,6 @@ impl Plugin for GamePlugin {
                 Startup,
                 (StartupSet::Assets, StartupSet::World, StartupSet::Actors).chain(),
             )
-            .add_systems(
-                Update,
-                (set_window_icon_once, player_movement, camera_follow).chain(),
-            );
+            .add_systems(Update, (player_movement, camera_follow).chain());
     }
 }
