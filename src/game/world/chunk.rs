@@ -1,4 +1,4 @@
-use crate::world::block::{BlockId, Layer};
+use crate::game::world::block::{BlockId, Layer};
 
 const CHUNK_SIZE: usize = 16;
 

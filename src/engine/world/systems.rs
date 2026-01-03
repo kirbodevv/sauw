@@ -5,11 +5,12 @@ use bevy::{
 
 use crate::{
     constants::TILE_SIZE,
-    game_registry::GameRegistry,
-    world::{
+    engine::{
+        resources::{BlockTextures, GameRegistry},
+        world::components::{BlockEntity, BlockPos},
+    },
+    game::world::{
         block::{BlockId, Layer},
-        components::{BlockEntity, BlockPos},
-        textures::BlockTextures,
         world::{ChunkPos, World},
     },
 };

@@ -1,3 +1,5 @@
+pub mod block_registry;
+
 use std::{collections::HashMap, hash::Hash};
 
 pub struct Registry<Id, Def> {

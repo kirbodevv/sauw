@@ -1,17 +1,10 @@
 use bevy::prelude::*;
 
+use crate::engine::plugins::{AppIconPlugin, GamePlugin};
+
 mod constants;
-mod core;
-mod game_registry;
-mod player;
-mod plugins;
-mod registry;
-mod startup;
-mod world;
-
-use plugins::game::GamePlugin;
-
-use crate::plugins::icon::AppIconPlugin;
+mod engine;
+mod game;
 
 fn main() {
     App::new()

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::ecs::resource::Resource;
 
-use crate::world::chunk::Chunk;
+use crate::game::world::chunk::Chunk;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ChunkPos {

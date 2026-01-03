@@ -1,4 +1,4 @@
-use crate::{core::registry::Registry, world::block::*};
+use crate::game::{registry::Registry, world::block::*};
 
 pub struct BlockDefinition {
     pub name: &'static str,

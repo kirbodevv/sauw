@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 
 use crate::{
-    game_registry::GameRegistry,
-    world::{
+    engine::{
+        resources::{BlockTextures, GameRegistry},
+        world::systems::spawn_chunk,
+    },
+    game::world::{
         block::{BlockId, Layer},
         chunk::Chunk,
-        systems::spawn_chunk,
-        textures::BlockTextures,
         world::{ChunkPos, World},
     },
 };

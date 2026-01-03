@@ -1,15 +1,14 @@
 use bevy::prelude::*;
 
 use crate::{
-    core::camera::{camera_follow, spawn_camera},
-    game_registry::GameRegistry,
-    player::systems::{player_movement, spawn_player},
-    startup::StartupSet,
-    world::{
-        textures::{BlockTextures, load_block_textures},
-        tiles::spawn_tiles,
-        world::World,
+    engine::{
+        player::systems::{player_movement, spawn_player},
+        plugins::startup::StartupSet,
+        rendering::{camera_follow, spawn_camera},
+        resources::{BlockTextures, GameRegistry, load_block_textures},
+        world::tiles::spawn_tiles,
     },
+    game::world::world::World,
 };
 
 pub struct GamePlugin;

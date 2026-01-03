@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::registry::block_registry::BlockRegistry;
+use crate::game::registry::block_registry::BlockRegistry;
 
 #[derive(Resource)]
 pub struct GameRegistry {
