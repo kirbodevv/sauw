@@ -1,8 +1,4 @@
-use std::collections::HashMap;
-
-use bevy::ecs::resource::Resource;
-
-use crate::world::block::*;
+use crate::{core::registry::Registry, world::block::*};
 
 pub struct BlockDefinition {
     pub name: &'static str,
@@ -11,16 +7,15 @@ pub struct BlockDefinition {
     pub texture: Option<&'static str>,
 }
 
-#[derive(Resource)]
 pub struct BlockRegistry {
-    blocks: HashMap<BlockId, BlockDefinition>,
+    inner: Registry<BlockId, BlockDefinition>,
 }
 
 impl BlockRegistry {
     pub fn new() -> Self {
-        let mut blocks = HashMap::new();
+        let mut inner = Registry::new();
 
-        blocks.insert(
+        inner.insert(
             BlockId(0),
             BlockDefinition {
                 name: "air",
@@ -30,7 +25,7 @@ impl BlockRegistry {
             },
         );
 
-        blocks.insert(
+        inner.insert(
             BlockId(1),
             BlockDefinition {
                 name: "grass",
@@ -40,7 +35,7 @@ impl BlockRegistry {
             },
         );
 
-        blocks.insert(
+        inner.insert(
             BlockId(2),
             BlockDefinition {
                 name: "tree",
@@ -50,10 +45,12 @@ impl BlockRegistry {
             },
         );
 
-        Self { blocks }
+        Self { inner }
     }
 
     pub fn get(&self, id: BlockId) -> &BlockDefinition {
-        &self.blocks[&id]
+        self.inner
+            .get(id)
+            .unwrap_or_else(|| panic!("Unknown BlockId {:?}", id))
     }
 }

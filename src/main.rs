@@ -2,8 +2,10 @@ use bevy::prelude::*;
 
 mod constants;
 mod core;
+mod game_registry;
 mod player;
 mod plugins;
+mod registry;
 mod startup;
 mod world;
 

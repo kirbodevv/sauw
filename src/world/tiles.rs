@@ -1,18 +1,20 @@
 use bevy::prelude::*;
 
-use crate::world::{
-    block::{BlockId, Layer},
-    block_registry::BlockRegistry,
-    chunk::Chunk,
-    systems::spawn_chunk,
-    textures::BlockTextures,
-    world::{ChunkPos, World},
+use crate::{
+    game_registry::GameRegistry,
+    world::{
+        block::{BlockId, Layer},
+        chunk::Chunk,
+        systems::spawn_chunk,
+        textures::BlockTextures,
+        world::{ChunkPos, World},
+    },
 };
 
 pub fn spawn_tiles(
     mut commands: Commands,
     mut game_world: ResMut<World>,
-    registry: Res<BlockRegistry>,
+    registry: Res<GameRegistry>,
     textures: Res<BlockTextures>,
 ) {
     for x in 0..5 {

@@ -5,9 +5,9 @@ use bevy::{
 
 use crate::{
     constants::TILE_SIZE,
+    game_registry::GameRegistry,
     world::{
         block::{BlockId, Layer},
-        block_registry::BlockRegistry,
         components::{BlockEntity, BlockPos},
         textures::BlockTextures,
         world::{ChunkPos, World},
@@ -17,7 +17,7 @@ use crate::{
 pub fn spawn_chunk(
     commands: &mut Commands,
     world: &World,
-    registry: &BlockRegistry,
+    registry: &GameRegistry,
     textures: &BlockTextures,
     chunk_pos: ChunkPos,
 ) {
@@ -40,7 +40,7 @@ pub fn spawn_chunk(
 
 pub fn spawn_block(
     commands: &mut Commands,
-    registry: &BlockRegistry,
+    registry: &GameRegistry,
     textures: &BlockTextures,
     block_id: BlockId,
     chunk_pos: ChunkPos,
@@ -48,7 +48,7 @@ pub fn spawn_block(
     y: usize,
     layer: u8,
 ) {
-    let block = registry.get(block_id);
+    let block = registry.blocks.get(block_id);
 
     if block.texture == None {
         return;

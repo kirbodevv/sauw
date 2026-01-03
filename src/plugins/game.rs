@@ -2,10 +2,10 @@ use bevy::prelude::*;
 
 use crate::{
     core::camera::{camera_follow, spawn_camera},
+    game_registry::GameRegistry,
     player::systems::{player_movement, spawn_player},
     startup::StartupSet,
     world::{
-        block_registry::BlockRegistry,
         textures::{BlockTextures, load_block_textures},
         tiles::spawn_tiles,
         world::World,
@@ -18,7 +18,7 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ClearColor(Color::BLACK))
             .insert_resource(World::new())
-            .insert_resource(BlockRegistry::new())
+            .insert_resource(GameRegistry::new())
             .insert_resource(BlockTextures::new())
             .add_systems(Startup, load_block_textures.in_set(StartupSet::Assets))
             .add_systems(Startup, spawn_tiles.in_set(StartupSet::World))
