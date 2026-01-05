@@ -1,4 +1,4 @@
-use crate::engine::world::components::ChunkCoord;
+use crate::game::world::components::ChunkCoord;
 use bevy::ecs::resource::Resource;
 
 #[derive(Resource)]

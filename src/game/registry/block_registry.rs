@@ -2,8 +2,6 @@ use crate::game::{registry::Registry, world::block::*};
 
 pub struct BlockDefinition {
     pub name: &'static str,
-    pub solid: bool,
-    pub behavior: BlockBehavior,
     pub texture: Option<&'static str>,
 }
 
@@ -19,8 +17,6 @@ impl BlockRegistry {
             BlockId(0),
             BlockDefinition {
                 name: "air",
-                solid: false,
-                behavior: BlockBehavior::None,
                 texture: None,
             },
         );
@@ -29,8 +25,6 @@ impl BlockRegistry {
             BlockId(1),
             BlockDefinition {
                 name: "grass",
-                solid: false,
-                behavior: BlockBehavior::None,
                 texture: Some("block/grass"),
             },
         );
@@ -39,8 +33,6 @@ impl BlockRegistry {
             BlockId(2),
             BlockDefinition {
                 name: "tree",
-                solid: true,
-                behavior: BlockBehavior::Solid,
                 texture: Some("block/tree"),
             },
         );

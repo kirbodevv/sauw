@@ -2,7 +2,7 @@ use bevy::camera::ScalingMode;
 use bevy::prelude::*;
 
 use crate::constants::VIEWPORT_WIDTH;
-use crate::engine::player::components::Player;
+use crate::game::player::components::Player;
 
 #[derive(Component)]
 pub struct MainCamera;

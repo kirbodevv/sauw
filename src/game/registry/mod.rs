@@ -24,6 +24,7 @@ where
         self.entries.get(&id)
     }
 
+    #[allow(dead_code)]
     pub fn contains(&self, id: Id) -> bool {
         self.entries.contains_key(&id)
     }

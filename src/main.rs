@@ -1,9 +1,8 @@
 use bevy::prelude::*;
 
-use crate::engine::plugins::{AppIconPlugin, GamePlugin};
+use crate::game::plugins::{AppIconPlugin, GamePlugin};
 
 mod constants;
-mod engine;
 mod game;
 
 fn main() {

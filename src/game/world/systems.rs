@@ -4,15 +4,15 @@ use bevy::prelude::*;
 
 use crate::{
     constants::{CHUNK_WORLD, LOAD_RADIUS, TILE_SIZE},
-    engine::{
+    game::{
         player::{components::Player, resources::CurrentPlayerChunk},
         resources::{BlockTextures, GameRegistry},
         world::{
+            block::BlockId,
             components::{BelongsToChunk, BlockEntity, BlockPos, ChunkCoord},
             resources::LoadedChunks,
         },
     },
-    game::world::block::BlockId,
 };
 
 pub fn manage_chunks(

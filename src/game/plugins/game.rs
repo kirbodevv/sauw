@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::engine::{
+use crate::game::{
     player::{
         resources::CurrentPlayerChunk,
         systems::{player_movement, spawn_player},

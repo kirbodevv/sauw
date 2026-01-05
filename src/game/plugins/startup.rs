@@ -4,6 +4,5 @@ use bevy::ecs::schedule::SystemSet;
 
 pub enum StartupSet {
     Assets,
-    World,
     Actors,
 }
