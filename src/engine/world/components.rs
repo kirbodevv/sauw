@@ -9,3 +9,12 @@ pub struct BlockPos {
     pub y: u8,
     pub layer: u8,
 }
+
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ChunkCoord {
+    pub x: i32,
+    pub y: i32,
+}
+
+#[derive(Component)]
+pub struct BelongsToChunk(pub ChunkCoord);
