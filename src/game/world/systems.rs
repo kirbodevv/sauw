@@ -6,7 +6,7 @@ use crate::{
     constants::{CHUNK_WORLD, LOAD_RADIUS, TILE_SIZE},
     game::{
         player::{components::Player, resources::CurrentPlayerChunk},
-        resources::{BlockTextures, GameRegistry},
+        resources::{GameRegistry, Textures},
         world::{
             block::BlockId,
             components::{BelongsToChunk, BlockEntity, BlockPos, ChunkCoord},
@@ -20,7 +20,7 @@ pub fn manage_chunks(
     mut loaded: ResMut<LoadedChunks>,
     mut last_player_chunk: ResMut<CurrentPlayerChunk>,
     registry: Res<GameRegistry>,
-    textures: Res<BlockTextures>,
+    textures: Res<Textures>,
     player: Single<&Transform, With<Player>>,
     tiles_q: Query<(Entity, &BelongsToChunk)>,
 ) {
@@ -72,7 +72,7 @@ pub fn manage_chunks(
 pub fn spawn_chunk(
     commands: &mut Commands,
     registry: &GameRegistry,
-    textures: &BlockTextures,
+    textures: &Textures,
     chunk_coord: ChunkCoord,
 ) {
     info!("Spawn chunk: ({}, {})", chunk_coord.x, chunk_coord.y);
@@ -96,7 +96,7 @@ pub fn spawn_chunk(
 pub fn spawn_block(
     commands: &mut Commands,
     registry: &GameRegistry,
-    textures: &BlockTextures,
+    textures: &Textures,
     block_id: BlockId,
     chunk_coord: ChunkCoord,
     pos: BlockPos,
@@ -108,6 +108,7 @@ pub fn spawn_block(
     }
 
     let texture_handle = textures
+        .blocks
         .get(block.texture.unwrap())
         .unwrap_or_else(|| panic!("Texture for block {} not found!", block.name));
 

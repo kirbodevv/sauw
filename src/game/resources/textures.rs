@@ -2,28 +2,27 @@ use bevy::prelude::*;
 use std::collections::HashMap;
 
 #[derive(Resource)]
-pub struct BlockTextures(HashMap<&'static str, Handle<Image>>);
+pub struct Textures {
+    pub blocks: HashMap<&'static str, Handle<Image>>,
+}
 
-impl BlockTextures {
+impl Textures {
     pub fn new() -> Self {
-        Self(HashMap::new())
-    }
-
-    pub fn add(&mut self, name: &'static str, asset_server: &Res<AssetServer>) {
-        self.0
-            .insert(name, asset_server.load(format!("{}.png", name)));
-        info!("Asset {} loaded", name);
-    }
-
-    pub fn get(&self, name: &str) -> Option<&Handle<Image>> {
-        self.0.get(name)
+        Self {
+            blocks: HashMap::new(),
+        }
     }
 }
 
-pub fn load_block_textures(
-    asset_server: Res<AssetServer>,
-    mut block_textures: ResMut<BlockTextures>,
-) {
-    block_textures.add("block/grass", &asset_server);
-    block_textures.add("block/tree", &asset_server);
+fn load_texture(asset_server: &AssetServer, texture: &'static str) -> Handle<Image> {
+    asset_server.load(format!("{}.png", texture))
+}
+
+pub fn load_block_textures(asset_server: Res<AssetServer>, mut textures: ResMut<Textures>) {
+    textures
+        .blocks
+        .insert("block/grass", load_texture(&asset_server, "block/grass"));
+    textures
+        .blocks
+        .insert("block/tree", load_texture(&asset_server, "block/tree"));
 }

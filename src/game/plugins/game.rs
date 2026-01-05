@@ -7,7 +7,7 @@ use crate::game::{
     },
     plugins::startup::StartupSet,
     rendering::{camera_follow, spawn_camera},
-    resources::{BlockTextures, GameRegistry, load_block_textures},
+    resources::{GameRegistry, Textures, load_block_textures},
     world::{resources::LoadedChunks, systems::manage_chunks},
 };
 
@@ -17,7 +17,7 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ClearColor(Color::BLACK))
             .insert_resource(GameRegistry::new())
-            .insert_resource(BlockTextures::new())
+            .insert_resource(Textures::new())
             .insert_resource(LoadedChunks::new())
             .insert_resource(CurrentPlayerChunk(None))
             .add_systems(Startup, load_block_textures.in_set(StartupSet::Assets))
