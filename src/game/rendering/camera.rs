@@ -22,10 +22,11 @@ pub fn spawn_camera(mut commands: Commands) {
 }
 
 pub fn camera_follow(
+    time: Res<Time>,
     mut camera: Single<&mut Transform, (With<MainCamera>, Without<Player>)>,
     player: Single<&Transform, With<Player>>,
 ) {
-    camera.translation.x = player.translation.x;
-    camera.translation.y = player.translation.y;
-    camera.translation.z = 100.0;
+    let target = Vec3::new(player.translation.x, player.translation.y, 100.0);
+    let speed = 5.0;
+    camera.translation = camera.translation.lerp(target, speed * time.delta_secs());
 }
