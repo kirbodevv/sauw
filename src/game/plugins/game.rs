@@ -1,4 +1,5 @@
-use bevy::prelude::*;
+#[cfg(not(rust_analyzer))]
+include!(concat!(env!("OUT_DIR"), "/load_textures.rs"));
 
 use crate::game::{
     player::{
@@ -7,9 +8,10 @@ use crate::game::{
     },
     plugins::startup::StartupSet,
     rendering::{camera_follow, spawn_camera},
-    resources::{GameRegistry, Textures, load_textures},
+    resources::{GameRegistry, Textures},
     world::{resources::LoadedChunks, systems::manage_chunks},
 };
+use bevy::prelude::*;
 
 pub struct GamePlugin;
 

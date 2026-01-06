@@ -16,19 +16,7 @@ impl Textures {
     }
 }
 
-fn load_texture(asset_server: &AssetServer, texture: &'static str) -> Handle<Image> {
+pub fn load_texture(asset_server: &AssetServer, texture: &'static str) -> Handle<Image> {
+    info!("Asset {} loaded", texture);
     asset_server.load(format!("{}.png", texture))
-}
-
-pub fn load_textures(asset_server: Res<AssetServer>, mut textures: ResMut<Textures>) {
-    textures
-        .blocks
-        .insert("block/grass", load_texture(&asset_server, "block/grass"));
-    textures
-        .blocks
-        .insert("block/tree", load_texture(&asset_server, "block/tree"));
-    textures.entities.insert(
-        "entity/player",
-        load_texture(&asset_server, "entity/player"),
-    );
 }
