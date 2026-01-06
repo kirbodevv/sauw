@@ -1,31 +1,28 @@
 pub mod block_registry;
 
-use std::{collections::HashMap, hash::Hash};
-
-pub struct Registry<Id, Def> {
-    entries: HashMap<Id, Def>,
+pub struct Registry<Def> {
+    entries: Vec<Def>,
 }
 
-impl<Id, Def> Registry<Id, Def>
-where
-    Id: Hash + Eq + Copy,
-{
+impl<Def> Registry<Def> {
     pub fn new() -> Self {
         Self {
-            entries: HashMap::new(),
+            entries: Vec::new(),
         }
     }
 
-    pub fn insert(&mut self, id: Id, def: Def) {
-        self.entries.insert(id, def);
+    pub fn insert(&mut self, def: Def) -> usize {
+        let id = self.entries.len();
+        self.entries.push(def);
+        id
     }
 
-    pub fn get(&self, id: Id) -> Option<&Def> {
-        self.entries.get(&id)
+    pub fn get(&self, id: usize) -> Option<&Def> {
+        self.entries.get(id)
     }
 
     #[allow(dead_code)]
-    pub fn contains(&self, id: Id) -> bool {
-        self.entries.contains_key(&id)
+    pub fn contains(&self, id: usize) -> bool {
+        self.entries.get(id).is_some()
     }
 }
