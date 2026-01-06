@@ -18,6 +18,7 @@ pub fn spawn_player(
     commands.spawn((
         Sprite {
             image: texture.clone(),
+            custom_size: Some(Vec2::new(32.0 * 10.0 / 26.0, 32.0)),
             texture_atlas: Some(TextureAtlas {
                 layout: texture_atlas_layout.clone(),
                 index: 0,
