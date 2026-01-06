@@ -5,7 +5,9 @@ edition = "2024"
 
 [dependencies]
 bevy = { version = "0.17.3" }
+bevy_console = "0.16.0"
 bevy_winit = "0.17.3"
+clap = "4.5.54"
 image = "0.25.9"
 winit = "0.30.12"
 

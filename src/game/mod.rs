@@ -1,3 +1,4 @@
+pub mod commands;
 pub mod player;
 pub mod plugins;
 pub mod registry;

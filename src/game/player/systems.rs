@@ -25,7 +25,7 @@ pub fn spawn_player(
             }),
             ..default()
         },
-        Transform::from_xyz(300.0, 20.0, 50.0),
+        Transform::from_xyz(0.0, 0.0, 50.0),
         Player,
         PlayerAnimation {
             state: PlayerState::IdleDown,
