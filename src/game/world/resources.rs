@@ -3,6 +3,9 @@ use bevy::ecs::resource::Resource;
 use std::collections::HashSet;
 
 #[derive(Resource)]
+pub struct WorldSeed(pub u32);
+
+#[derive(Resource)]
 pub struct LoadedChunks {
     pub set: HashSet<ChunkCoord>,
 }

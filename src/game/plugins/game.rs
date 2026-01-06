@@ -9,7 +9,10 @@ use crate::game::{
     plugins::startup::StartupSet,
     rendering::{camera_follow, spawn_camera},
     resources::{GameRegistry, Textures},
-    world::{resources::LoadedChunks, systems::manage_chunks},
+    world::{
+        resources::{LoadedChunks, WorldSeed},
+        systems::manage_chunks,
+    },
 };
 use bevy::prelude::*;
 
@@ -22,6 +25,7 @@ impl Plugin for GamePlugin {
             .insert_resource(Textures::new())
             .insert_resource(LoadedChunks::new())
             .insert_resource(CurrentPlayerChunk(None))
+            .insert_resource(WorldSeed(0))
             .add_systems(Startup, load_textures.in_set(StartupSet::Assets))
             .add_systems(
                 Startup,
