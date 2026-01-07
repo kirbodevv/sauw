@@ -1,4 +1,4 @@
-use bevy::math::Vec2;
+use bevy::{math::Vec2, utils::default};
 
 use crate::game::{registry::Registry, world::block::*};
 
@@ -7,6 +7,16 @@ pub struct BlockDefinition {
     pub name: &'static str,
     pub texture: Option<&'static str>,
     pub custom_size: Option<Vec2>,
+}
+
+impl Default for BlockDefinition {
+    fn default() -> Self {
+        Self {
+            name: "none",
+            texture: None,
+            custom_size: None,
+        }
+    }
 }
 
 pub struct BlockRegistry {
@@ -20,8 +30,7 @@ impl BlockRegistry {
         inner.insert(
             BlockDefinition {
                 name: "air",
-                texture: None,
-                custom_size: None,
+                ..default()
             },
             "air",
         );
@@ -30,7 +39,7 @@ impl BlockRegistry {
             BlockDefinition {
                 name: "grass",
                 texture: Some("block/grass"),
-                custom_size: None,
+                ..default()
             },
             "grass",
         );
@@ -48,7 +57,7 @@ impl BlockRegistry {
             BlockDefinition {
                 name: "dirt",
                 texture: Some("block/dirt"),
-                custom_size: None,
+                ..default()
             },
             "dirt",
         );
@@ -57,7 +66,7 @@ impl BlockRegistry {
             BlockDefinition {
                 name: "flowers",
                 texture: Some("block/flowers"),
-                custom_size: None,
+                ..default()
             },
             "flowers",
         );
@@ -66,7 +75,7 @@ impl BlockRegistry {
             BlockDefinition {
                 name: "sand",
                 texture: Some("block/sand"),
-                custom_size: None,
+                ..default()
             },
             "sand",
         );
@@ -75,7 +84,7 @@ impl BlockRegistry {
             BlockDefinition {
                 name: "stone",
                 texture: Some("block/stone"),
-                custom_size: None,
+                ..default()
             },
             "stone",
         );
@@ -84,7 +93,7 @@ impl BlockRegistry {
             BlockDefinition {
                 name: "water",
                 texture: Some("block/water"),
-                custom_size: None,
+                ..default()
             },
             "water",
         );
@@ -92,6 +101,7 @@ impl BlockRegistry {
         Self { inner }
     }
 
+    #[allow(dead_code)]
     pub fn get(&self, id: BlockId) -> &BlockDefinition {
         self.inner
             .get(id.0 as usize)
@@ -104,6 +114,7 @@ impl BlockRegistry {
             .unwrap_or_else(|| panic!("Unknown Block {:?}", name))
     }
 
+    #[allow(dead_code)]
     pub fn id_by_name(&self, name: &str) -> BlockId {
         BlockId(self.inner.id_by_name(name) as u16)
     }
