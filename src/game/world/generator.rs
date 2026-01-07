@@ -113,9 +113,9 @@ pub fn spawn_block(
     let world_y =
         (chunk_coord.y * 16) as f32 * TILE_SIZE + pos.y as f32 * TILE_SIZE + TILE_SIZE / 2.0;
 
-    let y_sort = YSort {
-        z: pos.layer as f32,
-    };
+    let y_sort = if pos.layer == 0 { 0.0 } else { block.y_sort };
+
+    let y_sort = YSort { z: y_sort };
     commands.spawn((
         Sprite {
             image: texture_handle.clone(),
