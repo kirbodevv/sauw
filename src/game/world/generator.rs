@@ -7,11 +7,7 @@ use crate::{
     game::{
         registry::block_registry::BlockDefinition,
         resources::{GameRegistry, Textures},
-        world::{
-            block::BlockId,
-            components::{BelongsToChunk, BlockEntity, BlockPos, ChunkCoord},
-            resources::WorldSeed,
-        },
+        world::components::{BelongsToChunk, BlockEntity, BlockPos, ChunkCoord},
     },
 };
 

@@ -3,13 +3,12 @@ use std::collections::HashSet;
 use bevy::prelude::*;
 
 use crate::{
-    constants::{CHUNK_WORLD, LOAD_RADIUS, TILE_SIZE},
+    constants::{CHUNK_WORLD, LOAD_RADIUS},
     game::{
         player::{components::Player, resources::CurrentPlayerChunk},
         resources::{GameRegistry, Textures},
         world::{
-            block::BlockId,
-            components::{BelongsToChunk, BlockEntity, BlockPos, ChunkCoord},
+            components::{BelongsToChunk, ChunkCoord},
             generator::spawn_chunk,
             resources::{LoadedChunks, WorldSeed},
         },
