@@ -1,9 +1,6 @@
+use crate::game::commands::*;
 use bevy::prelude::*;
 use bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin};
-
-use crate::game::commands::{
-    CamZoomCommand, LoadRadiusCommand, TpCommand, cam_zoom, load_radius, tp,
-};
 
 pub struct GameCommandsPlugin;
 
