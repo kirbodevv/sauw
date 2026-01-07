@@ -7,6 +7,9 @@ use crate::game::player::components::Player;
 #[derive(Component)]
 pub struct MainCamera;
 
+#[derive(Resource)]
+pub struct TargetCameraZoom(pub f32);
+
 pub fn spawn_camera(mut commands: Commands) {
     commands.spawn((
         Camera2d,
@@ -19,6 +22,23 @@ pub fn spawn_camera(mut commands: Commands) {
         }),
         MainCamera,
     ));
+}
+
+pub fn zoom_camera(
+    time: Res<Time>,
+    camera_query: Single<&mut Projection, With<MainCamera>>,
+    target_zoom: Res<TargetCameraZoom>,
+) {
+    let speed = 3.0;
+
+    match *camera_query.into_inner() {
+        Projection::Orthographic(ref mut orthographic) => {
+            orthographic.scale = orthographic
+                .scale
+                .lerp(target_zoom.0, speed * time.delta_secs());
+        }
+        _ => (),
+    }
 }
 
 pub fn camera_follow(
