@@ -12,7 +12,6 @@ fn main() {
 
     code.push_str(
         r#"
-        use bevy::prelude::*;
         use crate::game::resources::load_texture;
 
         pub fn load_textures(asset_server: Res<AssetServer>, mut textures: ResMut<Textures>) {"#,
