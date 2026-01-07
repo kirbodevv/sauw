@@ -10,7 +10,7 @@ pub struct CamZoomCommand {
     zoom: Option<f32>,
 }
 
-pub fn cam_zoom_command(
+pub fn cam_zoom(
     mut log: ConsoleCommand<CamZoomCommand>,
     mut target_camera_zoom: ResMut<TargetCameraZoom>,
 ) {

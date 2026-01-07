@@ -10,10 +10,7 @@ pub struct TpCommand {
     y: i32,
 }
 
-pub fn tp_command(
-    mut log: ConsoleCommand<TpCommand>,
-    mut query: Query<&mut Transform, With<Player>>,
-) {
+pub fn tp(mut log: ConsoleCommand<TpCommand>, mut query: Query<&mut Transform, With<Player>>) {
     if let Some(Ok(TpCommand { x, y })) = log.take() {
         for mut transform in &mut query {
             transform.translation = Vec3::new(x as f32, y as f32, 50.0);
