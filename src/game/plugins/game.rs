@@ -7,7 +7,7 @@ use crate::game::{
         systems::{player_animate, player_movement, spawn_player},
     },
     plugins::startup::StartupSet,
-    rendering::{TargetCameraZoom, camera_follow, spawn_camera, zoom_camera},
+    rendering::{TargetCameraZoom, camera_follow, spawn_camera, y_sort, zoom_camera},
     resources::{GameRegistry, Textures},
     world::{
         resources::{LoadedChunks, WorldSeed},
@@ -41,6 +41,7 @@ impl Plugin for GamePlugin {
                     camera_follow,
                     zoom_camera,
                     manage_chunks,
+                    y_sort,
                 )
                     .chain(),
             );

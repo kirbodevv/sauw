@@ -1,5 +1,6 @@
 use crate::game::{
     player::components::{PlayerAnimation, PlayerState},
+    rendering::YSort,
     resources::Textures,
 };
 
@@ -33,6 +34,7 @@ pub fn spawn_player(
             frame_index: 0,
             timer: Timer::from_seconds(0.2, TimerMode::Repeating),
         },
+        YSort { z: 1.0 },
     ));
 }
 

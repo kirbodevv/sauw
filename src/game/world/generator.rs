@@ -6,6 +6,7 @@ use crate::{
     constants::{CHUNK_SIZE, TILE_SIZE},
     game::{
         registry::block_registry::BlockDefinition,
+        rendering::YSort,
         resources::{GameRegistry, Textures},
         world::components::{BelongsToChunk, BlockEntity, BlockPos, ChunkCoord},
     },
@@ -112,6 +113,9 @@ pub fn spawn_block(
     let world_y =
         (chunk_coord.y * 16) as f32 * TILE_SIZE + pos.y as f32 * TILE_SIZE + TILE_SIZE / 2.0;
 
+    let y_sort = YSort {
+        z: pos.layer as f32,
+    };
     commands.spawn((
         Sprite {
             image: texture_handle.clone(),
@@ -122,5 +126,6 @@ pub fn spawn_block(
         BlockEntity,
         BelongsToChunk(chunk_coord),
         pos,
+        y_sort,
     ));
 }
