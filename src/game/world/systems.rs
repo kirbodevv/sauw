@@ -54,17 +54,10 @@ pub fn manage_chunks(
         }
     }
 
-    let mut unloaded = HashSet::new();
-
     for (entity, belongs) in &tiles_q {
         if !required.contains(&belongs.0) {
-            unloaded.insert(belongs.0);
             commands.entity(entity).despawn();
         }
-    }
-
-    for c in unloaded {
-        info!("Despawn chunk ({}, {})", c.x, c.y);
     }
 
     loaded.set = required;
