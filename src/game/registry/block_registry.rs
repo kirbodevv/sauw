@@ -77,6 +77,17 @@ impl BlockRegistry {
 
         inner.insert(
             BlockDefinition {
+                name: "lily",
+                texture: Some("block/lily"),
+                y_sort: 0.0,
+                custom_size: Some(Vec2::new(16., 16.)),
+                ..default()
+            },
+            "lily",
+        );
+
+        inner.insert(
+            BlockDefinition {
                 name: "sand",
                 texture: Some("block/sand"),
                 ..default()

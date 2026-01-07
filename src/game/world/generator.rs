@@ -28,7 +28,7 @@ pub fn spawn_chunk(
     let grass = registry.blocks.by_name("grass");
     let sand = registry.blocks.by_name("sand");
     let water = registry.blocks.by_name("water");
-    let flowers = registry.blocks.by_name("flowers");
+    let flowers = registry.blocks.by_name("lily");
     let tree = registry.blocks.by_name("tree");
 
     let freq = 0.1;

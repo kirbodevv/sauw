@@ -30,6 +30,7 @@ fn main() {
     fs::write(dest_path, code).unwrap();
 
     println!("cargo::rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=assets");
 }
 
 fn generate(entry: DirEntry, namespace: &str) -> String {
