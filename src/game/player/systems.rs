@@ -28,6 +28,7 @@ pub fn spawn_player(
         Transform::from_xyz(0.0, 0.0, 50.0),
         Player,
         PlayerAnimation {
+            previous_state: PlayerState::IdleDown,
             state: PlayerState::IdleDown,
             frame_index: 0,
             timer: Timer::from_seconds(0.2, TimerMode::Repeating),
@@ -91,9 +92,10 @@ pub fn player_animate(time: Res<Time>, mut query: Query<(&mut PlayerAnimation, &
     for (mut anim, mut sprite) in &mut query {
         anim.timer.tick(time.delta());
 
-        if anim.timer.just_finished()
+        if (anim.timer.just_finished() || anim.state != anim.previous_state)
             && let Some(atlas) = &mut sprite.texture_atlas
         {
+            anim.previous_state = anim.state;
             let frames = get_frames_for_state(&anim.state);
             anim.frame_index = (anim.frame_index + 1) % frames.len();
             atlas.index = frames[anim.frame_index];
