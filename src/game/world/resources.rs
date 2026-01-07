@@ -10,6 +10,11 @@ pub struct LoadedChunks {
     pub set: HashSet<ChunkCoord>,
 }
 
+#[derive(Resource)]
+pub struct Settings {
+    pub load_radius: i32,
+}
+
 impl LoadedChunks {
     pub fn new() -> Self {
         Self {

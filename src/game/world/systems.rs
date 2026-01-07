@@ -3,14 +3,14 @@ use std::collections::HashSet;
 use bevy::prelude::*;
 
 use crate::{
-    constants::{CHUNK_WORLD, LOAD_RADIUS},
+    constants::CHUNK_WORLD,
     game::{
         player::{components::Player, resources::CurrentPlayerChunk},
         resources::{GameRegistry, Textures},
         world::{
             components::{BelongsToChunk, ChunkCoord},
             generator::spawn_chunk,
-            resources::{LoadedChunks, WorldSeed},
+            resources::{LoadedChunks, Settings, WorldSeed},
         },
     },
 };
@@ -21,9 +21,10 @@ pub fn manage_chunks(
     mut last_player_chunk: ResMut<CurrentPlayerChunk>,
     registry: Res<GameRegistry>,
     textures: Res<Textures>,
+    seed: Res<WorldSeed>,
+    settings: Res<Settings>,
     player: Single<&Transform, With<Player>>,
     tiles_q: Query<(Entity, &BelongsToChunk)>,
-    seed: Res<WorldSeed>,
 ) {
     let player_pos = player.translation;
     let current_player_chunk = ChunkCoord {
@@ -41,8 +42,10 @@ pub fn manage_chunks(
 
     let mut required = HashSet::new();
 
-    for cx in (current_player_chunk.x - LOAD_RADIUS)..=(current_player_chunk.x + LOAD_RADIUS) {
-        for cy in (current_player_chunk.y - LOAD_RADIUS)..=(current_player_chunk.y + LOAD_RADIUS) {
+    let load_radius = settings.load_radius;
+
+    for cx in (current_player_chunk.x - load_radius)..=(current_player_chunk.x + load_radius) {
+        for cy in (current_player_chunk.y - load_radius)..=(current_player_chunk.y + load_radius) {
             required.insert(ChunkCoord { x: cx, y: cy });
         }
     }

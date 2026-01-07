@@ -10,7 +10,7 @@ use crate::game::{
     rendering::{TargetCameraZoom, camera_follow, spawn_camera, y_sort, zoom_camera},
     resources::{GameRegistry, Textures},
     world::{
-        resources::{LoadedChunks, WorldSeed},
+        resources::{LoadedChunks, Settings, WorldSeed},
         systems::manage_chunks,
     },
 };
@@ -27,6 +27,7 @@ impl Plugin for GamePlugin {
             .insert_resource(CurrentPlayerChunk(None))
             .insert_resource(WorldSeed(0))
             .insert_resource(TargetCameraZoom(1.0))
+            .insert_resource(Settings { load_radius: 2 })
             .add_systems(Startup, load_textures.in_set(StartupSet::Assets))
             .add_systems(
                 Startup,
