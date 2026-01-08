@@ -3,7 +3,7 @@ use bevy::ecs::component::Component;
 #[derive(Component)]
 pub struct BlockEntity;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct BlockPos {
     pub x: u8,
     pub y: u8,

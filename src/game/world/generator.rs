@@ -1,3 +1,4 @@
+use avian2d::prelude::{Collider, RigidBody};
 use bevy::prelude::*;
 use noise::{NoiseFn, Perlin};
 use rand::Rng;
@@ -114,9 +115,11 @@ pub fn spawn_block(
         (chunk_coord.y * 16) as f32 * TILE_SIZE + pos.y as f32 * TILE_SIZE + TILE_SIZE / 2.0;
 
     let y_sort = if pos.layer == 0 { 0.0 } else { block.y_sort };
-
     let y_sort = YSort { z: y_sort };
-    commands.spawn((
+
+    let is_object = pos.layer == 1;
+
+    let mut entity = commands.spawn((
         Sprite {
             image: texture_handle.clone(),
             custom_size: Some(size),
@@ -128,4 +131,8 @@ pub fn spawn_block(
         pos,
         y_sort,
     ));
+
+    if is_object {
+        entity.insert((RigidBody::Static, Collider::rectangle(size.x, size.y)));
+    }
 }

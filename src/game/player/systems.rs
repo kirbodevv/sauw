@@ -1,10 +1,10 @@
+use super::components::Player;
 use crate::game::{
     player::components::{PlayerAnimation, PlayerState},
     rendering::YSort,
     resources::Textures,
 };
-
-use super::components::Player;
+use avian2d::prelude::*;
 use bevy::prelude::*;
 
 pub fn spawn_player(
@@ -16,10 +16,12 @@ pub fn spawn_player(
     let layout = TextureAtlasLayout::from_grid(UVec2 { x: 10, y: 26 }, 4, 3, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
+    let size = Vec2::new(32.0 * 10.0 / 26.0, 32.0);
+
     commands.spawn((
         Sprite {
             image: texture.clone(),
-            custom_size: Some(Vec2::new(32.0 * 10.0 / 26.0, 32.0)),
+            custom_size: Some(size.clone()),
             texture_atlas: Some(TextureAtlas {
                 layout: texture_atlas_layout.clone(),
                 index: 0,
@@ -35,13 +37,16 @@ pub fn spawn_player(
             timer: Timer::from_seconds(0.2, TimerMode::Repeating),
         },
         YSort { z: 1.0 },
+        RigidBody::Dynamic,
+        Collider::rectangle(size.x, size.y),
+        LockedAxes::ROTATION_LOCKED,
     ));
 }
 
 pub fn player_movement(
     keyboard: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
-    mut query: Query<(&mut Transform, &mut PlayerAnimation), With<Player>>,
+    mut query: Query<(&mut LinearVelocity, &mut PlayerAnimation), With<Player>>,
 ) {
     let mut dir = Vec2::ZERO;
 
@@ -58,10 +63,12 @@ pub fn player_movement(
         dir.x += 1.0;
     }
 
-    for (mut transform, mut anim) in &mut query {
+    for (mut linear_velocity, mut anim) in &mut query {
         if dir != Vec2::ZERO {
             let v = dir.normalize() * 200.0 * time.delta_secs();
-            transform.translation += v.extend(0.0);
+            linear_velocity.0 = v * 32.0;
+        } else {
+            linear_velocity.0 = Vec2::ZERO;
         }
 
         anim.state = if dir == Vec2::ZERO {
