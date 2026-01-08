@@ -69,7 +69,7 @@ impl BlockRegistry {
             BlockDefinition {
                 name: "flowers",
                 texture: Some("block/flowers"),
-                y_sort: 0.0,
+                y_sort: 0.1,
                 ..default()
             },
             "flowers",
@@ -79,7 +79,7 @@ impl BlockRegistry {
             BlockDefinition {
                 name: "lily",
                 texture: Some("block/lily"),
-                y_sort: 0.0,
+                y_sort: 0.1,
                 custom_size: Some(Vec2::new(16., 16.)),
                 ..default()
             },
