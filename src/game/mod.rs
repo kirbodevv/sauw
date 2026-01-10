@@ -12,10 +12,7 @@ use crate::{
     constants::TILE_SIZE,
     game::{
         commands::CommandsPlugin,
-        player::{
-            resources::CurrentPlayerChunk,
-            systems::{player_animate, player_movement, spawn_player},
-        },
+        player::PlayerPlugin,
         rendering::{TargetCameraZoom, camera_follow, spawn_camera, y_sort, zoom_camera},
         resources::{GameRegistry, Textures},
         world::{
@@ -41,44 +38,35 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
-            .add_plugins(AppIconPlugin::new("assets/icon/icon_128.png"))
-            .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(
-                TILE_SIZE,
-            ))
-            .add_plugins(RapierDebugRenderPlugin {
+        app.add_plugins((
+            DefaultPlugins.set(ImagePlugin::default_nearest()),
+            AppIconPlugin::new("assets/icon/icon_128.png"),
+            RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(TILE_SIZE),
+            RapierDebugRenderPlugin {
                 enabled: false,
                 ..default()
-            })
-            .add_plugins(CommandsPlugin)
-            .insert_resource(ClearColor(Color::BLACK))
-            .insert_resource(GameRegistry::new())
-            .insert_resource(Textures::new())
-            .insert_resource(LoadedChunks::new())
-            .insert_resource(CurrentPlayerChunk(None))
-            .insert_resource(WorldSeed(0))
-            .insert_resource(TargetCameraZoom(1.0))
-            .insert_resource(Settings { load_radius: 2 })
-            .add_systems(Startup, load_textures.in_set(StartupSet::Assets))
-            .add_systems(
-                Startup,
-                (configure_physics, spawn_camera, spawn_player)
-                    .chain()
-                    .in_set(StartupSet::Actors),
-            )
-            .configure_sets(Startup, (StartupSet::Assets, StartupSet::Actors).chain())
-            .add_systems(
-                Update,
-                (
-                    player_movement,
-                    player_animate,
-                    camera_follow,
-                    zoom_camera,
-                    manage_chunks,
-                    y_sort,
-                )
-                    .chain(),
-            );
+            },
+        ))
+        .add_systems(Startup, load_textures.in_set(StartupSet::Assets))
+        .add_plugins((CommandsPlugin, PlayerPlugin))
+        .insert_resource(GameRegistry::new())
+        .insert_resource(Textures::new())
+        .insert_resource(LoadedChunks::new())
+        .insert_resource(WorldSeed(0))
+        .insert_resource(TargetCameraZoom(1.0))
+        .insert_resource(Settings { load_radius: 2 })
+        .add_systems(
+            Startup,
+            (configure_physics, spawn_camera)
+                .chain()
+                .in_set(StartupSet::Actors),
+        )
+        .configure_sets(Startup, (StartupSet::Assets, StartupSet::Actors).chain())
+        .add_systems(
+            Update,
+            (camera_follow, zoom_camera, manage_chunks, y_sort).chain(),
+        )
+        .insert_resource(ClearColor(Color::BLACK));
     }
 }
 

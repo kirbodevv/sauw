@@ -1,9 +1,6 @@
 use bevy::prelude::*;
 
 #[derive(Component)]
-pub struct Player;
-
-#[derive(Component)]
 pub struct PlayerAnimation {
     pub previous_state: PlayerState,
     pub state: PlayerState,

@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use crate::{
     constants::CHUNK_WORLD,
     game::{
-        player::{components::Player, resources::CurrentPlayerChunk},
+        player::{CurrentPlayerChunk, Player},
         resources::{GameRegistry, Textures},
         world::{
             components::{BelongsToChunk, ChunkCoord},

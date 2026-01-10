@@ -1,7 +1,8 @@
-use crate::game::player::components::Player;
 use bevy::prelude::*;
 use bevy_console::ConsoleCommand;
 use clap::Parser;
+
+use crate::game::player::Player;
 
 #[derive(Parser, ConsoleCommand)]
 #[command(name = "tp")]
