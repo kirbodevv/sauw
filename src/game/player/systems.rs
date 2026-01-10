@@ -1,11 +1,14 @@
 use super::components::Player;
-use crate::game::{
-    player::components::{PlayerAnimation, PlayerState},
-    rendering::YSort,
-    resources::Textures,
+use crate::{
+    constants::TILE_SIZE,
+    game::{
+        player::components::{PlayerAnimation, PlayerState},
+        rendering::YSort,
+        resources::Textures,
+    },
 };
-use avian2d::prelude::*;
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -38,15 +41,15 @@ pub fn spawn_player(
         },
         YSort { z: 1.0 },
         RigidBody::Dynamic,
-        Collider::rectangle(size.x, size.y),
+        Collider::cuboid(size.x / 2.0, size.y / 2.0),
         LockedAxes::ROTATION_LOCKED,
+        Velocity::zero(),
     ));
 }
 
 pub fn player_movement(
     keyboard: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-    mut query: Query<(&mut LinearVelocity, &mut PlayerAnimation), With<Player>>,
+    mut query: Query<(&mut Velocity, &mut PlayerAnimation), With<Player>>,
 ) {
     let mut dir = Vec2::ZERO;
 
@@ -63,12 +66,12 @@ pub fn player_movement(
         dir.x += 1.0;
     }
 
-    for (mut linear_velocity, mut anim) in &mut query {
+    for (mut velocity, mut anim) in &mut query {
         if dir != Vec2::ZERO {
-            let v = dir.normalize() * 200.0 * time.delta_secs();
-            linear_velocity.0 = v * 32.0;
+            let v = dir.normalize();
+            velocity.linvel = v * TILE_SIZE * 4.0;
         } else {
-            linear_velocity.0 = Vec2::ZERO;
+            velocity.linvel = Vec2::ZERO;
         }
 
         anim.state = if dir == Vec2::ZERO {

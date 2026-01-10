@@ -1,5 +1,5 @@
-use avian2d::prelude::{Collider, RigidBody};
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 use noise::{NoiseFn, Perlin};
 use rand::Rng;
 
@@ -133,6 +133,9 @@ pub fn spawn_block(
     ));
 
     if is_object {
-        entity.insert((RigidBody::Static, Collider::rectangle(size.x, size.y)));
+        entity.insert((
+            RigidBody::Fixed,
+            Collider::cuboid(size.x / 2.0, size.y / 2.0),
+        ));
     }
 }
