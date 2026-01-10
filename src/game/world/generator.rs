@@ -125,7 +125,11 @@ pub fn spawn_block(
             custom_size: Some(size),
             ..default()
         },
-        Transform::from_xyz(world_x, world_y, pos.layer as f32),
+        Transform::from_xyz(
+            world_x + block.offset.x,
+            world_y + block.offset.y,
+            pos.layer as f32,
+        ),
         BlockEntity,
         BelongsToChunk(chunk_coord),
         pos,

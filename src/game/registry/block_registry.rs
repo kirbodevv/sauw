@@ -7,6 +7,7 @@ pub struct BlockDefinition {
     pub name: &'static str,
     pub texture: Option<&'static str>,
     pub custom_size: Option<Vec2>,
+    pub offset: Vec2,
     pub y_sort: f32,
 }
 
@@ -16,6 +17,7 @@ impl Default for BlockDefinition {
             name: "none",
             texture: None,
             custom_size: None,
+            offset: Vec2::ZERO,
             y_sort: 1.0,
         }
     }
@@ -51,6 +53,7 @@ impl BlockRegistry {
                 name: "tree",
                 texture: Some("block/tree"),
                 custom_size: Some(Vec2::new(32., 64.)),
+                offset: Vec2::new(0., 16.),
                 ..default()
             },
             "tree",
