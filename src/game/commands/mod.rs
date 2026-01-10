@@ -1,7 +1,22 @@
-pub mod camzoom;
-pub mod load_radius;
-pub mod tp;
+use bevy::prelude::*;
+use bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin};
 
-pub use camzoom::*;
-pub use load_radius::*;
-pub use tp::*;
+mod camzoom;
+mod load_radius;
+mod tp;
+
+use camzoom::*;
+use load_radius::*;
+use tp::*;
+
+pub struct CommandsPlugin;
+
+impl Plugin for CommandsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins(ConsolePlugin)
+            .insert_resource(ConsoleConfiguration { ..default() })
+            .add_console_command::<TpCommand, _>(tp)
+            .add_console_command::<CamZoomCommand, _>(cam_zoom)
+            .add_console_command::<LoadRadiusCommand, _>(load_radius);
+    }
+}
