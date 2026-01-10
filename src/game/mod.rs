@@ -46,7 +46,10 @@ impl Plugin for GamePlugin {
             .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(
                 TILE_SIZE,
             ))
-            .add_plugins(RapierDebugRenderPlugin::default())
+            .add_plugins(RapierDebugRenderPlugin {
+                enabled: false,
+                ..default()
+            })
             .add_plugins(CommandsPlugin)
             .insert_resource(ClearColor(Color::BLACK))
             .insert_resource(GameRegistry::new())
