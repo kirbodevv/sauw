@@ -1,14 +1,22 @@
 use bevy::{math::Vec2, utils::default};
+use bevy_rapier2d::prelude::Collider;
 
-use crate::game::{registry::Registry, world::block::*};
+use crate::{
+    constants::TILE_SIZE,
+    game::{registry::Registry, world::block::*},
+};
 
-#[derive(PartialEq)]
 pub struct BlockDefinition {
     pub name: &'static str,
     pub texture: Option<&'static str>,
-    pub custom_size: Option<Vec2>,
-    pub offset: Vec2,
+    pub sprite_size: Vec2,
+    pub sprite_offset: Vec2,
+    pub collider: Collider,
     pub y_sort: f32,
+}
+
+fn collider_with_offset(collider: Collider, collider_offset: Vec2) -> Collider {
+    Collider::compound(vec![(collider_offset, 0.0, collider)])
 }
 
 impl Default for BlockDefinition {
@@ -16,8 +24,9 @@ impl Default for BlockDefinition {
         Self {
             name: "none",
             texture: None,
-            custom_size: None,
-            offset: Vec2::ZERO,
+            sprite_size: Vec2::splat(TILE_SIZE),
+            sprite_offset: Vec2::ZERO,
+            collider: Collider::cuboid(TILE_SIZE / 2.0, TILE_SIZE / 2.0),
             y_sort: 1.0,
         }
     }
@@ -52,8 +61,9 @@ impl BlockRegistry {
             BlockDefinition {
                 name: "tree",
                 texture: Some("block/tree"),
-                custom_size: Some(Vec2::new(32., 64.)),
-                offset: Vec2::new(0., 16.),
+                sprite_size: Vec2::new(32., 64.),
+                sprite_offset: Vec2::new(0., 16.),
+                collider: collider_with_offset(Collider::cuboid(5.0, 2.5), Vec2::new(0.0, -12.0)),
                 ..default()
             },
             "tree",
@@ -83,7 +93,8 @@ impl BlockRegistry {
                 name: "lily",
                 texture: Some("block/lily"),
                 y_sort: 0.1,
-                custom_size: Some(Vec2::new(16., 16.)),
+                sprite_size: Vec2::new(16., 16.),
+                collider: Collider::cuboid(6.0, 6.0),
                 ..default()
             },
             "lily",

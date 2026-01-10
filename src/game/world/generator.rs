@@ -65,7 +65,7 @@ pub fn spawn_chunk(
 
             let mut top = air;
 
-            if surface == grass {
+            if surface.name == grass.name {
                 let mut rng = rand::rng();
                 let r: f64 = rng.random();
 
@@ -107,8 +107,6 @@ pub fn spawn_block(
         .get(block.texture.unwrap())
         .unwrap_or_else(|| panic!("Texture for block {} not found!", block.name));
 
-    let size = block.custom_size.unwrap_or(Vec2::splat(TILE_SIZE));
-
     let world_x =
         (chunk_coord.x * 16) as f32 * TILE_SIZE + pos.x as f32 * TILE_SIZE + TILE_SIZE / 2.0;
     let world_y =
@@ -119,27 +117,32 @@ pub fn spawn_block(
 
     let is_object = pos.layer == 1;
 
+    let size = block.sprite_size;
     let mut entity = commands.spawn((
-        Sprite {
-            image: texture_handle.clone(),
-            custom_size: Some(size),
-            ..default()
-        },
-        Transform::from_xyz(
-            world_x + block.offset.x,
-            world_y + block.offset.y,
-            pos.layer as f32,
-        ),
+        Visibility::default(),
+        Transform::from_xyz(world_x, world_y, pos.layer as f32),
         BlockEntity,
         BelongsToChunk(chunk_coord),
-        pos,
+        pos.clone(),
         y_sort,
     ));
 
-    if is_object {
-        entity.insert((
-            RigidBody::Fixed,
-            Collider::cuboid(size.x / 2.0, size.y / 2.0),
+    entity.with_children(|parent| {
+        parent.spawn((
+            Sprite {
+                image: texture_handle.clone(),
+                custom_size: Some(size),
+                ..default()
+            },
+            Transform::from_xyz(
+                block.sprite_offset.x,
+                block.sprite_offset.y,
+                pos.layer as f32 * TILE_SIZE,
+            ),
         ));
+    });
+
+    if is_object {
+        entity.insert((RigidBody::Fixed, block.collider.clone()));
     }
 }
