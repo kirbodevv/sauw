@@ -5,8 +5,8 @@ use crate::{
     constants::TILE_SIZE,
     game::player::{
         Player,
-        components::{PlayerAnimation, PlayerState},
         input::PlayerInput,
+        sprite::{PlayerAnimation, PlayerState},
     },
 };
 

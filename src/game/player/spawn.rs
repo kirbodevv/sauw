@@ -5,7 +5,7 @@ use crate::game::{
     StartupSet,
     player::{
         Player,
-        components::{PlayerAnimation, PlayerState},
+        sprite::{PlayerAnimation, PlayerState},
     },
     rendering::YSort,
     resources::Textures,

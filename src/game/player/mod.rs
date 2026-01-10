@@ -8,7 +8,6 @@ use crate::game::{
     world::components::ChunkCoord,
 };
 
-pub mod components;
 pub mod input;
 pub mod movement;
 pub mod spawn;
