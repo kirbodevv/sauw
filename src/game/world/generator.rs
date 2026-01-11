@@ -6,9 +6,9 @@ use rand::Rng;
 use crate::{
     constants::{CHUNK_SIZE, TILE_SIZE},
     game::{
-        registry::block_registry::BlockDefinition,
+        registry::{GameRegistry, block_registry::BlockDefinition},
         rendering::YSort,
-        resources::{GameRegistry, Textures},
+        resources::Textures,
         world::components::{BelongsToChunk, BlockEntity, BlockPos, ChunkCoord},
     },
 };

@@ -1,4 +1,7 @@
+use bevy::prelude::*;
 use std::collections::HashMap;
+
+use crate::game::registry::block_registry::BlockRegistry;
 
 pub mod block_registry;
 
@@ -40,5 +43,26 @@ impl<Def> Registry<Def> {
     #[allow(dead_code)]
     pub fn contains(&self, id: usize) -> bool {
         self.entries.get(id).is_some()
+    }
+}
+
+#[derive(Resource)]
+pub struct GameRegistry {
+    pub blocks: BlockRegistry,
+}
+
+impl GameRegistry {
+    pub fn new() -> Self {
+        Self {
+            blocks: BlockRegistry::new(),
+        }
+    }
+}
+
+pub struct RegistryPlugin;
+
+impl Plugin for RegistryPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(GameRegistry::new());
     }
 }

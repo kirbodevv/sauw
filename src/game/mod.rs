@@ -13,8 +13,9 @@ use crate::{
     game::{
         commands::CommandsPlugin,
         player::PlayerPlugin,
+        registry::RegistryPlugin,
         rendering::{TargetCameraZoom, camera_follow, spawn_camera, y_sort, zoom_camera},
-        resources::{GameRegistry, Textures},
+        resources::Textures,
         world::{
             resources::{LoadedChunks, Settings, WorldSeed},
             systems::manage_chunks,
@@ -48,8 +49,7 @@ impl Plugin for GamePlugin {
             },
         ))
         .add_systems(Startup, load_textures.in_set(StartupSet::Assets))
-        .add_plugins((CommandsPlugin, PlayerPlugin))
-        .insert_resource(GameRegistry::new())
+        .add_plugins((RegistryPlugin, CommandsPlugin, PlayerPlugin))
         .insert_resource(Textures::new())
         .insert_resource(LoadedChunks::new())
         .insert_resource(WorldSeed(0))

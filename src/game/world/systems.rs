@@ -6,7 +6,8 @@ use crate::{
     constants::CHUNK_WORLD,
     game::{
         player::{CurrentPlayerChunk, Player},
-        resources::{GameRegistry, Textures},
+        registry::GameRegistry,
+        resources::Textures,
         world::{
             components::{BelongsToChunk, ChunkCoord},
             generator::spawn_chunk,
