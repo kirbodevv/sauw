@@ -8,8 +8,10 @@ use crate::{
     game::{
         GameState,
         player::{CurrentPlayerChunk, Player},
-        registry::GameRegistry,
-        world::{camera::CameraPlugin, generator::spawn_chunk},
+        world::{
+            camera::CameraPlugin,
+            generator::{ChunkGenerateRequest, GeneratorPlugin},
+        },
     },
 };
 
@@ -24,6 +26,12 @@ pub struct BlockPos {
     pub x: u8,
     pub y: u8,
     pub layer: u8,
+}
+
+impl BlockPos {
+    pub fn new(x: u8, y: u8, layer: u8) -> Self {
+        Self { x, y, layer }
+    }
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -65,10 +73,9 @@ fn configure_physics(mut rapier_config: Query<&mut RapierConfiguration>) {
 
 fn manage_chunks(
     mut commands: Commands,
+    mut writer: MessageWriter<ChunkGenerateRequest>,
     mut loaded: ResMut<LoadedChunks>,
     mut last_player_chunk: ResMut<CurrentPlayerChunk>,
-    registry: Res<GameRegistry>,
-    seed: Res<WorldSeed>,
     settings: Res<Settings>,
     player: Single<&Transform, With<Player>>,
     tiles_q: Query<(Entity, &BelongsToChunk)>,
@@ -99,7 +106,7 @@ fn manage_chunks(
 
     for coord in required.iter() {
         if !loaded.set.contains(coord) {
-            spawn_chunk(&mut commands, &registry, *coord, seed.0);
+            writer.write(ChunkGenerateRequest(*coord));
             loaded.set.insert(*coord);
         }
     }
@@ -121,12 +128,7 @@ impl Plugin for WorldPlugin {
             .insert_resource(WorldSeed(0))
             .insert_resource(Settings { load_radius: 2 })
             .add_systems(Startup, configure_physics)
-            .add_systems(
-                Update,
-                manage_chunks
-                    .run_if(in_state(GameState::Gaming))
-                    .run_if(resource_exists::<GameRegistry>),
-            )
-            .add_plugins(CameraPlugin);
+            .add_systems(Update, manage_chunks.run_if(in_state(GameState::Gaming)))
+            .add_plugins((CameraPlugin, GeneratorPlugin));
     }
 }

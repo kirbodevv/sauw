@@ -10,6 +10,7 @@ use crate::{
 pub struct BlockId(pub u16);
 
 pub struct BlockDefinition {
+    #[allow(dead_code)]
     pub name: &'static str,
     pub texture: Option<Handle<Image>>,
     pub sprite_size: Vec2,
@@ -140,6 +141,7 @@ impl BlockRegistry {
             .unwrap_or_else(|| panic!("Unknown BlockId {:?}", id))
     }
 
+    #[allow(dead_code)]
     pub fn by_name(&self, name: &str) -> &BlockDefinition {
         self.inner
             .by_name(name)
