@@ -7,14 +7,13 @@ use crate::game::{
         Player,
         sprite::{PlayerAnimation, PlayerState},
     },
-    rendering::YSort,
+    world::camera::YSort,
 };
 
 fn spawn_player(
     mut commands: Commands,
     assets: Res<ImageAssets>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-    mut state: ResMut<NextState<GameState>>,
 ) {
     let texture = assets.entity_player.clone();
     let layout = TextureAtlasLayout::from_grid(UVec2 { x: 10, y: 26 }, 4, 3, None, None);
@@ -46,13 +45,12 @@ fn spawn_player(
         LockedAxes::ROTATION_LOCKED,
         Velocity::zero(),
     ));
-    state.set(GameState::Gaming);
 }
 
 pub struct PlayerSpawnPlugin;
 
 impl Plugin for PlayerSpawnPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::SpawnPlayer), spawn_player);
+        app.add_systems(OnEnter(GameState::Gaming), spawn_player);
     }
 }

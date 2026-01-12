@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_console::ConsoleCommand;
 use clap::Parser;
 
-use crate::game::rendering::TargetCameraZoom;
+use crate::game::world::camera::TargetCameraZoom;
 
 #[derive(Parser, ConsoleCommand)]
 #[command(name = "camzoom")]

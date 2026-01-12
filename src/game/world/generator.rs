@@ -7,8 +7,10 @@ use crate::{
     constants::{CHUNK_SIZE, TILE_SIZE},
     game::{
         registry::{GameRegistry, block_registry::BlockDefinition},
-        rendering::YSort,
-        world::components::{BelongsToChunk, BlockEntity, BlockPos, ChunkCoord},
+        world::{
+            camera::YSort,
+            components::{BelongsToChunk, BlockEntity, BlockPos, ChunkCoord},
+        },
     },
 };
 

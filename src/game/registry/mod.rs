@@ -62,16 +62,16 @@ pub struct RegistryPlugin;
 
 impl Plugin for RegistryPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::RegistryInit), init_registry);
+        app.add_systems(OnEnter(GameState::InitRegistry), init_registry);
     }
 }
 
-fn init_registry(
+pub fn init_registry(
     mut commands: Commands,
     assets: Res<ImageAssets>,
     mut state: ResMut<NextState<GameState>>,
 ) {
     let registry = GameRegistry::new(&assets);
     commands.insert_resource(registry);
-    state.set(GameState::InitWorld);
+    state.set(GameState::Gaming);
 }
