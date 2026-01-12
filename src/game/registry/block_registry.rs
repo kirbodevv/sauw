@@ -3,8 +3,11 @@ use bevy_rapier2d::prelude::Collider;
 
 use crate::{
     constants::TILE_SIZE,
-    game::{ImageAssets, registry::Registry, world::block::*},
+    game::{ImageAssets, registry::Registry},
 };
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct BlockId(pub u16);
 
 pub struct BlockDefinition {
     pub name: &'static str,

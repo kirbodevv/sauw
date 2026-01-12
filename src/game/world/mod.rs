@@ -13,7 +13,6 @@ use crate::{
     },
 };
 
-pub mod block;
 pub mod camera;
 pub mod generator;
 
