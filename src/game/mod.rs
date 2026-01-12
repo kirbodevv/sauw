@@ -29,7 +29,7 @@ use bevy_rapier2d::{
 pub enum GameState {
     #[default]
     AssetsLoading,
-    InitRegistry,
+    Bootstrap,
     Gaming,
 }
 
@@ -49,7 +49,7 @@ impl Plugin for GamePlugin {
         .init_state::<GameState>()
         .add_loading_state(
             LoadingState::new(GameState::AssetsLoading)
-                .continue_to_state(GameState::InitRegistry)
+                .continue_to_state(GameState::Bootstrap)
                 .load_collection::<ImageAssets>(),
         )
         .add_plugins((RegistryPlugin, WorldPlugin, PlayerPlugin, CommandsPlugin))

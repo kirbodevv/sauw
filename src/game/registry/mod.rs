@@ -62,7 +62,7 @@ pub struct RegistryPlugin;
 
 impl Plugin for RegistryPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::InitRegistry), init_registry);
+        app.add_systems(OnEnter(GameState::Bootstrap), init_registry);
     }
 }
 
