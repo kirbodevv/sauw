@@ -6,34 +6,35 @@ use std::path::Path;
 fn main() {
     println!("cargo::rustc-check-cfg=cfg(rust_analyzer)");
     let out_dir = env::var_os("OUT_DIR").unwrap();
-    let dest_path = Path::new(&out_dir).join("load_textures.rs");
+    let dest_path = Path::new(&out_dir).join("assets.rs");
 
     let mut code = String::new();
 
     code.push_str(
         r#"
-        use crate::game::resources::load_texture;
+        use bevy_asset_loader::asset_collection::AssetCollection;
 
-        pub fn load_textures(asset_server: Res<AssetServer>, mut textures: ResMut<Textures>) {"#,
+        #[derive(AssetCollection, Resource)]
+        pub struct ImageAssets {"#,
     );
 
     for entry in fs::read_dir("assets/block").unwrap() {
-        code.push_str(&generate(entry.unwrap(), "blocks"));
+        code.push_str(&generate(entry.unwrap()));
     }
 
     for entry in fs::read_dir("assets/entity").unwrap() {
-        code.push_str(&generate(entry.unwrap(), "entities"));
+        code.push_str(&generate(entry.unwrap()));
     }
 
-    code.push_str("}\n");
+    code.push_str("\n}\n");
 
-    fs::write(dest_path, code).unwrap();
+    fs::write(&dest_path, code).unwrap();
 
     println!("cargo::rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=assets");
 }
 
-fn generate(entry: DirEntry, namespace: &str) -> String {
+fn generate(entry: DirEntry) -> String {
     let path = entry.path();
 
     if path.is_dir() {
@@ -51,15 +52,14 @@ fn generate(entry: DirEntry, namespace: &str) -> String {
     let key = path
         .strip_prefix("assets")
         .unwrap()
-        .with_extension("")
         .to_string_lossy()
         .replace("\\", "/");
 
     return format!(
-        r#"textures
-                .{}
-                .insert("{}", load_texture(&asset_server, "{}"));
-                "#,
-        namespace, key, key
+        r#"
+        #[asset(path = "{0}")]
+        {1}: Handle<Image>,"#,
+        key,
+        key.replace("/", "_").replace(".png", "")
     );
 }

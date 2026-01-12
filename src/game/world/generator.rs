@@ -8,7 +8,6 @@ use crate::{
     game::{
         registry::{GameRegistry, block_registry::BlockDefinition},
         rendering::YSort,
-        resources::Textures,
         world::components::{BelongsToChunk, BlockEntity, BlockPos, ChunkCoord},
     },
 };
@@ -16,7 +15,6 @@ use crate::{
 pub fn spawn_chunk(
     commands: &mut Commands,
     registry: &GameRegistry,
-    textures: &Textures,
     chunk_coord: ChunkCoord,
     seed: u32,
 ) {
@@ -53,7 +51,6 @@ pub fn spawn_chunk(
 
             spawn_block(
                 commands,
-                textures,
                 surface,
                 chunk_coord,
                 BlockPos {
@@ -78,7 +75,6 @@ pub fn spawn_chunk(
 
             spawn_block(
                 commands,
-                textures,
                 top,
                 chunk_coord,
                 BlockPos {
@@ -93,19 +89,13 @@ pub fn spawn_chunk(
 
 pub fn spawn_block(
     commands: &mut Commands,
-    textures: &Textures,
     block: &BlockDefinition,
     chunk_coord: ChunkCoord,
     pos: BlockPos,
 ) {
-    if block.texture == None {
+    let Some(texture) = &block.texture else {
         return;
-    }
-
-    let texture_handle = textures
-        .blocks
-        .get(block.texture.unwrap())
-        .unwrap_or_else(|| panic!("Texture for block {} not found!", block.name));
+    };
 
     let world_x =
         (chunk_coord.x * 16) as f32 * TILE_SIZE + pos.x as f32 * TILE_SIZE + TILE_SIZE / 2.0;
@@ -130,7 +120,7 @@ pub fn spawn_block(
     entity.with_children(|parent| {
         parent.spawn((
             Sprite {
-                image: texture_handle.clone(),
+                image: texture.clone(),
                 custom_size: Some(size),
                 ..default()
             },

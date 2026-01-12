@@ -7,7 +7,6 @@ use crate::{
     game::{
         player::{CurrentPlayerChunk, Player},
         registry::GameRegistry,
-        resources::Textures,
         world::{
             components::{BelongsToChunk, ChunkCoord},
             generator::spawn_chunk,
@@ -21,7 +20,6 @@ pub fn manage_chunks(
     mut loaded: ResMut<LoadedChunks>,
     mut last_player_chunk: ResMut<CurrentPlayerChunk>,
     registry: Res<GameRegistry>,
-    textures: Res<Textures>,
     seed: Res<WorldSeed>,
     settings: Res<Settings>,
     player: Single<&Transform, With<Player>>,
@@ -53,7 +51,7 @@ pub fn manage_chunks(
 
     for coord in required.iter() {
         if !loaded.set.contains(coord) {
-            spawn_chunk(&mut commands, &registry, &textures, *coord, seed.0);
+            spawn_chunk(&mut commands, &registry, *coord, seed.0);
             loaded.set.insert(*coord);
         }
     }

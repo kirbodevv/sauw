@@ -2,21 +2,21 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::game::{
-    StartupSet,
+    GameState, ImageAssets,
     player::{
         Player,
         sprite::{PlayerAnimation, PlayerState},
     },
     rendering::YSort,
-    resources::Textures,
 };
 
-pub fn spawn_player(
+fn spawn_player(
     mut commands: Commands,
-    textures: Res<Textures>,
+    assets: Res<ImageAssets>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    mut state: ResMut<NextState<GameState>>,
 ) {
-    let texture = textures.entities.get("entity/player").unwrap();
+    let texture = assets.entity_player.clone();
     let layout = TextureAtlasLayout::from_grid(UVec2 { x: 10, y: 26 }, 4, 3, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
@@ -46,12 +46,13 @@ pub fn spawn_player(
         LockedAxes::ROTATION_LOCKED,
         Velocity::zero(),
     ));
+    state.set(GameState::Gaming);
 }
 
 pub struct PlayerSpawnPlugin;
 
 impl Plugin for PlayerSpawnPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_player.in_set(StartupSet::Actors));
+        app.add_systems(OnEnter(GameState::SpawnPlayer), spawn_player);
     }
 }

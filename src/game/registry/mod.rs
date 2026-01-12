@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 use std::collections::HashMap;
 
-use crate::game::registry::block_registry::BlockRegistry;
-
+use crate::game::{GameState, ImageAssets, registry::block_registry::BlockRegistry};
 pub mod block_registry;
 
 pub struct Registry<Def> {
@@ -52,9 +51,9 @@ pub struct GameRegistry {
 }
 
 impl GameRegistry {
-    pub fn new() -> Self {
+    pub fn new(assets: &ImageAssets) -> Self {
         Self {
-            blocks: BlockRegistry::new(),
+            blocks: BlockRegistry::new(assets),
         }
     }
 }
@@ -63,6 +62,16 @@ pub struct RegistryPlugin;
 
 impl Plugin for RegistryPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(GameRegistry::new());
+        app.add_systems(OnEnter(GameState::RegistryInit), init_registry);
     }
+}
+
+fn init_registry(
+    mut commands: Commands,
+    assets: Res<ImageAssets>,
+    mut state: ResMut<NextState<GameState>>,
+) {
+    let registry = GameRegistry::new(&assets);
+    commands.insert_resource(registry);
+    state.set(GameState::InitWorld);
 }

@@ -1,14 +1,14 @@
-use bevy::{math::Vec2, utils::default};
+use bevy::prelude::*;
 use bevy_rapier2d::prelude::Collider;
 
 use crate::{
     constants::TILE_SIZE,
-    game::{registry::Registry, world::block::*},
+    game::{ImageAssets, registry::Registry, world::block::*},
 };
 
 pub struct BlockDefinition {
     pub name: &'static str,
-    pub texture: Option<&'static str>,
+    pub texture: Option<Handle<Image>>,
     pub sprite_size: Vec2,
     pub sprite_offset: Vec2,
     pub collider: Collider,
@@ -37,7 +37,7 @@ pub struct BlockRegistry {
 }
 
 impl BlockRegistry {
-    pub fn new() -> Self {
+    pub fn new(assets: &ImageAssets) -> Self {
         let mut inner = Registry::new();
 
         inner.insert(
@@ -51,7 +51,7 @@ impl BlockRegistry {
         inner.insert(
             BlockDefinition {
                 name: "grass",
-                texture: Some("block/grass"),
+                texture: Some(assets.block_grass.clone()),
                 ..default()
             },
             "grass",
@@ -60,7 +60,7 @@ impl BlockRegistry {
         inner.insert(
             BlockDefinition {
                 name: "tree",
-                texture: Some("block/tree"),
+                texture: Some(assets.block_tree.clone()),
                 sprite_size: Vec2::new(32., 64.),
                 sprite_offset: Vec2::new(0., 16.),
                 collider: collider_with_offset(Collider::cuboid(5.0, 2.5), Vec2::new(0.0, -12.0)),
@@ -72,7 +72,7 @@ impl BlockRegistry {
         inner.insert(
             BlockDefinition {
                 name: "dirt",
-                texture: Some("block/dirt"),
+                texture: Some(assets.block_dirt.clone()),
                 ..default()
             },
             "dirt",
@@ -81,7 +81,7 @@ impl BlockRegistry {
         inner.insert(
             BlockDefinition {
                 name: "flowers",
-                texture: Some("block/flowers"),
+                texture: Some(assets.block_flowers.clone()),
                 y_sort: 0.1,
                 ..default()
             },
@@ -91,7 +91,7 @@ impl BlockRegistry {
         inner.insert(
             BlockDefinition {
                 name: "lily",
-                texture: Some("block/lily"),
+                texture: Some(assets.block_lily.clone()),
                 y_sort: 0.1,
                 sprite_size: Vec2::new(16., 16.),
                 collider: Collider::cuboid(6.0, 6.0),
@@ -103,7 +103,7 @@ impl BlockRegistry {
         inner.insert(
             BlockDefinition {
                 name: "sand",
-                texture: Some("block/sand"),
+                texture: Some(assets.block_sand.clone()),
                 ..default()
             },
             "sand",
@@ -112,7 +112,7 @@ impl BlockRegistry {
         inner.insert(
             BlockDefinition {
                 name: "stone",
-                texture: Some("block/stone"),
+                texture: Some(assets.block_stone.clone()),
                 ..default()
             },
             "stone",
@@ -121,7 +121,7 @@ impl BlockRegistry {
         inner.insert(
             BlockDefinition {
                 name: "water",
-                texture: Some("block/water"),
+                texture: Some(assets.block_water.clone()),
                 ..default()
             },
             "water",

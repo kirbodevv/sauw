@@ -1,11 +1,10 @@
 #[cfg(not(rust_analyzer))]
-include!(concat!(env!("OUT_DIR"), "/load_textures.rs"));
+include!(concat!(env!("OUT_DIR"), "/assets.rs"));
 
 pub mod commands;
 pub mod player;
 pub mod registry;
 pub mod rendering;
-pub mod resources;
 pub mod world;
 
 use crate::{
@@ -15,7 +14,6 @@ use crate::{
         player::PlayerPlugin,
         registry::RegistryPlugin,
         rendering::{TargetCameraZoom, camera_follow, spawn_camera, y_sort, zoom_camera},
-        resources::Textures,
         world::{
             resources::{LoadedChunks, Settings, WorldSeed},
             systems::manage_chunks,
@@ -24,15 +22,22 @@ use crate::{
     icon::AppIconPlugin,
 };
 use bevy::prelude::*;
+use bevy_asset_loader::loading_state::{
+    LoadingState, LoadingStateAppExt, config::ConfigureLoadingState,
+};
 use bevy_rapier2d::{
     plugin::{NoUserData, RapierConfiguration, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
 
-#[derive(SystemSet, Debug, Clone, Hash, Eq, PartialEq)]
-pub enum StartupSet {
-    Assets,
-    Actors,
+#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
+pub enum GameState {
+    #[default]
+    AssetsLoading,
+    RegistryInit,
+    InitWorld,
+    SpawnPlayer,
+    Gaming,
 }
 
 pub struct GamePlugin;
@@ -48,23 +53,26 @@ impl Plugin for GamePlugin {
                 ..default()
             },
         ))
-        .add_systems(Startup, load_textures.in_set(StartupSet::Assets))
-        .add_plugins((RegistryPlugin, CommandsPlugin, PlayerPlugin))
-        .insert_resource(Textures::new())
+        .init_state::<GameState>()
+        .add_loading_state(
+            LoadingState::new(GameState::AssetsLoading)
+                .continue_to_state(GameState::RegistryInit)
+                .load_collection::<ImageAssets>(),
+        )
+        .add_plugins((RegistryPlugin, PlayerPlugin, CommandsPlugin))
         .insert_resource(LoadedChunks::new())
         .insert_resource(WorldSeed(0))
         .insert_resource(TargetCameraZoom(1.0))
         .insert_resource(Settings { load_radius: 2 })
         .add_systems(
-            Startup,
-            (configure_physics, spawn_camera)
-                .chain()
-                .in_set(StartupSet::Actors),
+            OnEnter(GameState::InitWorld),
+            (configure_physics, spawn_camera).chain(),
         )
-        .configure_sets(Startup, (StartupSet::Assets, StartupSet::Actors).chain())
         .add_systems(
             Update,
-            (camera_follow, zoom_camera, manage_chunks, y_sort).chain(),
+            (camera_follow, zoom_camera, manage_chunks, y_sort)
+                .chain()
+                .run_if(in_state(GameState::Gaming)),
         )
         .insert_resource(ClearColor(Color::BLACK));
     }

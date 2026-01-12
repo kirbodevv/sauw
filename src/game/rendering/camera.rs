@@ -2,6 +2,7 @@ use bevy::camera::ScalingMode;
 use bevy::prelude::*;
 
 use crate::constants::VIEWPORT_WIDTH;
+use crate::game::GameState;
 use crate::game::player::Player;
 
 #[derive(Component)]
@@ -10,7 +11,7 @@ pub struct MainCamera;
 #[derive(Resource)]
 pub struct TargetCameraZoom(pub f32);
 
-pub fn spawn_camera(mut commands: Commands) {
+pub fn spawn_camera(mut commands: Commands, mut state: ResMut<NextState<GameState>>) {
     commands.spawn((
         Camera2d,
         Projection::Orthographic({
@@ -22,6 +23,7 @@ pub fn spawn_camera(mut commands: Commands) {
         }),
         MainCamera,
     ));
+    state.set(GameState::SpawnPlayer)
 }
 
 pub fn zoom_camera(
