@@ -1,29 +1,22 @@
 #[cfg(not(rust_analyzer))]
 include!(concat!(env!("OUT_DIR"), "/assets.rs"));
 
-pub mod commands;
-pub mod player;
-pub mod registry;
-pub mod world;
-
 use crate::{
     constants::TILE_SIZE,
     game::{
-        commands::CommandsPlugin,
-        player::PlayerPlugin,
-        registry::RegistryPlugin,
-        world::{WorldPlugin, resources::Settings},
+        commands::CommandsPlugin, player::PlayerPlugin, registry::RegistryPlugin,
+        world::WorldPlugin,
     },
     icon::AppIconPlugin,
 };
 use bevy::prelude::*;
-use bevy_asset_loader::loading_state::{
-    LoadingState, LoadingStateAppExt, config::ConfigureLoadingState,
-};
-use bevy_rapier2d::{
-    plugin::{NoUserData, RapierPhysicsPlugin},
-    render::RapierDebugRenderPlugin,
-};
+use bevy_asset_loader::prelude::*;
+use bevy_rapier2d::prelude::*;
+
+pub mod commands;
+pub mod player;
+pub mod registry;
+pub mod world;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
 pub enum GameState {
@@ -53,7 +46,6 @@ impl Plugin for GamePlugin {
                 .load_collection::<ImageAssets>(),
         )
         .add_plugins((RegistryPlugin, WorldPlugin, PlayerPlugin, CommandsPlugin))
-        .insert_resource(Settings { load_radius: 2 })
         .insert_resource(ClearColor(Color::BLACK));
     }
 }

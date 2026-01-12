@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_console::ConsoleCommand;
 use clap::Parser;
 
-use crate::game::world::resources::Settings;
+use crate::game::world::Settings;
 
 #[derive(Parser, ConsoleCommand)]
 #[command(name = "loadradius")]

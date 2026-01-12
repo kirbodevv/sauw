@@ -5,7 +5,7 @@ use crate::game::{
         input::InputPlugin, movement::MovementPlugin, spawn::PlayerSpawnPlugin,
         sprite::SpritePlugin,
     },
-    world::components::ChunkCoord,
+    world::ChunkCoord,
 };
 
 pub mod input;
