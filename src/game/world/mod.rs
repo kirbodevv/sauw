@@ -34,14 +34,14 @@ impl BlockPos {
     }
 }
 
+#[derive(Component)]
+pub struct Chunk;
+
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ChunkCoord {
     pub x: i32,
     pub y: i32,
 }
-
-#[derive(Component)]
-pub struct BelongsToChunk(pub ChunkCoord);
 
 #[derive(Resource)]
 pub struct WorldSeed(pub u32);
@@ -78,7 +78,7 @@ fn manage_chunks(
     mut last_player_chunk: ResMut<CurrentPlayerChunk>,
     settings: Res<Settings>,
     player: Single<&Transform, With<Player>>,
-    tiles_q: Query<(Entity, &BelongsToChunk)>,
+    chunks: Query<(Entity, &ChunkCoord), With<Chunk>>,
 ) {
     let player_pos = player.translation;
     let current_player_chunk = ChunkCoord {
@@ -111,8 +111,8 @@ fn manage_chunks(
         }
     }
 
-    for (entity, belongs) in &tiles_q {
-        if !required.contains(&belongs.0) {
+    for (entity, chunk) in &chunks {
+        if !required.contains(chunk) {
             commands.entity(entity).despawn();
         }
     }
