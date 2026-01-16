@@ -26,6 +26,10 @@ fn main() {
         code.push_str(&generate(entry.unwrap()));
     }
 
+    for entry in fs::read_dir("assets/ui").unwrap() {
+        code.push_str(&generate(entry.unwrap()));
+    }
+
     code.push_str("\n}\n");
 
     fs::write(&dest_path, code).unwrap();

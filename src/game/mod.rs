@@ -4,7 +4,7 @@ include!(concat!(env!("OUT_DIR"), "/assets.rs"));
 use crate::{
     constants::TILE_SIZE,
     game::{
-        commands::CommandsPlugin, player::PlayerPlugin, registry::RegistryPlugin,
+        commands::CommandsPlugin, player::PlayerPlugin, registry::RegistryPlugin, ui::UiPlugin,
         world::WorldPlugin,
     },
     icon::AppIconPlugin,
@@ -16,6 +16,7 @@ use bevy_rapier2d::prelude::*;
 pub mod commands;
 pub mod player;
 pub mod registry;
+pub mod ui;
 pub mod world;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
@@ -24,6 +25,7 @@ pub enum GameState {
     AssetsLoading,
     Bootstrap,
     Gaming,
+    GameOver,
 }
 
 pub struct GamePlugin;
@@ -45,7 +47,13 @@ impl Plugin for GamePlugin {
                 .continue_to_state(GameState::Bootstrap)
                 .load_collection::<ImageAssets>(),
         )
-        .add_plugins((RegistryPlugin, WorldPlugin, PlayerPlugin, CommandsPlugin))
+        .add_plugins((
+            RegistryPlugin,
+            WorldPlugin,
+            PlayerPlugin,
+            CommandsPlugin,
+            UiPlugin,
+        ))
         .insert_resource(ClearColor(Color::BLACK));
     }
 }

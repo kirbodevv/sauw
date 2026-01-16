@@ -2,12 +2,16 @@ use bevy::prelude::*;
 use bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin};
 
 mod camzoom;
+mod damage;
 mod debug;
+mod heal;
 mod load_radius;
 mod tp;
 
 use camzoom::*;
+use damage::*;
 use debug::*;
+use heal::*;
 use load_radius::*;
 use tp::*;
 
@@ -20,6 +24,8 @@ impl Plugin for CommandsPlugin {
             .add_console_command::<TpCommand, _>(tp)
             .add_console_command::<CamZoomCommand, _>(cam_zoom)
             .add_console_command::<LoadRadiusCommand, _>(load_radius)
-            .add_console_command::<DebugCommand, _>(debug);
+            .add_console_command::<DebugCommand, _>(debug)
+            .add_console_command::<DamageCommand, _>(damage)
+            .add_console_command::<HealCommand, _>(heal);
     }
 }

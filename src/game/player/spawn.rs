@@ -5,15 +5,20 @@ use crate::game::{
     GameState, ImageAssets,
     player::{
         Player,
+        health::Health,
         sprite::{PlayerAnimation, PlayerState},
     },
+    ui::health::SpawnPlayerHearts,
     world::camera::YSort,
 };
+
+pub const MAX_PLAYER_HEALTH: u8 = 20;
 
 fn spawn_player(
     mut commands: Commands,
     assets: Res<ImageAssets>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    mut ev_spawn_player_hears: MessageWriter<SpawnPlayerHearts>,
 ) {
     let texture = assets.entity_player.clone();
     let layout = TextureAtlasLayout::from_grid(UVec2 { x: 10, y: 26 }, 4, 3, None, None);
@@ -44,7 +49,12 @@ fn spawn_player(
         Collider::cuboid(size.x / 2.0, size.y / 2.0),
         LockedAxes::ROTATION_LOCKED,
         Velocity::zero(),
+        Health::new(MAX_PLAYER_HEALTH),
     ));
+
+    ev_spawn_player_hears.write(SpawnPlayerHearts {
+        count: MAX_PLAYER_HEALTH as usize,
+    });
 }
 
 pub struct PlayerSpawnPlugin;
