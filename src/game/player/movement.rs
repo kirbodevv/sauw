@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_console::ConsoleOpen;
 use bevy_rapier2d::prelude::Velocity;
 
 use crate::{
@@ -11,9 +12,14 @@ use crate::{
 };
 
 pub fn player_movement(
+    console_open: Res<ConsoleOpen>,
     mut query: Query<(&mut Velocity, &mut PlayerAnimation), With<Player>>,
     player_input: ResMut<PlayerInput>,
 ) {
+    if console_open.open {
+        return;
+    }
+
     let dir = player_input.move_direction;
 
     for (mut velocity, mut anim) in &mut query {
