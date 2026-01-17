@@ -6,6 +6,7 @@ mod damage;
 mod debug;
 mod heal;
 mod load_radius;
+mod time;
 mod tp;
 
 use camzoom::*;
@@ -13,6 +14,7 @@ use damage::*;
 use debug::*;
 use heal::*;
 use load_radius::*;
+use time::*;
 use tp::*;
 
 pub struct CommandsPlugin;
@@ -26,6 +28,7 @@ impl Plugin for CommandsPlugin {
             .add_console_command::<LoadRadiusCommand, _>(load_radius)
             .add_console_command::<DebugCommand, _>(debug)
             .add_console_command::<DamageCommand, _>(damage)
-            .add_console_command::<HealCommand, _>(heal);
+            .add_console_command::<HealCommand, _>(heal)
+            .add_console_command::<TimeCommand, _>(time);
     }
 }

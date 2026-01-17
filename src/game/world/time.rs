@@ -13,6 +13,12 @@ pub struct DayTime {
     pub time: f32,
 }
 
+impl DayTime {
+    fn new() -> Self {
+        Self { time: 0.25 }
+    }
+}
+
 fn update_day_time(time: Res<Time>, mut day: ResMut<DayTime>) {
     day.time = (day.time + time.delta_secs() * DAY_TIME_SPEED) % 1.0;
 }
@@ -54,7 +60,7 @@ pub struct TimePlugin;
 
 impl Plugin for TimePlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(DayTime { time: 0.25 })
+        app.insert_resource(DayTime::new())
             .add_systems(Update, (update_day_time, update_ambient_light).chain());
     }
 }
