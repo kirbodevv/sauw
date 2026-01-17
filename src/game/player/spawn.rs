@@ -1,15 +1,19 @@
 use bevy::prelude::*;
+use bevy_firefly::lights::{LightHeight, PointLight2d};
 use bevy_rapier2d::prelude::*;
 
-use crate::game::{
-    GameState, ImageAssets,
-    player::{
-        Player,
-        health::Health,
-        sprite::{PlayerAnimation, PlayerState},
+use crate::{
+    constants::TILE_SIZE,
+    game::{
+        GameState, ImageAssets,
+        player::{
+            Player, PlayerLight,
+            health::Health,
+            sprite::{PlayerAnimation, PlayerState},
+        },
+        ui::health::SpawnPlayerHearts,
+        world::camera::YSort,
     },
-    ui::health::SpawnPlayerHearts,
-    world::camera::YSort,
 };
 
 pub const MAX_PLAYER_HEALTH: u8 = 20;
@@ -50,6 +54,15 @@ fn spawn_player(
         LockedAxes::ROTATION_LOCKED,
         Velocity::zero(),
         Health::new(MAX_PLAYER_HEALTH),
+        PlayerLight,
+        PointLight2d {
+            color: Color::srgb(0.5, 0.45, 0.05),
+            range: TILE_SIZE * 4.0,
+            intensity: 2.0,
+            offset: vec3(0.0, 16.0, 0.0),
+            ..default()
+        },
+        LightHeight(16.),
     ));
 
     ev_spawn_player_hears.write(SpawnPlayerHearts {

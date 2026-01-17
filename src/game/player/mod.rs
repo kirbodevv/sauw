@@ -17,6 +17,9 @@ pub mod sprite;
 #[derive(Component)]
 pub struct Player;
 
+#[derive(Component)]
+pub struct PlayerLight;
+
 #[derive(Resource)]
 pub struct CurrentPlayerChunk(pub Option<ChunkCoord>);
 

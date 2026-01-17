@@ -937,6 +937,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_firefly"
+version = "0.17.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eb9ae5514a9717abf700ad125a07bdc3660f5566c1251e1661920d924344b5ad"
+dependencies = [
+ "bevy",
+ "bitflags 2.10.0",
+ "bytemuck",
+ "fixedbitset",
+]
+
+[[package]]
 name = "bevy_gilrs"
 version = "0.17.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5055,6 +5067,7 @@ dependencies = [
  "bevy",
  "bevy_asset_loader",
  "bevy_console",
+ "bevy_firefly",
  "bevy_rapier2d",
  "bevy_winit",
  "clap",

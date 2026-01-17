@@ -1,5 +1,6 @@
 use bevy::camera::ScalingMode;
 use bevy::prelude::*;
+use bevy_firefly::data::{FireflyConfig, NormalMode};
 
 use crate::constants::VIEWPORT_WIDTH;
 use crate::game::player::Player;
@@ -26,6 +27,10 @@ pub fn spawn_camera(mut commands: Commands) {
             ortho
         }),
         MainCamera,
+        FireflyConfig {
+            normal_mode: NormalMode::TopDown,
+            ..default()
+        },
     ));
 }
 

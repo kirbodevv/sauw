@@ -11,6 +11,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+use bevy_firefly::app::FireflyPlugin;
 use bevy_rapier2d::prelude::*;
 
 pub mod commands;
@@ -40,6 +41,7 @@ impl Plugin for GamePlugin {
                 enabled: false,
                 ..default()
             },
+            FireflyPlugin,
         ))
         .init_state::<GameState>()
         .add_loading_state(

@@ -16,7 +16,22 @@ pub struct BlockDefinition {
     pub sprite_size: Vec2,
     pub sprite_offset: Vec2,
     pub collider: Collider,
+    pub occluders: Vec<Occluder>,
     pub y_sort: f32,
+}
+
+pub struct Occluder {
+    pub size: Vec2,
+    pub offset: Vec2,
+}
+
+impl Occluder {
+    pub fn new(half_size: Vec2, offset: Vec2) -> Self {
+        Self {
+            size: half_size,
+            offset,
+        }
+    }
 }
 
 fn collider_with_offset(collider: Collider, collider_offset: Vec2) -> Collider {
@@ -31,7 +46,17 @@ impl Default for BlockDefinition {
             sprite_size: Vec2::splat(TILE_SIZE),
             sprite_offset: Vec2::ZERO,
             collider: Collider::cuboid(TILE_SIZE / 2.0, TILE_SIZE / 2.0),
+            occluders: vec![Occluder::default()],
             y_sort: 1.0,
+        }
+    }
+}
+
+impl Default for Occluder {
+    fn default() -> Self {
+        Self {
+            size: Vec2::splat(TILE_SIZE),
+            offset: Vec2::ZERO,
         }
     }
 }
@@ -68,6 +93,7 @@ impl BlockRegistry {
                 sprite_size: Vec2::new(32., 64.),
                 sprite_offset: Vec2::new(0., 16.),
                 collider: collider_with_offset(Collider::cuboid(5.0, 2.5), Vec2::new(0.0, -12.0)),
+                occluders: vec![Occluder::new(Vec2::new(6.0, 6.0), Vec2::new(0.0, -12.0))],
                 ..default()
             },
             "tree",
@@ -99,6 +125,7 @@ impl BlockRegistry {
                 y_sort: 0.1,
                 sprite_size: Vec2::new(16., 16.),
                 collider: Collider::cuboid(6.0, 6.0),
+                occluders: vec![],
                 ..default()
             },
             "lily",

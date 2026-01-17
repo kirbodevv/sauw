@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_firefly::prelude::Occluder2d;
 use bevy_rapier2d::prelude::*;
 use noise::{NoiseFn, Perlin};
 use rand::Rng;
@@ -169,6 +170,18 @@ pub fn spawn_block(parent: &mut ChildSpawnerCommands<'_>, block: &BlockDefinitio
 
     if is_object {
         entity.insert((RigidBody::Fixed, block.collider.clone()));
+        for occluder in &block.occluders {
+            entity.with_children(|parent| {
+                parent.spawn((
+                    Occluder2d::rectangle(occluder.size.x, occluder.size.y),
+                    Transform::from_xyz(
+                        occluder.offset.x,
+                        occluder.offset.y,
+                        pos.layer as f32 * TILE_SIZE,
+                    ),
+                ));
+            });
+        }
     }
 }
 

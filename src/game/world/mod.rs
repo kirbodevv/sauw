@@ -11,12 +11,14 @@ use crate::{
         world::{
             camera::CameraPlugin,
             generator::{ChunkGenerateRequest, GeneratorPlugin},
+            time::TimePlugin,
         },
     },
 };
 
 pub mod camera;
 pub mod generator;
+pub mod time;
 
 #[derive(Component)]
 pub struct BlockEntity;
@@ -129,6 +131,6 @@ impl Plugin for WorldPlugin {
             .insert_resource(Settings { load_radius: 2 })
             .add_systems(Startup, configure_physics)
             .add_systems(Update, manage_chunks.run_if(in_state(GameState::Gaming)))
-            .add_plugins((CameraPlugin, GeneratorPlugin));
+            .add_plugins((CameraPlugin, GeneratorPlugin, TimePlugin));
     }
 }
