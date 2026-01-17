@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 use crate::game::GamePlugin;
 use bevy::prelude::*;
 
