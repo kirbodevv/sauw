@@ -2,8 +2,14 @@ use std::env;
 use std::fs;
 use std::fs::DirEntry;
 use std::path::Path;
+extern crate embed_resource;
 
 fn main() {
+    let target = std::env::var("TARGET").unwrap();
+    if target.contains("windows") {
+        embed_resource::compile("icon.rc");
+    }
+
     println!("cargo::rustc-check-cfg=cfg(rust_analyzer)");
     let out_dir = env::var_os("OUT_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("assets.rs");
