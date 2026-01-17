@@ -31,6 +31,7 @@ pub fn spawn_camera(mut commands: Commands) {
             normal_mode: NormalMode::TopDown,
             ..default()
         },
+        Msaa::Off,
     ));
 }
 
