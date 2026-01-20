@@ -7,7 +7,6 @@ use crate::{
         commands::CommandsPlugin, player::PlayerPlugin, registry::RegistryPlugin, ui::UiPlugin,
         world::WorldPlugin,
     },
-    icon::AppIconPlugin,
 };
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
@@ -35,7 +34,6 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
             DefaultPlugins.set(ImagePlugin::default_nearest()),
-            AppIconPlugin::new("assets/icon/icon_128.png"),
             RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(TILE_SIZE),
             RapierDebugRenderPlugin {
                 enabled: false,
