@@ -7,7 +7,7 @@ extern crate embed_resource;
 fn main() {
     let target = std::env::var("TARGET").unwrap();
     if target.contains("windows") {
-        embed_resource::compile("icon.rc");
+        embed_resource::compile("embed/icon.rc");
     }
 
     println!("cargo::rustc-check-cfg=cfg(rust_analyzer)");
