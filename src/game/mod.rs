@@ -39,7 +39,6 @@ impl Plugin for GamePlugin {
                 enabled: false,
                 ..default()
             },
-            FireflyPlugin,
         ))
         .init_state::<GameState>()
         .add_loading_state(
@@ -55,5 +54,16 @@ impl Plugin for GamePlugin {
             UiPlugin,
         ))
         .insert_resource(ClearColor(Color::BLACK));
+
+        let lighting = !std::env::args().any(|a| a == "--lighting=off");
+
+        if !cfg!(target_os = "android") {
+            if lighting {
+                app.add_plugins(FireflyPlugin);
+            }
+        } else {
+            use bevy_winit::WinitSettings;
+            app.insert_resource(WinitSettings::mobile());
+        }
     }
 }
