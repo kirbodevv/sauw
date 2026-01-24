@@ -3,6 +3,10 @@ name = "sauw"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "sauw"
+crate-type = ["lib", "cdylib"]
+
 [build-dependencies]
 embed-resource = "1.6.3"
 
