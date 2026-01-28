@@ -1,11 +1,24 @@
+APP_NAME = sauw
+ASSETS = assets
+BUILD_DIR = build
+TMP_DIR = build/tmp
+
+LINUX_TARGET = x86_64-unknown-linux-gnu
+WIN_TARGET   = x86_64-pc-windows-msvc
+
+LINUX_BIN = target/$(LINUX_TARGET)/release/$(APP_NAME)
+WIN_BIN   = target/$(WIN_TARGET)/release/$(APP_NAME).exe
+
 .PHONY: all pc android linux windows clean
 
-# -------- PC --------
+release: linux-release windows-release
+
+# -------- RUN PC --------
 
 pc:
 	cargo run
 
-# -------- ANDROID --------
+# -------- RUN ANDROID --------
 
 android:
 	cargo ndk -t armeabi-v7a -t arm64-v8a \
@@ -14,13 +27,27 @@ android:
 	adb push android/app/build/outputs/apk/debug/app-debug.apk /data/local/tmp/
 	adb shell pm install /data/local/tmp/app-debug.apk
 
-# -------- DESKTOP BUILDS --------
+# ---------- RELEASE LINUX ----------
 
-linux:
-	cargo build --release --target=x86_64-unknown-linux-gnu
+linux-release:
+	cargo build --release --target $(LINUX_TARGET)
+	rm -rf $(TMP_DIR)/linux
+	mkdir -p $(TMP_DIR)/linux
+	cp $(LINUX_BIN) $(TMP_DIR)/linux/
+	cp -r $(ASSETS) $(TMP_DIR)/linux/
+	mkdir -p $(BUILD_DIR)
+	tar -czf $(BUILD_DIR)/linux.tar.gz -C $(TMP_DIR)/linux .
 
-windows:
-	cargo build --release --target=x86_64-pc-windows-gnu
+# ---------- RELEASE WINDOWS ----------
+
+windows-release:
+	cargo build --release --target $(WIN_TARGET)
+	rm -rf $(TMP_DIR)/windows
+	mkdir -p $(TMP_DIR)/windows
+	cp $(WIN_BIN) $(TMP_DIR)/windows/
+	cp -r $(ASSETS) $(TMP_DIR)/windows/
+	mkdir -p $(BUILD_DIR)
+	cd $(TMP_DIR)/windows && zip -r ../../windows.zip * > /dev/null
 
 # -------- CLEAN --------
 
