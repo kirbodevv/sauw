@@ -8,7 +8,12 @@ use crate::{
         world::WorldPlugin,
     },
 };
-use bevy::prelude::*;
+use bevy::{
+    dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin, FrameTimeGraphConfig},
+    prelude::*,
+    text::FontSmoothing,
+    window::{PresentMode, WindowMode},
+};
 use bevy_asset_loader::prelude::*;
 use bevy_firefly::app::FireflyPlugin;
 use bevy_rapier2d::prelude::*;
@@ -33,7 +38,36 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
-            DefaultPlugins.set(ImagePlugin::default_nearest()),
+            DefaultPlugins
+                .set(ImagePlugin::default_nearest())
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        resizable: false,
+                        mode: WindowMode::BorderlessFullscreen(MonitorSelection::Primary),
+                        recognize_rotation_gesture: true,
+                        present_mode: PresentMode::AutoVsync,
+                        ..default()
+                    }),
+                    ..default()
+                }),
+            FpsOverlayPlugin {
+                config: FpsOverlayConfig {
+                    text_config: TextFont {
+                        font_size: 42.0,
+                        font: default(),
+                        font_smoothing: FontSmoothing::default(),
+                        ..default()
+                    },
+                    text_color: Color::LinearRgba(LinearRgba::GREEN),
+                    refresh_interval: core::time::Duration::from_millis(100),
+                    enabled: true,
+                    frame_time_graph_config: FrameTimeGraphConfig {
+                        enabled: true,
+                        min_fps: 30.0,
+                        target_fps: 144.0,
+                    },
+                },
+            },
             RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(TILE_SIZE),
             RapierDebugRenderPlugin {
                 enabled: false,
