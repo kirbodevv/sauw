@@ -1,21 +1,25 @@
-use crate::game::GamePlugin;
-#[cfg(not(target_os = "android"))]
-use crate::icon::AppIconPlugin;
-use bevy::prelude::*;
-
 pub mod constants;
 pub mod game;
 pub mod icon;
 
-#[bevy_main]
-fn main() {
-    run();
-}
+use crate::game::GamePlugin;
+use bevy::prelude::*;
 
-pub fn run() {
+pub fn run_game() {
     let mut app = App::new();
     app.add_plugins(GamePlugin);
+
     #[cfg(not(target_os = "android"))]
-    app.add_plugins(AppIconPlugin::new("assets/icon/icon_128.png"));
+    {
+        use crate::icon::AppIconPlugin;
+        app.add_plugins(AppIconPlugin::new("assets/icon/icon_128.png"));
+    }
+
     app.run();
+}
+
+#[cfg(target_os = "android")]
+#[bevy_main]
+fn main() {
+    run_game();
 }
