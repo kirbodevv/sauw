@@ -1,6 +1,6 @@
 use bevy::ecs::system::NonSendMarker;
 use bevy::prelude::*;
-use bevy_winit::WINIT_WINDOWS;
+use bevy::winit::WINIT_WINDOWS;
 use winit::window::Icon;
 
 pub struct AppIconPlugin(String);
