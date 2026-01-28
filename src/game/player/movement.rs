@@ -12,12 +12,14 @@ use crate::{
 };
 
 pub fn player_movement(
-    console_open: Res<ConsoleOpen>,
+    console_open: Option<Res<ConsoleOpen>>,
     mut query: Query<(&mut Velocity, &mut PlayerAnimation), With<Player>>,
     player_input: ResMut<PlayerInput>,
 ) {
-    if console_open.open {
-        return;
+    if let Some(console_open) = console_open {
+        if console_open.open {
+            return;
+        }
     }
 
     let dir = player_input.move_direction;
