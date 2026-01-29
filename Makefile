@@ -1,7 +1,7 @@
 APP_NAME = sauw
 ASSETS = assets
-BUILD_DIR = build
-TMP_DIR = build/tmp
+RELEASE_DIR = release
+TMP_DIR = release/tmp
 
 LINUX_TARGET = x86_64-unknown-linux-gnu
 WIN_TARGET   = x86_64-pc-windows-msvc
@@ -11,7 +11,7 @@ WIN_BIN   = target/$(WIN_TARGET)/release/$(APP_NAME).exe
 
 .PHONY: all pc android linux windows clean
 
-release: linux-release windows-release
+release: clean-release linux-release windows-release android-release clean-tmp
 
 # -------- RUN PC --------
 
@@ -35,8 +35,8 @@ linux-release:
 	mkdir -p $(TMP_DIR)/linux
 	cp $(LINUX_BIN) $(TMP_DIR)/linux/
 	cp -r $(ASSETS) $(TMP_DIR)/linux/
-	mkdir -p $(BUILD_DIR)
-	tar -czf $(BUILD_DIR)/linux.tar.gz -C $(TMP_DIR)/linux .
+	mkdir -p $(RELEASE_DIR)
+	tar -czf $(RELEASE_DIR)/linux-$(APP_NAME).tar.gz -C $(TMP_DIR)/linux .
 
 # ---------- RELEASE WINDOWS ----------
 
@@ -46,10 +46,24 @@ windows-release:
 	mkdir -p $(TMP_DIR)/windows
 	cp $(WIN_BIN) $(TMP_DIR)/windows/
 	cp -r $(ASSETS) $(TMP_DIR)/windows/
-	mkdir -p $(BUILD_DIR)
-	cd $(TMP_DIR)/windows && zip -r ../../windows.zip * > /dev/null
+	mkdir -p $(RELEASE_DIR)
+	cd $(TMP_DIR)/windows && zip -r ../../windows-$(APP_NAME).zip * > /dev/null
+
+# --------- RELEASE ANDROID ----------
+
+android-release:
+	cargo ndk -t armeabi-v7a -t arm64-v8a \
+		-o android/app/src/main/jniLibs build --release
+	./android/gradlew -p android build
+	cp android/app/build/outputs/apk/debug/app-debug.apk $(RELEASE_DIR)/android-$(APP_NAME).apk
 
 # -------- CLEAN --------
 
 clean:
 	cargo clean
+
+clean-release:
+	rm -rf $(RELEASE_DIR)
+
+clean-tmp:
+	rm -rf $(TMP_DIR)
