@@ -91,13 +91,17 @@ impl Plugin for GamePlugin {
 
         let lighting = !std::env::args().any(|a| a == "--lighting=off");
 
-        if !cfg!(target_os = "android") {
+        #[cfg(any(target_os = "android", target_os = "ios"))]
+        {
+            use bevy_winit::WinitSettings;
+            app.insert_resource(WinitSettings::mobile());
+        }
+
+        #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+        {
             if lighting {
                 app.add_plugins(FireflyPlugin);
             }
-        } else {
-            use bevy_winit::WinitSettings;
-            app.insert_resource(WinitSettings::mobile());
         }
     }
 }

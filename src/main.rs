@@ -1,5 +1,6 @@
 #![windows_subsystem = "windows"]
 
+use sauw::run_game;
 fn main() {
-    sauw::run_game();
+    run_game();
 }

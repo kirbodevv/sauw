@@ -9,7 +9,7 @@ pub fn run_game() {
     let mut app = App::new();
     app.add_plugins(GamePlugin);
 
-    #[cfg(not(target_os = "android"))]
+    #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
     {
         use crate::icon::AppIconPlugin;
         app.add_plugins(AppIconPlugin::new("assets/icon/icon_128.png"));

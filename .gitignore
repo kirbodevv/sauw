@@ -2,3 +2,4 @@
 /.cargo
 /release
 .DS_Store
+/ios/build
