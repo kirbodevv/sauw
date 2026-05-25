@@ -4,29 +4,73 @@ version = "0.1.0"
 edition = "2024"
 
 [lib]
+crate-type = ["cdylib", "lib"]
 name = "sauw"
-crate-type = ["lib", "cdylib"]
 
 [[bin]]
 name = "sauw"
 path = "src/main.rs"
 
-[build-dependencies]
-embed-resource = "1.6.3"
-
 [dependencies]
-bevy = { version = "0.17.3", features = ["bevy_dev_tools"] }
+bevy = {
+  version = "0.17.3",
+  default-features = false,
+  features = [
+    # Core
+    "multi_threaded",
+    "std",
+
+    # Android
+    "android-game-activity",
+    "android_shared_stdcxx",
+
+    # Wayland/X11
+    "wayland",
+    "x11",
+
+    # Debug
+    "bevy_dev_tools",
+    "bevy_gizmos",
+    "bevy_log",
+    "debug",
+    "sysinfo_plugin",
+
+    "bevy_asset",
+    "bevy_audio",
+    "bevy_camera",
+    "bevy_core_pipeline",
+    "bevy_image",
+    "bevy_mesh",
+    "bevy_render",
+    "bevy_state",
+    "bevy_text",
+    "bevy_ui",
+    "bevy_ui_render",
+    "png",
+
+    "bevy_window",
+    "bevy_winit",
+
+    "reflect_auto_register",
+
+    # Misc
+    "default_font",
+  ]
+}
 bevy_asset_loader = "0.24.0"
 bevy_console = "0.16.0"
 bevy_firefly = "0.17.0"
 bevy_rapier2d = "0.32.0"
 bevy_winit = "0.17.3"
+blake3 = { version = "1.5", features = ["pure"] }
 clap = { version = "4.5.54", features = ["derive"] }
 image = "0.25.9"
 noise = "0.9.0"
 rand = "0.9.2"
 winit = "0.30.12"
-blake3 = { version = "1.5", features = [ "pure" ] }
+
+[build-dependencies]
+embed-resource = "1.6.3"
 
 [profile.dev]
 opt-level = 1
@@ -36,9 +80,9 @@ opt-level = 3
 
 [profile.release]
 opt-level = "z"
-lto = "thin"
-codegen-units = 1
-panic = "abort"
-strip = true
 debug = false
+strip = true
+lto = "thin"
+panic = "abort"
 incremental = false
+codegen-units = 1
