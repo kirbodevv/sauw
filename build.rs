@@ -50,8 +50,8 @@ fn main() {
 
     generate_atlas(
         "assets/block",
-        "assets_generated/block_atlas.png",
-        "assets_generated/block_atlas.json",
+        "assets/atlas/block.png",
+        "assets/atlas/block.json",
         0,
         512,
     );
@@ -88,12 +88,7 @@ fn generate(entry: DirEntry) -> String {
 }
 
 #[derive(Serialize)]
-struct AtlasEntry {
-    x: u32,
-    y: u32,
-    w: u32,
-    h: u32,
-}
+struct AtlasEntry([u32; 4]);
 
 #[derive(Serialize)]
 struct Atlas {
@@ -147,7 +142,7 @@ fn generate_atlas(
 
         atlas.copy_from(&img, x, y).unwrap();
 
-        map.insert(name, AtlasEntry { x, y, w, h });
+        map.insert(name, AtlasEntry([x, y, w, h]));
 
         x += w + 1;
         row_height = row_height.max(h + 1);
