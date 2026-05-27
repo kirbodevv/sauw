@@ -24,6 +24,7 @@ fn main() {
     code.push_str(
         r#"
         use bevy_asset_loader::asset_collection::AssetCollection;
+        use crate::game::atlas::Atlas;
 
         #[derive(AssetCollection, Resource)]
         pub struct ImageAssets {"#,
@@ -41,6 +42,10 @@ fn main() {
         code.push_str(&generate(entry.unwrap()));
     }
 
+    for entry in fs::read_dir("assets/atlas").unwrap() {
+        code.push_str(&generate(entry.unwrap()));
+    }
+
     code.push_str("\n}\n");
 
     fs::write(&dest_path, code).unwrap();
@@ -50,7 +55,7 @@ fn main() {
 
     generate_atlas(
         "assets/block",
-        "assets/atlas/block.png",
+        "assets/atlas/block_texture.png",
         "assets/atlas/block.json",
         0,
         512,
@@ -64,13 +69,17 @@ fn generate(entry: DirEntry) -> String {
         return "".to_string();
     }
 
-    if let Some(ext) = path.extension() {
-        if ext != "png" {
-            return "".to_string();
-        }
+    let ext = if let Some(ext) = path.extension() {
+        ext.to_str().unwrap_or("")
     } else {
         return "".to_string();
-    }
+    };
+
+    let asset_type = match ext {
+        "json" => "Atlas".to_string(),
+        "png" => "Image".to_string(),
+        _ => return "".to_string(),
+    };
 
     let key = path
         .strip_prefix("assets")
@@ -81,9 +90,10 @@ fn generate(entry: DirEntry) -> String {
     return format!(
         r#"
         #[asset(path = "{0}")]
-        {1}: Handle<Image>,"#,
+        {1}: Handle<{2}>,"#,
         key,
-        key.replace("/", "_").replace(".png", "")
+        key.replace("/", "_").replace(&format!(".{}", ext), ""),
+        asset_type,
     );
 }
 
