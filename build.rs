@@ -154,7 +154,9 @@ fn generate_atlas(
 
         map.insert(name, AtlasEntry([x, y, w, h]));
 
-        x += w + 1;
+        const PADDING: u32 = 2;
+
+        x += w + PADDING;
         row_height = row_height.max(h + 1);
         atlas_height = (y + row_height).max(atlas_height);
     }

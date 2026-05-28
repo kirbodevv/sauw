@@ -14,8 +14,29 @@ use thiserror::Error;
 #[derive(Debug, Deserialize, Eq, Hash, PartialEq)]
 pub struct TextureId(String);
 
+impl TextureId {
+    pub fn new(name: &str) -> Self {
+        Self(name.to_string())
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct AtlasEntry([u32; 4]);
+
+impl AtlasEntry {
+    pub fn x(&self) -> u32 {
+        self.0[0]
+    }
+    pub fn y(&self) -> u32 {
+        self.0[1]
+    }
+    pub fn width(&self) -> u32 {
+        self.0[2]
+    }
+    pub fn height(&self) -> u32 {
+        self.0[3]
+    }
+}
 
 #[derive(Asset, TypePath, Debug, Deserialize)]
 pub struct Atlas {
