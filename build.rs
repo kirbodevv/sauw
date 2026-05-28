@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::env;
 use std::fs;
 use std::fs::DirEntry;
@@ -104,7 +104,7 @@ struct AtlasEntry([u32; 4]);
 struct Atlas {
     width: u32,
     height: u32,
-    entries: HashMap<String, AtlasEntry>,
+    entries: BTreeMap<String, AtlasEntry>,
 }
 
 fn generate_atlas(
@@ -135,7 +135,7 @@ fn generate_atlas(
     let mut row_height = 0;
 
     let mut atlas = RgbaImage::new(atlas_width, 2048);
-    let mut map = HashMap::new();
+    let mut map = BTreeMap::new();
 
     for (name, img) in images {
         let (w, h) = if fixed_tile_size > 0 {
