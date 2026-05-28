@@ -7,12 +7,15 @@ use rand::Rng;
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME, TILE_SIZE},
     game::{
-        GameState,
+        GameState, ImageAssets,
+        atlas::Atlas,
         registry::{
             GameRegistry,
             block_registry::{BlockDefinition, BlockId},
         },
-        world::{BlockEntity, BlockPos, Chunk, ChunkCoord, WorldSeed, camera::YSort},
+        world::{
+            BlockEntity, BlockPos, Chunk, ChunkCoord, WorldSeed, chunk_mesh::spawn_chunk_mesh,
+        },
     },
 };
 
@@ -101,6 +104,10 @@ pub fn spawn_chunk(
     registry: Res<GameRegistry>,
     mut commands: Commands,
     mut reader: MessageReader<GeneratedChunk>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    atlases: Res<Assets<Atlas>>,
+    image_assets: Res<ImageAssets>,
 ) {
     let air = registry.blocks.id_by_name("air");
     for chunk in reader.read() {
@@ -115,16 +122,25 @@ pub fn spawn_chunk(
         ));
 
         chunk_entity.with_children(|parent| {
+            spawn_chunk_mesh(
+                parent,
+                &chunk.blocks,
+                &registry,
+                &image_assets.atlas_block_texture,
+                &atlases.get(image_assets.atlas_block.id()).unwrap(),
+                &mut meshes,
+                &mut materials,
+                chunk_world_y,
+            );
+
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
-                    for layer in 0..2 as usize {
-                        let block = chunk.blocks[idx(x, y, layer)];
-                        if block == air {
-                            continue;
-                        }
-                        let block = registry.blocks.get(block);
-                        spawn_block(parent, block, BlockPos::new(x as u8, y as u8, layer as u8));
+                    let block = chunk.blocks[idx(x, y, 1)];
+                    if block == air {
+                        continue;
                     }
+                    let block = registry.blocks.get(block);
+                    spawn_block(parent, block, BlockPos::new(x as u8, y as u8, 1));
                 }
             }
         });
@@ -132,44 +148,18 @@ pub fn spawn_chunk(
 }
 
 pub fn spawn_block(parent: &mut ChildSpawnerCommands<'_>, block: &BlockDefinition, pos: BlockPos) {
-    let Some(texture) = &block.texture else {
-        return;
-    };
-
     let local_x = pos.x as f32 * TILE_SIZE + TILE_SIZE / 2.0;
     let local_y = pos.y as f32 * TILE_SIZE + TILE_SIZE / 2.0;
-
-    let y_sort = if pos.layer == 0 { 0.0 } else { block.y_sort };
-    let y_sort = YSort { z: y_sort };
-
     let is_object = pos.layer == 1;
 
-    let size = block.sprite_size;
-    let mut entity = parent.spawn((
-        Visibility::default(),
-        Transform::from_xyz(local_x, local_y, pos.layer as f32),
-        BlockEntity,
-        pos.clone(),
-        y_sort,
-    ));
-
-    entity.with_children(|parent| {
-        parent.spawn((
-            Sprite {
-                image: texture.clone(),
-                custom_size: Some(size),
-                ..default()
-            },
-            Transform::from_xyz(
-                block.sprite_offset.x,
-                block.sprite_offset.y,
-                pos.layer as f32 * TILE_SIZE,
-            ),
-        ));
-    });
-
     if is_object {
-        entity.insert((RigidBody::Fixed, block.collider.clone()));
+        let mut entity = parent.spawn((
+            Transform::from_xyz(local_x, local_y, pos.layer as f32),
+            BlockEntity,
+            RigidBody::Fixed,
+            block.collider.clone(),
+            pos.clone(),
+        ));
         for occluder in &block.occluders {
             entity.with_children(|parent| {
                 parent.spawn((

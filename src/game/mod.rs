@@ -4,8 +4,8 @@ include!(concat!(env!("OUT_DIR"), "/assets.rs"));
 use crate::{
     constants::TILE_SIZE,
     game::{
-        commands::CommandsPlugin, player::PlayerPlugin, registry::RegistryPlugin, ui::UiPlugin,
-        world::WorldPlugin,
+        atlas::AtlasLoader, commands::CommandsPlugin, player::PlayerPlugin,
+        registry::RegistryPlugin, ui::UiPlugin, world::WorldPlugin,
     },
 };
 use bevy::{
@@ -18,6 +18,7 @@ use bevy_asset_loader::prelude::*;
 use bevy_firefly::app::FireflyPlugin;
 use bevy_rapier2d::prelude::*;
 
+pub mod atlas;
 pub mod commands;
 pub mod player;
 pub mod registry;
@@ -75,6 +76,8 @@ impl Plugin for GamePlugin {
             },
         ))
         .init_state::<GameState>()
+        .init_asset::<Atlas>()
+        .init_asset_loader::<AtlasLoader>()
         .add_loading_state(
             LoadingState::new(GameState::AssetsLoading)
                 .continue_to_state(GameState::Bootstrap)

@@ -17,6 +17,7 @@ use crate::{
 };
 
 pub mod camera;
+pub mod chunk_mesh;
 pub mod generator;
 pub mod time;
 
