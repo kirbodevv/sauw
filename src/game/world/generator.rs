@@ -130,6 +130,7 @@ pub fn spawn_chunk(
                 &atlases.get(image_assets.atlas_block.id()).unwrap(),
                 &mut meshes,
                 &mut materials,
+                chunk_world_y,
             );
 
             for x in 0..CHUNK_SIZE {
