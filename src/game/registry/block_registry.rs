@@ -158,6 +158,15 @@ impl BlockRegistry {
             "water",
         );
 
+        inner.insert(
+            BlockDefinition {
+                name: "cactus",
+                texture: Some(assets.block_cactus.clone()),
+                ..default()
+            },
+            "cactus",
+        );
+
         Self { inner }
     }
 

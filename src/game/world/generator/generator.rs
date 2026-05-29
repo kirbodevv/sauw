@@ -13,6 +13,22 @@ use crate::{
     },
 };
 
+enum Biome {
+    Ocean,
+    Desert,
+    Plains,
+    Forest,
+}
+
+fn get_biome(v: f64) -> Biome {
+    match v {
+        v if v < 0.25 => Biome::Ocean,
+        v if v < 0.45 => Biome::Desert,
+        v if v < 0.75 => Biome::Plains,
+        _ => Biome::Forest,
+    }
+}
+
 pub fn generate_chunk(
     registry: Res<GameRegistry>,
     seed: Res<WorldSeed>,
@@ -23,6 +39,8 @@ pub fn generate_chunk(
     let height = CHUNK_SIZE as usize;
 
     let perlin = Perlin::new(seed.0);
+    let biome_perlin = Perlin::new(seed.0 + 1337);
+    let biome_freq = 0.02;
 
     let air = registry.blocks.id_by_name("air");
     let grass = registry.blocks.id_by_name("grass");
@@ -30,6 +48,7 @@ pub fn generate_chunk(
     let water = registry.blocks.id_by_name("water");
     let flowers = registry.blocks.id_by_name("lily");
     let tree = registry.blocks.id_by_name("tree");
+    let cactus = registry.blocks.id_by_name("cactus");
 
     let freq = 0.1;
 
@@ -43,30 +62,58 @@ pub fn generate_chunk(
                 let chunk_x = chunk_coord.x as f64 * 16.0;
                 let chunk_y = chunk_coord.y as f64 * 16.0;
 
-                let noise_value =
-                    perlin.get([(x as f64 + chunk_x) * freq, (y as f64 + chunk_y) * freq]);
-                let normalized = (noise_value + 1.0) / 2.0;
+                let biome_value = biome_perlin.get([
+                    (x as f64 + chunk_x) * biome_freq,
+                    (y as f64 + chunk_y) * biome_freq,
+                ]);
 
-                let surface = if normalized < 0.2 {
-                    water
-                } else if normalized < 0.3 {
-                    sand
-                } else {
-                    grass
+                let biome = get_biome((biome_value + 1.0) / 2.0);
+
+                let height_value =
+                    perlin.get([(x as f64 + chunk_x) * freq, (y as f64 + chunk_y) * freq]);
+                let normalized = (height_value + 1.0) / 2.0;
+
+                let surface = match biome {
+                    Biome::Ocean => water,
+                    Biome::Desert => sand,
+                    Biome::Plains => grass,
+                    Biome::Forest => grass,
                 };
 
-                let mut top = air;
+                let top = match biome {
+                    Biome::Forest => {
+                        let mut rng = rand::rng();
+                        let r: f64 = rng.random();
 
-                if surface == grass {
-                    let mut rng = rand::rng();
-                    let r: f64 = rng.random();
-
-                    if r < 0.05 {
-                        top = tree;
-                    } else if r < 0.15 {
-                        top = flowers;
+                        if r < 0.05 {
+                            tree
+                        } else if r < 0.15 {
+                            flowers
+                        } else {
+                            air
+                        }
                     }
-                }
+
+                    Biome::Plains => {
+                        let mut rng = rand::rng();
+                        if rng.random::<f64>() < 0.08 {
+                            flowers
+                        } else {
+                            air
+                        }
+                    }
+
+                    Biome::Desert => {
+                        let mut rng = rand::rng();
+                        if rng.random::<f64>() < 0.08 {
+                            cactus
+                        } else {
+                            air
+                        }
+                    }
+
+                    _ => air,
+                };
 
                 blocks[idx(x, y, 0)] = surface;
                 blocks[idx(x, y, 1)] = top;
