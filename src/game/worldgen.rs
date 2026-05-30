@@ -11,6 +11,7 @@ use thiserror::Error;
 pub struct BiomeMapper {
     pub temperature_noise_scale: f64,
     pub humidity_noise_scale: f64,
+    pub height_noise_scale: f64,
     pub rules: Vec<BiomeMapperRules>,
 }
 
@@ -19,6 +20,8 @@ pub struct BiomeMapperRules {
     pub biome: String,
     pub temperature: [f64; 2],
     pub humidity: [f64; 2],
+    pub height: Option<[f64; 2]>,
+    pub priority: u32,
 }
 
 #[derive(Asset, TypePath, Debug, Deserialize)]

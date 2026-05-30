@@ -1,7 +1,5 @@
 use bevy::prelude::*;
-use bevy_asset_loader::mapped;
 use noise::{NoiseFn, Perlin};
-use rand::Rng;
 
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME},
@@ -30,6 +28,7 @@ pub fn generate_chunk(
 
     let temp_perlin = Perlin::new(seed.0);
     let humid_perlin = Perlin::new(seed.0 + 1337);
+    let height_perlin = Perlin::new(seed.0 + 2674);
 
     let air = blocks.id_by_name("air");
 
@@ -40,22 +39,19 @@ pub fn generate_chunk(
 
         for x in 0..width {
             for y in 0..height {
-                let chunk_x = chunk_coord.x as f64 * 16.0;
-                let chunk_y = chunk_coord.y as f64 * 16.0;
+                let cx = chunk_coord.x as f64 * 16.0;
+                let cy = chunk_coord.y as f64 * 16.0;
+                let x = x as f64;
+                let y = y as f64;
 
-                let temp = temp_perlin.get([
-                    (x as f64 + chunk_x) * biome_mapper.temp_scale,
-                    (y as f64 + chunk_y) * biome_mapper.temp_scale,
-                ]);
-                let temp = (temp + 1.0) / 2.0;
+                let temp = generate_value(&temp_perlin, x, y, cx, cy, biome_mapper.temp_scale);
+                let humid = generate_value(&humid_perlin, x, y, cx, cy, biome_mapper.humid_scale);
+                let height =
+                    generate_value(&height_perlin, x, y, cx, cy, biome_mapper.height_scale);
 
-                let humidity = humid_perlin.get([
-                    (x as f64 + chunk_x) * biome_mapper.humid_scale,
-                    (y as f64 + chunk_y) * biome_mapper.humid_scale,
-                ]);
-                let humidity = (humidity + 1.0) / 2.0;
-
-                let biome_name = biome_mapper.get_biome(temp, humidity).unwrap_or("desert");
+                let biome_name = biome_mapper
+                    .get_biome(temp, humid, height)
+                    .unwrap_or("desert");
                 let biome = biomes.by_name(biome_name).unwrap();
 
                 let surface = biome.surface;
@@ -77,8 +73,8 @@ pub fn generate_chunk(
                     }
                 }
 
-                blocks[idx(x, y, 0)] = surface;
-                blocks[idx(x, y, 1)] = top;
+                blocks[idx(x as usize, y as usize, 0)] = surface;
+                blocks[idx(x as usize, y as usize, 1)] = top;
             }
         }
 
@@ -87,4 +83,14 @@ pub fn generate_chunk(
             blocks,
         });
     }
+}
+
+#[inline]
+fn generate_value(perlin: &Perlin, x: f64, y: f64, chunk_x: f64, chunk_y: f64, scale: f64) -> f64 {
+    normalize(perlin.get([(x + chunk_x) * scale, (y + chunk_y) * scale]))
+}
+
+#[inline]
+fn normalize(val: f64) -> f64 {
+    (val + 1.0) / 2.0
 }

@@ -1,27 +1,44 @@
 {
   "temperature_noise_scale": 0.01,
   "humidity_noise_scale": 0.01,
+  "height_noise_scale": 0.01,
 
   "rules": [
     {
       "biome": "ocean",
       "temperature": [0.0, 1.0],
-      "humidity": [0.8, 1.0]
+      "humidity": [0.8, 1.0],
+      "height": [0.0, 0.42],
+      "priority": 100
     },
+
     {
       "biome": "desert",
       "temperature": [0.7, 1.0],
-      "humidity": [0.0, 0.3]
+      "humidity": [0.0, 0.3],
+      "priority": 20
     },
+
     {
       "biome": "forest",
       "temperature": [0.3, 0.8],
-      "humidity": [0.5, 1.0]
+      "humidity": [0.5, 1.0],
+      "priority": 30
     },
+
+    {
+      "biome": "river",
+      "temperature": [0.0, 1.0],
+      "humidity": [0.0, 1.0],
+      "height": [0.42, 0.47],
+      "priority": 80
+    },
+
     {
       "biome": "plains",
       "temperature": [0.0, 1.0],
-      "humidity": [0.0, 1.0]
+      "humidity": [0.0, 1.0],
+      "priority": 10
     }
   ]
 }

@@ -45,17 +45,21 @@ pub struct BiomeMapper {
     pub rules: Vec<BiomeMapperRule>,
     pub temp_scale: f64,
     pub humid_scale: f64,
+    pub height_scale: f64,
 }
 
 impl BiomeMapper {
-    pub fn get_biome(&self, temp: f64, humid: f64) -> Option<&str> {
+    pub fn get_biome(&self, temp: f64, humid: f64, height: f64) -> Option<&str> {
         self.rules
             .iter()
-            .find(|rule| {
-                let (temp_min, temp_max) = rule.temp;
-                let (humid_min, humid_max) = rule.humid;
-                temp >= temp_min && temp <= temp_max && humid >= humid_min && humid <= humid_max
+            .filter(|rule| {
+                let temp_in_range = temp >= rule.temp.0 && temp <= rule.temp.1;
+                let humid_in_range = humid >= rule.humid.0 && humid <= rule.humid.1;
+                let height_in_range = rule.height.map_or(true, |h| height >= h.0 && height <= h.1);
+
+                temp_in_range && humid_in_range && height_in_range
             })
+            .max_by_key(|r| r.priority)
             .map(|rule| rule.biome.as_str())
     }
 }
@@ -64,6 +68,8 @@ pub struct BiomeMapperRule {
     pub biome: String,
     pub temp: (f64, f64),
     pub humid: (f64, f64),
+    pub height: Option<(f64, f64)>,
+    pub priority: u32,
 }
 
 pub fn init_biomes(
@@ -117,6 +123,8 @@ pub fn init_biome_mapper(
             biome: rule.biome.clone(),
             temp: (rule.temperature[0], rule.temperature[1]),
             humid: (rule.humidity[0], rule.humidity[1]),
+            height: rule.height.map(|h| (h[0], h[1])),
+            priority: rule.priority,
         })
         .collect::<Vec<_>>();
 
@@ -124,6 +132,7 @@ pub fn init_biome_mapper(
         rules,
         temp_scale: map.temperature_noise_scale,
         humid_scale: map.humidity_noise_scale,
+        height_scale: map.height_noise_scale,
     };
 
     commands.insert_resource(mapper);
