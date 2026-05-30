@@ -1,7 +1,12 @@
 use bevy::prelude::*;
 use std::collections::HashMap;
 
-use crate::game::{GameState, ImageAssets, registry::block_registry::BlockRegistry};
+use crate::game::{
+    GameState, ImageAssets,
+    registry::{biome_registry::BiomeRegistry, block_registry::BlockRegistry},
+};
+
+pub mod biome_registry;
 pub mod block_registry;
 
 pub struct Registry<Def> {
@@ -48,12 +53,14 @@ impl<Def> Registry<Def> {
 #[derive(Resource)]
 pub struct GameRegistry {
     pub blocks: BlockRegistry,
+    pub biomes: BiomeRegistry,
 }
 
 impl GameRegistry {
     pub fn new(assets: &ImageAssets) -> Self {
         Self {
             blocks: BlockRegistry::new(assets),
+            biomes: BiomeRegistry::new(assets),
         }
     }
 }
