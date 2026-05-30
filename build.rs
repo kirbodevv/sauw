@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 use std::env;
 use std::fs;
-use std::fs::DirEntry;
 use std::path::Path;
+use std::path::PathBuf;
 
 use image::GenericImage;
 use image::RgbaImage;
@@ -30,20 +30,41 @@ fn main() {
         pub struct ImageAssets {"#,
     );
 
+    code.push_str(&generate(
+        PathBuf::from("assets/worldgen/biome_mapper.mapper"),
+        "BiomeMapper",
+    ));
+
+    for entry in fs::read_dir("assets/worldgen/biome").unwrap() {
+        code.push_str(&generate(entry.unwrap().path(), "Biome"));
+    }
+
     for entry in fs::read_dir("assets/block").unwrap() {
-        code.push_str(&generate(entry.unwrap()));
+        code.push_str(&generate(entry.unwrap().path(), "Image"));
     }
 
     for entry in fs::read_dir("assets/entity").unwrap() {
-        code.push_str(&generate(entry.unwrap()));
+        code.push_str(&generate(entry.unwrap().path(), "Image"));
     }
 
     for entry in fs::read_dir("assets/ui").unwrap() {
-        code.push_str(&generate(entry.unwrap()));
+        code.push_str(&generate(entry.unwrap().path(), "Image"));
     }
 
     for entry in fs::read_dir("assets/atlas").unwrap() {
-        code.push_str(&generate(entry.unwrap()));
+        let path = entry.unwrap().path();
+        let ext = if let Some(ext) = path.extension() {
+            ext.to_str().unwrap_or("")
+        } else {
+            continue;
+        };
+
+        let asset_type = match ext {
+            "json" => "Atlas".to_string(),
+            "png" => "Image".to_string(),
+            _ => continue,
+        };
+        code.push_str(&generate(path, &asset_type));
     }
 
     code.push_str("\n}\n");
@@ -62,9 +83,7 @@ fn main() {
     );
 }
 
-fn generate(entry: DirEntry) -> String {
-    let path = entry.path();
-
+fn generate(path: PathBuf, asset_type: &str) -> String {
     if path.is_dir() {
         return "".to_string();
     }
@@ -73,12 +92,6 @@ fn generate(entry: DirEntry) -> String {
         ext.to_str().unwrap_or("")
     } else {
         return "".to_string();
-    };
-
-    let asset_type = match ext {
-        "json" => "Atlas".to_string(),
-        "png" => "Image".to_string(),
-        _ => return "".to_string(),
     };
 
     let key = path

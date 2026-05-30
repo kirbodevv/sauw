@@ -4,8 +4,13 @@ include!(concat!(env!("OUT_DIR"), "/assets.rs"));
 use crate::{
     constants::TILE_SIZE,
     game::{
-        atlas::AtlasLoader, commands::CommandsPlugin, player::PlayerPlugin,
-        registry::RegistryPlugin, ui::UiPlugin, world::WorldPlugin,
+        atlas::AtlasLoader,
+        commands::CommandsPlugin,
+        player::PlayerPlugin,
+        registry::RegistryPlugin,
+        ui::UiPlugin,
+        world::WorldPlugin,
+        worldgen::{Biome, BiomeLoader, BiomeMapper, BiomeMapperLoader},
     },
 };
 use bevy::{
@@ -24,6 +29,7 @@ pub mod player;
 pub mod registry;
 pub mod ui;
 pub mod world;
+pub mod worldgen;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
 pub enum GameState {
@@ -78,6 +84,10 @@ impl Plugin for GamePlugin {
         .init_state::<GameState>()
         .init_asset::<Atlas>()
         .init_asset_loader::<AtlasLoader>()
+        .init_asset::<BiomeMapper>()
+        .init_asset_loader::<BiomeMapperLoader>()
+        .init_asset::<Biome>()
+        .init_asset_loader::<BiomeLoader>()
         .add_loading_state(
             LoadingState::new(GameState::AssetsLoading)
                 .continue_to_state(GameState::Bootstrap)

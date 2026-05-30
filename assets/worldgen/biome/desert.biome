@@ -1,0 +1,10 @@
+{
+  "id": "desert",
+  "surface": "sand",
+  "objects": [
+    {
+      "block": "cactus",
+      "chance": 0.03
+    }
+  ]
+}
