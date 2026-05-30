@@ -5,7 +5,7 @@ use rand::Rng;
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME},
     game::{
-        registry::GameRegistry,
+        registry::block_registry::BlockRegistry,
         world::{
             WorldSeed,
             generator::{ChunkGenerateRequest, GeneratedChunk, idx},
@@ -30,7 +30,7 @@ fn get_biome(v: f64) -> Biome {
 }
 
 pub fn generate_chunk(
-    registry: Res<GameRegistry>,
+    registry: Res<BlockRegistry>,
     seed: Res<WorldSeed>,
     mut reader: MessageReader<ChunkGenerateRequest>,
     mut writer: MessageWriter<GeneratedChunk>,
@@ -42,13 +42,13 @@ pub fn generate_chunk(
     let biome_perlin = Perlin::new(seed.0 + 1337);
     let biome_freq = 0.02;
 
-    let air = registry.blocks.id_by_name("air");
-    let grass = registry.blocks.id_by_name("grass");
-    let sand = registry.blocks.id_by_name("sand");
-    let water = registry.blocks.id_by_name("water");
-    let flowers = registry.blocks.id_by_name("lily");
-    let tree = registry.blocks.id_by_name("tree");
-    let cactus = registry.blocks.id_by_name("cactus");
+    let air = registry.id_by_name("air");
+    let grass = registry.id_by_name("grass");
+    let sand = registry.id_by_name("sand");
+    let water = registry.id_by_name("water");
+    let flowers = registry.id_by_name("lily");
+    let tree = registry.id_by_name("tree");
+    let cactus = registry.id_by_name("cactus");
 
     let freq = 0.1;
 

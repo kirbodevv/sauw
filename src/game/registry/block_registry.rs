@@ -61,6 +61,7 @@ impl Default for Occluder {
     }
 }
 
+#[derive(Resource)]
 pub struct BlockRegistry {
     inner: Registry<BlockDefinition>,
 }
@@ -188,4 +189,9 @@ impl BlockRegistry {
     pub fn id_by_name(&self, name: &str) -> BlockId {
         BlockId(self.inner.id_by_name(name) as u16)
     }
+}
+
+pub fn init_blocks(mut commands: Commands, assets: Res<ImageAssets>) {
+    let blocks = BlockRegistry::new(&assets);
+    commands.insert_resource(blocks);
 }

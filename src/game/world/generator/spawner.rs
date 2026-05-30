@@ -7,7 +7,7 @@ use crate::{
     game::{
         ImageAssets,
         atlas::Atlas,
-        registry::{GameRegistry, block_registry::BlockDefinition},
+        registry::{block_registry::BlockDefinition, block_registry::BlockRegistry},
         world::{
             BlockEntity, BlockPos, Chunk,
             chunk_mesh::spawn_chunk_mesh,
@@ -17,7 +17,7 @@ use crate::{
 };
 
 pub fn spawn_chunk(
-    registry: Res<GameRegistry>,
+    registry: Res<BlockRegistry>,
     mut commands: Commands,
     mut reader: MessageReader<GeneratedChunk>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -25,7 +25,7 @@ pub fn spawn_chunk(
     atlases: Res<Assets<Atlas>>,
     image_assets: Res<ImageAssets>,
 ) {
-    let air = registry.blocks.id_by_name("air");
+    let air = registry.id_by_name("air");
     for chunk in reader.read() {
         let chunk_world_x = chunk.chunk_coord.x as f32 * CHUNK_SIZE as f32 * TILE_SIZE;
         let chunk_world_y = chunk.chunk_coord.y as f32 * CHUNK_SIZE as f32 * TILE_SIZE;
@@ -55,7 +55,7 @@ pub fn spawn_chunk(
                     if block == air {
                         continue;
                     }
-                    let block = registry.blocks.get(block);
+                    let block = registry.get(block);
                     spawn_block(parent, block, BlockPos::new(x as u8, y as u8, 1));
                 }
             }
