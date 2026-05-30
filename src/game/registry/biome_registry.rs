@@ -104,7 +104,7 @@ pub fn init_biome_mapper(
     mapper: Res<Assets<RawBiomeMapper>>,
     mapper_handle: Res<ImageAssets>,
 ) {
-    let handle = &mapper_handle.worldgen_biome_mapper;
+    let handle = &mapper_handle.biome_mapper;
 
     let Some(map) = mapper.get(handle) else {
         return;

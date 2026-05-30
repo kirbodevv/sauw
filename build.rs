@@ -31,24 +31,25 @@ fn main() {
     );
 
     code.push_str(&generate(
-        PathBuf::from("assets/worldgen/biome_mapper.mapper"),
+        PathBuf::from("assets/worldgen/biome.mapper"),
         "BiomeMapper",
+        Some("biome_mapper"),
     ));
 
     for entry in fs::read_dir("assets/worldgen/biome").unwrap() {
-        code.push_str(&generate(entry.unwrap().path(), "Biome"));
+        code.push_str(&generate(entry.unwrap().path(), "Biome", None));
     }
 
     for entry in fs::read_dir("assets/block").unwrap() {
-        code.push_str(&generate(entry.unwrap().path(), "Image"));
+        code.push_str(&generate(entry.unwrap().path(), "Image", None));
     }
 
     for entry in fs::read_dir("assets/entity").unwrap() {
-        code.push_str(&generate(entry.unwrap().path(), "Image"));
+        code.push_str(&generate(entry.unwrap().path(), "Image", None));
     }
 
     for entry in fs::read_dir("assets/ui").unwrap() {
-        code.push_str(&generate(entry.unwrap().path(), "Image"));
+        code.push_str(&generate(entry.unwrap().path(), "Image", None));
     }
 
     for entry in fs::read_dir("assets/atlas").unwrap() {
@@ -64,7 +65,7 @@ fn main() {
             "png" => "Image".to_string(),
             _ => continue,
         };
-        code.push_str(&generate(path, &asset_type));
+        code.push_str(&generate(path, &asset_type, None));
     }
 
     code.push_str("\n}\n");
@@ -83,7 +84,7 @@ fn main() {
     );
 }
 
-fn generate(path: PathBuf, asset_type: &str) -> String {
+fn generate(path: PathBuf, asset_type: &str, name_as: Option<&str>) -> String {
     if path.is_dir() {
         return "".to_string();
     }
@@ -100,13 +101,18 @@ fn generate(path: PathBuf, asset_type: &str) -> String {
         .to_string_lossy()
         .replace("\\", "/");
 
+    let ext_pattern = format!(".{}", ext);
+
+    let name = match name_as {
+        Some(name) => name.to_string(),
+        None => key.replace("/", "_").replace(&ext_pattern, ""),
+    };
+
     return format!(
         r#"
         #[asset(path = "{0}")]
         {1}: Handle<{2}>,"#,
-        key,
-        key.replace("/", "_").replace(&format!(".{}", ext), ""),
-        asset_type,
+        key, name, asset_type,
     );
 }
 
