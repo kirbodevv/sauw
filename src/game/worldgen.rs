@@ -9,16 +9,16 @@ use thiserror::Error;
 
 #[derive(Asset, TypePath, Debug, Deserialize)]
 pub struct BiomeMapper {
-    pub temperature_noise_scale: f32,
-    pub humidity_noise_scale: f32,
+    pub temperature_noise_scale: f64,
+    pub humidity_noise_scale: f64,
     pub rules: Vec<BiomeMapperRules>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct BiomeMapperRules {
     pub biome: String,
-    pub temperature: [f32; 2],
-    pub humidity: [f32; 2],
+    pub temperature: [f64; 2],
+    pub humidity: [f64; 2],
 }
 
 #[derive(Asset, TypePath, Debug, Deserialize)]

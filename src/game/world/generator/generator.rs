@@ -1,11 +1,15 @@
 use bevy::prelude::*;
+use bevy_asset_loader::mapped;
 use noise::{NoiseFn, Perlin};
 use rand::Rng;
 
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME},
     game::{
-        registry::block_registry::BlockRegistry,
+        registry::{
+            biome_registry::{BiomeMapper, BiomeRegistry},
+            block_registry::BlockRegistry,
+        },
         world::{
             WorldSeed,
             generator::{ChunkGenerateRequest, GeneratedChunk, idx},
@@ -13,44 +17,21 @@ use crate::{
     },
 };
 
-enum Biome {
-    Ocean,
-    Desert,
-    Plains,
-    Forest,
-}
-
-fn get_biome(v: f64) -> Biome {
-    match v {
-        v if v < 0.25 => Biome::Ocean,
-        v if v < 0.45 => Biome::Desert,
-        v if v < 0.75 => Biome::Plains,
-        _ => Biome::Forest,
-    }
-}
-
 pub fn generate_chunk(
-    registry: Res<BlockRegistry>,
+    biomes: Res<BiomeRegistry>,
+    blocks: Res<BlockRegistry>,
     seed: Res<WorldSeed>,
+    biome_mapper: Res<BiomeMapper>,
     mut reader: MessageReader<ChunkGenerateRequest>,
     mut writer: MessageWriter<GeneratedChunk>,
 ) {
     let width = CHUNK_SIZE as usize;
     let height = CHUNK_SIZE as usize;
 
-    let perlin = Perlin::new(seed.0);
-    let biome_perlin = Perlin::new(seed.0 + 1337);
-    let biome_freq = 0.02;
+    let temp_perlin = Perlin::new(seed.0);
+    let humid_perlin = Perlin::new(seed.0 + 1337);
 
-    let air = registry.id_by_name("air");
-    let grass = registry.id_by_name("grass");
-    let sand = registry.id_by_name("sand");
-    let water = registry.id_by_name("water");
-    let flowers = registry.id_by_name("lily");
-    let tree = registry.id_by_name("tree");
-    let cactus = registry.id_by_name("cactus");
-
-    let freq = 0.1;
+    let air = blocks.id_by_name("air");
 
     for chunk in reader.read() {
         let mut blocks = [air; CHUNK_VOLUME];
@@ -62,58 +43,39 @@ pub fn generate_chunk(
                 let chunk_x = chunk_coord.x as f64 * 16.0;
                 let chunk_y = chunk_coord.y as f64 * 16.0;
 
-                let biome_value = biome_perlin.get([
-                    (x as f64 + chunk_x) * biome_freq,
-                    (y as f64 + chunk_y) * biome_freq,
+                let temp = temp_perlin.get([
+                    (x as f64 + chunk_x) * biome_mapper.temp_scale,
+                    (y as f64 + chunk_y) * biome_mapper.temp_scale,
                 ]);
+                let temp = (temp + 1.0) / 2.0;
 
-                let biome = get_biome((biome_value + 1.0) / 2.0);
+                let humidity = humid_perlin.get([
+                    (x as f64 + chunk_x) * biome_mapper.humid_scale,
+                    (y as f64 + chunk_y) * biome_mapper.humid_scale,
+                ]);
+                let humidity = (humidity + 1.0) / 2.0;
 
-                let height_value =
-                    perlin.get([(x as f64 + chunk_x) * freq, (y as f64 + chunk_y) * freq]);
-                let normalized = (height_value + 1.0) / 2.0;
+                let biome_name = biome_mapper.get_biome(temp, humidity).unwrap_or("desert");
+                let biome = biomes.by_name(biome_name).unwrap();
 
-                let surface = match biome {
-                    Biome::Ocean => water,
-                    Biome::Desert => sand,
-                    Biome::Plains => grass,
-                    Biome::Forest => grass,
-                };
+                let surface = biome.surface;
 
-                let top = match biome {
-                    Biome::Forest => {
-                        let mut rng = rand::rng();
-                        let r: f64 = rng.random();
+                let mut top = air;
 
-                        if r < 0.05 {
-                            tree
-                        } else if r < 0.15 {
-                            flowers
-                        } else {
-                            air
+                if let Some(objects) = &biome.objects {
+                    let r: f32 = rand::random();
+
+                    let mut cumulative = 0.0;
+
+                    for object in objects {
+                        cumulative += object.chance;
+
+                        if r < cumulative {
+                            top = object.block;
+                            break;
                         }
                     }
-
-                    Biome::Plains => {
-                        let mut rng = rand::rng();
-                        if rng.random::<f64>() < 0.08 {
-                            flowers
-                        } else {
-                            air
-                        }
-                    }
-
-                    Biome::Desert => {
-                        let mut rng = rand::rng();
-                        if rng.random::<f64>() < 0.08 {
-                            cactus
-                        } else {
-                            air
-                        }
-                    }
-
-                    _ => air,
-                };
+                }
 
                 blocks[idx(x, y, 0)] = surface;
                 blocks[idx(x, y, 1)] = top;

@@ -34,19 +34,36 @@ impl BiomeRegistry {
     pub fn iter(&self) -> impl Iterator<Item = &BiomeDefinition> {
         self.inner.entries.iter()
     }
+
+    pub fn by_name(&self, name: &str) -> Option<&BiomeDefinition> {
+        self.inner.by_name(name)
+    }
 }
 
 #[derive(Resource)]
 pub struct BiomeMapper {
     pub rules: Vec<BiomeMapperRule>,
-    pub temp_scale: f32,
-    pub humid_scale: f32,
+    pub temp_scale: f64,
+    pub humid_scale: f64,
+}
+
+impl BiomeMapper {
+    pub fn get_biome(&self, temp: f64, humid: f64) -> Option<&str> {
+        self.rules
+            .iter()
+            .find(|rule| {
+                let (temp_min, temp_max) = rule.temp;
+                let (humid_min, humid_max) = rule.humid;
+                temp >= temp_min && temp <= temp_max && humid >= humid_min && humid <= humid_max
+            })
+            .map(|rule| rule.biome.as_str())
+    }
 }
 
 pub struct BiomeMapperRule {
     pub biome: String,
-    pub temp: (f32, f32),
-    pub humid: (f32, f32),
+    pub temp: (f64, f64),
+    pub humid: (f64, f64),
 }
 
 pub fn init_biomes(
