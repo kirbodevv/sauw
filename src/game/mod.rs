@@ -4,15 +4,8 @@ include!(concat!(env!("OUT_DIR"), "/assets.rs"));
 use crate::{
     constants::TILE_SIZE,
     game::{
-        assets::{
-            GameAssetsPlugin,
-            worldgen::{Biome, BiomeMapper},
-        },
-        commands::CommandsPlugin,
-        player::PlayerPlugin,
-        registry::RegistryPlugin,
-        ui::UiPlugin,
-        world::WorldPlugin,
+        assets::GameAssetsPlugin, commands::CommandsPlugin, player::PlayerPlugin,
+        registry::RegistryPlugin, ui::UiPlugin, world::WorldPlugin,
     },
 };
 use bevy::{
