@@ -55,7 +55,7 @@ impl AssetLoader for BiomeMapperLoader {
     type Error = BiomeLoaderError;
 
     fn extensions(&self) -> &[&str] {
-        &["mapper"]
+        &["bmap"]
     }
 
     async fn load(

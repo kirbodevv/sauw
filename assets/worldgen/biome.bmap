@@ -1,4 +1,5 @@
 {
+  "water_level": 0.42,
   "temperature_noise_scale": 0.01,
   "humidity_noise_scale": 0.01,
   "height_noise_scale": 0.01,

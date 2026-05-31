@@ -31,7 +31,7 @@ fn main() {
     );
 
     code.push_str(&generate(
-        PathBuf::from("assets/worldgen/biome.mapper"),
+        PathBuf::from("assets/worldgen/biome.bmap"),
         "BiomeMapper",
         Some("biome_mapper"),
     ));
