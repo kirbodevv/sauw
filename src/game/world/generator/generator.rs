@@ -5,13 +5,13 @@ use noise::{Fbm, NoiseFn, Perlin};
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME},
     game::{
-        registry::{
-            biome_registry::{BiomeMapper, BiomeRegistry, LayerMapper},
-            block_registry::BlockRegistry,
-        },
+        registry::{biome_registry::BiomeRegistry, block_registry::BlockRegistry},
         world::{
             WorldSeed,
-            generator::{ChunkGenerateRequest, GeneratedChunk, idx},
+            generator::{
+                ChunkGenerateRequest, GeneratedChunk, idx,
+                mappers::{BiomeMapper, LayerMapper},
+            },
         },
     },
 };

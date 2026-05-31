@@ -3,10 +3,7 @@ use std::collections::HashMap;
 
 use crate::game::{
     GameState,
-    registry::{
-        biome_registry::{init_biome_mapper, init_biomes, init_layer_mapper},
-        block_registry::init_blocks,
-    },
+    registry::{biome_registry::init_biomes, block_registry::init_blocks},
 };
 
 pub mod biome_registry;
@@ -59,14 +56,7 @@ impl Plugin for RegistryPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             OnEnter(GameState::Bootstrap),
-            (
-                init_blocks,
-                init_biomes,
-                init_biome_mapper,
-                init_layer_mapper,
-                next_state,
-            )
-                .chain(),
+            (init_blocks, init_biomes, next_state).chain(),
         );
     }
 }

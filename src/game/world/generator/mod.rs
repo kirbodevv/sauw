@@ -7,12 +7,17 @@ use crate::{
         registry::block_registry::BlockId,
         world::{
             ChunkCoord,
-            generator::{generator::generate_chunk, spawner::spawn_chunk},
+            generator::{
+                generator::generate_chunk,
+                mappers::{init_biome_mapper, init_layer_mapper},
+                spawner::spawn_chunk,
+            },
         },
     },
 };
 
 pub mod generator;
+pub mod mappers;
 pub mod spawner;
 
 #[inline]
@@ -35,6 +40,10 @@ impl Plugin for GeneratorPlugin {
     fn build(&self, app: &mut App) {
         app.add_message::<ChunkGenerateRequest>()
             .add_message::<GeneratedChunk>()
+            .add_systems(
+                OnEnter(GameState::Gaming),
+                (init_biome_mapper, init_layer_mapper),
+            )
             .add_systems(
                 Update,
                 (generate_chunk, spawn_chunk)
