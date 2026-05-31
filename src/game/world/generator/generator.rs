@@ -1,5 +1,6 @@
 use bevy::prelude::*;
-use noise::{NoiseFn, Perlin};
+use bevy_rapier2d::na::clamp;
+use noise::{Fbm, NoiseFn, Perlin};
 
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME},
@@ -29,7 +30,9 @@ pub fn generate_chunk(
 
     let temp_perlin = Perlin::new(seed.0);
     let humid_perlin = Perlin::new(seed.0 + 1337);
-    let height_perlin = Perlin::new(seed.0 + 2674);
+
+    let terrain_fbm = Fbm::<Perlin>::new(seed.0);
+    let continent_fbm = Fbm::<Perlin>::new(seed.0 + 9999);
 
     let air = blocks.id_by_name("air");
 
@@ -40,16 +43,29 @@ pub fn generate_chunk(
 
         for x in 0..width {
             for y in 0..height {
-                let cx = chunk_coord.x as f64 * 16.0;
-                let cy = chunk_coord.y as f64 * 16.0;
+                let cx = chunk_coord.x as f64 * CHUNK_SIZE as f64;
+                let cy = chunk_coord.y as f64 * CHUNK_SIZE as f64;
                 let x = x as f64;
                 let y = y as f64;
 
+                let terrain = normalize(terrain_fbm.get([
+                    (x + cx) * layer_mapper.height_scale,
+                    (y + cy) * layer_mapper.height_scale,
+                ]));
+
+                let continent =
+                    normalize(continent_fbm.get([(x + cx) * 0.0001, (y + cy) * 0.0001]));
+
+                let continent_bias = (continent - 0.5) * 2.0;
+
+                let height = terrain + continent_bias * 0.35;
+                let height = clamp(height, 0.0, 1.0);
+                let height = height.powf(1.3);
+
+                let layer = layer_mapper.get_layer(height);
+
                 let temp = generate_value(&temp_perlin, x, y, cx, cy, biome_mapper.temp_scale);
                 let humid = generate_value(&humid_perlin, x, y, cx, cy, biome_mapper.humid_scale);
-                let height =
-                    generate_value(&height_perlin, x, y, cx, cy, layer_mapper.height_scale);
-                let layer = layer_mapper.get_layer(height);
 
                 let biome_name = biome_mapper
                     .get_biome(layer, temp, humid)
