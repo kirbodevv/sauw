@@ -32,7 +32,7 @@ WIN_BIN   = target/$(WIN_TARGET)/release/$(APP_NAME).exe
 
 .PHONY: all ios install-iphone build-iphone pc android linux windows clean build-android
 
-release: clean-release linux-release windows-release android-release clean-tmp
+release: clean-release release-linux release-windows release-android clean-tmp
 
 IOS_DEVICE_ID ?= $(shell bash scripts/get_ios_device.sh)
 
