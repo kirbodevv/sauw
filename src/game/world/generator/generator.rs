@@ -5,7 +5,7 @@ use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME},
     game::{
         registry::{
-            biome_registry::{BiomeMapper, BiomeRegistry},
+            biome_registry::{BiomeMapper, BiomeRegistry, LayerMapper},
             block_registry::BlockRegistry,
         },
         world::{
@@ -19,6 +19,7 @@ pub fn generate_chunk(
     biomes: Res<BiomeRegistry>,
     blocks: Res<BlockRegistry>,
     seed: Res<WorldSeed>,
+    layer_mapper: Res<LayerMapper>,
     biome_mapper: Res<BiomeMapper>,
     mut reader: MessageReader<ChunkGenerateRequest>,
     mut writer: MessageWriter<GeneratedChunk>,
@@ -47,10 +48,11 @@ pub fn generate_chunk(
                 let temp = generate_value(&temp_perlin, x, y, cx, cy, biome_mapper.temp_scale);
                 let humid = generate_value(&humid_perlin, x, y, cx, cy, biome_mapper.humid_scale);
                 let height =
-                    generate_value(&height_perlin, x, y, cx, cy, biome_mapper.height_scale);
+                    generate_value(&height_perlin, x, y, cx, cy, layer_mapper.height_scale);
+                let layer = layer_mapper.get_layer(height);
 
                 let biome_name = biome_mapper
-                    .get_biome(temp, humid, height)
+                    .get_biome(layer, temp, humid)
                     .unwrap_or("desert");
                 let biome = biomes.by_name(biome_name).unwrap();
 

@@ -1,5 +1,5 @@
 {
-  "height_noise_scale": 0.1,
+  "height_noise_scale": 0.01,
   "layers": [
     {
       "name": "ocean",

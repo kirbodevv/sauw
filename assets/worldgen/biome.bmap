@@ -1,6 +1,6 @@
 {
-  "temperature_noise_scale": 0.01,
-  "humidity_noise_scale": 0.01,
+  "temperature_noise_scale": 0.005,
+  "humidity_noise_scale": 0.001,
   "height_noise_scale": 0.01,
 
   "rules": [

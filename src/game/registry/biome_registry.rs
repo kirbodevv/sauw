@@ -69,24 +69,25 @@ pub struct BiomeMapperRule {
 }
 
 impl LayerMapper {
-    pub fn get_layer(&self, height: f64) -> &Layer {
+    pub fn get_layer(&self, height: f64) -> &str {
         self.layers
             .iter()
             .find(|layer| height >= layer.height.0 && height <= layer.height.1)
+            .map(|layer| layer.name.as_str())
             .unwrap()
     }
 }
 
 impl BiomeMapper {
-    pub fn get_biome(&self, temp: f64, humid: f64, height: f64) -> Option<&str> {
+    pub fn get_biome(&self, layer: &str, temp: f64, humid: f64) -> Option<&str> {
         self.rules
             .iter()
+            .filter(|rule| rule.layer == layer)
             .filter(|rule| {
                 let temp_in_range = rule.temp.map_or(true, |t| temp >= t.0 && temp <= t.1);
                 let humid_in_range = rule.humid.map_or(true, |h| humid >= h.0 && humid <= h.1);
-                let height_in_range = rule.height.map_or(true, |h| height >= h.0 && height <= h.1);
 
-                temp_in_range && humid_in_range && height_in_range
+                temp_in_range && humid_in_range
             })
             .max_by_key(|r| r.priority)
             .map(|rule| rule.biome.as_str())
