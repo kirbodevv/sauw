@@ -1,10 +1,10 @@
 use crate::game::{
     ImageAssets,
+    assets::worldgen::{Biome, BiomeMapper as RawBiomeMapper},
     registry::{
         Registry,
         block_registry::{BlockId, BlockRegistry},
     },
-    worldgen::{Biome, BiomeMapper as RawBiomeMapper},
 };
 use bevy::prelude::*;
 

@@ -4,13 +4,13 @@ include!(concat!(env!("OUT_DIR"), "/assets.rs"));
 use crate::{
     constants::TILE_SIZE,
     game::{
+        assets::worldgen::{Biome, BiomeLoader, BiomeMapper, BiomeMapperLoader},
         atlas::AtlasLoader,
         commands::CommandsPlugin,
         player::PlayerPlugin,
         registry::RegistryPlugin,
         ui::UiPlugin,
         world::WorldPlugin,
-        worldgen::{Biome, BiomeLoader, BiomeMapper, BiomeMapperLoader},
     },
 };
 use bevy::{
@@ -23,13 +23,13 @@ use bevy_asset_loader::prelude::*;
 use bevy_firefly::app::FireflyPlugin;
 use bevy_rapier2d::prelude::*;
 
+pub mod assets;
 pub mod atlas;
 pub mod commands;
 pub mod player;
 pub mod registry;
 pub mod ui;
 pub mod world;
-pub mod worldgen;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
 pub enum GameState {
