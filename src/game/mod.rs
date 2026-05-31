@@ -4,8 +4,10 @@ include!(concat!(env!("OUT_DIR"), "/assets.rs"));
 use crate::{
     constants::TILE_SIZE,
     game::{
-        assets::worldgen::{Biome, BiomeLoader, BiomeMapper, BiomeMapperLoader},
-        atlas::AtlasLoader,
+        assets::{
+            GameAssetsPlugin,
+            worldgen::{Biome, BiomeMapper},
+        },
         commands::CommandsPlugin,
         player::PlayerPlugin,
         registry::RegistryPlugin,
@@ -82,12 +84,7 @@ impl Plugin for GamePlugin {
             },
         ))
         .init_state::<GameState>()
-        .init_asset::<Atlas>()
-        .init_asset_loader::<AtlasLoader>()
-        .init_asset::<BiomeMapper>()
-        .init_asset_loader::<BiomeMapperLoader>()
-        .init_asset::<Biome>()
-        .init_asset_loader::<BiomeLoader>()
+        .add_plugins(GameAssetsPlugin)
         .add_loading_state(
             LoadingState::new(GameState::AssetsLoading)
                 .continue_to_state(GameState::Bootstrap)
