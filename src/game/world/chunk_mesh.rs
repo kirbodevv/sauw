@@ -7,18 +7,15 @@ use bevy::{
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME, TILE_SIZE},
     game::{
-        atlas::{Atlas, TextureId},
-        registry::{
-            GameRegistry,
-            block_registry::{BlockDefinition, BlockId},
-        },
+        assets::atlas::{Atlas, TextureId},
+        registry::block_registry::{BlockDefinition, BlockId, BlockRegistry},
         world::generator::idx,
     },
 };
 
 pub fn build_ground_mesh(
     chunk_blocks: &[BlockId; CHUNK_VOLUME],
-    registry: &GameRegistry,
+    registry: &BlockRegistry,
     atlas: &Atlas,
 ) -> Mesh {
     let mut positions = Vec::new();
@@ -28,7 +25,7 @@ pub fn build_ground_mesh(
     for x in 0..CHUNK_SIZE {
         for y in 0..CHUNK_SIZE {
             let block_id = chunk_blocks[idx(x, y, 0)];
-            let block = registry.blocks.get(block_id);
+            let block = registry.get(block_id);
 
             if block.name == "air" {
                 continue;
@@ -86,7 +83,7 @@ pub fn build_object_quad(block: &BlockDefinition, atlas: &Atlas) -> Mesh {
 pub fn spawn_chunk_mesh(
     parent: &mut ChildSpawnerCommands<'_>,
     chunk_blocks: &[BlockId; CHUNK_VOLUME],
-    registry: &GameRegistry,
+    registry: &BlockRegistry,
     block_texture: &Handle<Image>,
     block_atlas: &Atlas,
     meshes: &mut Assets<Mesh>,
@@ -105,14 +102,14 @@ pub fn spawn_chunk_mesh(
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
 
-    let air = registry.blocks.id_by_name("air");
+    let air = registry.id_by_name("air");
     for x in 0..CHUNK_SIZE {
         for y in 0..CHUNK_SIZE {
             let block_id = chunk_blocks[idx(x, y, 1)];
             if block_id == air {
                 continue;
             }
-            let block = registry.blocks.get(block_id);
+            let block = registry.get(block_id);
 
             let local_x = x as f32 * TILE_SIZE + TILE_SIZE / 2.0 + block.sprite_offset.x;
             let local_y = y as f32 * TILE_SIZE + TILE_SIZE / 2.0 + block.sprite_offset.y;

@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 use std::env;
 use std::fs;
-use std::fs::DirEntry;
 use std::path::Path;
+use std::path::PathBuf;
 
 use image::GenericImage;
 use image::RgbaImage;
@@ -24,26 +24,54 @@ fn main() {
     code.push_str(
         r#"
         use bevy_asset_loader::asset_collection::AssetCollection;
-        use crate::game::atlas::Atlas;
+        use crate::game::assets::{atlas::Atlas, worldgen::{Biome, BiomeMapper, LayerMapper}};
 
         #[derive(AssetCollection, Resource)]
         pub struct ImageAssets {"#,
     );
 
+    code.push_str(&generate(
+        PathBuf::from("assets/worldgen/biome.bmap"),
+        "BiomeMapper",
+        Some("biome_mapper"),
+    ));
+
+    code.push_str(&generate(
+        PathBuf::from("assets/worldgen/layer.lmap"),
+        "LayerMapper",
+        Some("layer_mapper"),
+    ));
+
+    for entry in fs::read_dir("assets/worldgen/biome").unwrap() {
+        code.push_str(&generate(entry.unwrap().path(), "Biome", None));
+    }
+
     for entry in fs::read_dir("assets/block").unwrap() {
-        code.push_str(&generate(entry.unwrap()));
+        code.push_str(&generate(entry.unwrap().path(), "Image", None));
     }
 
     for entry in fs::read_dir("assets/entity").unwrap() {
-        code.push_str(&generate(entry.unwrap()));
+        code.push_str(&generate(entry.unwrap().path(), "Image", None));
     }
 
     for entry in fs::read_dir("assets/ui").unwrap() {
-        code.push_str(&generate(entry.unwrap()));
+        code.push_str(&generate(entry.unwrap().path(), "Image", None));
     }
 
     for entry in fs::read_dir("assets/atlas").unwrap() {
-        code.push_str(&generate(entry.unwrap()));
+        let path = entry.unwrap().path();
+        let ext = if let Some(ext) = path.extension() {
+            ext.to_str().unwrap_or("")
+        } else {
+            continue;
+        };
+
+        let asset_type = match ext {
+            "json" => "Atlas".to_string(),
+            "png" => "Image".to_string(),
+            _ => continue,
+        };
+        code.push_str(&generate(path, &asset_type, None));
     }
 
     code.push_str("\n}\n");
@@ -62,9 +90,7 @@ fn main() {
     );
 }
 
-fn generate(entry: DirEntry) -> String {
-    let path = entry.path();
-
+fn generate(path: PathBuf, asset_type: &str, name_as: Option<&str>) -> String {
     if path.is_dir() {
         return "".to_string();
     }
@@ -75,25 +101,24 @@ fn generate(entry: DirEntry) -> String {
         return "".to_string();
     };
 
-    let asset_type = match ext {
-        "json" => "Atlas".to_string(),
-        "png" => "Image".to_string(),
-        _ => return "".to_string(),
-    };
-
     let key = path
         .strip_prefix("assets")
         .unwrap()
         .to_string_lossy()
         .replace("\\", "/");
 
+    let ext_pattern = format!(".{}", ext);
+
+    let name = match name_as {
+        Some(name) => name.to_string(),
+        None => key.replace("/", "_").replace(&ext_pattern, ""),
+    };
+
     return format!(
         r#"
         #[asset(path = "{0}")]
         {1}: Handle<{2}>,"#,
-        key,
-        key.replace("/", "_").replace(&format!(".{}", ext), ""),
-        asset_type,
+        key, name, asset_type,
     );
 }
 

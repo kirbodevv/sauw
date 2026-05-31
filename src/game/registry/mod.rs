@@ -1,11 +1,16 @@
 use bevy::prelude::*;
 use std::collections::HashMap;
 
-use crate::game::{GameState, ImageAssets, registry::block_registry::BlockRegistry};
+use crate::game::{
+    GameState,
+    registry::{biome_registry::init_biomes, block_registry::init_blocks},
+};
+
+pub mod biome_registry;
 pub mod block_registry;
 
 pub struct Registry<Def> {
-    ids: HashMap<&'static str, usize>,
+    ids: HashMap<String, usize>,
     entries: Vec<Def>,
 }
 
@@ -17,10 +22,10 @@ impl<Def> Registry<Def> {
         }
     }
 
-    pub fn insert(&mut self, def: Def, name: &'static str) -> usize {
+    pub fn insert(&mut self, def: Def, name: &str) -> usize {
         let id = self.entries.len();
         self.entries.push(def);
-        self.ids.insert(name, id);
+        self.ids.insert(name.to_string(), id);
         id
     }
 
@@ -45,33 +50,17 @@ impl<Def> Registry<Def> {
     }
 }
 
-#[derive(Resource)]
-pub struct GameRegistry {
-    pub blocks: BlockRegistry,
-}
-
-impl GameRegistry {
-    pub fn new(assets: &ImageAssets) -> Self {
-        Self {
-            blocks: BlockRegistry::new(assets),
-        }
-    }
-}
-
 pub struct RegistryPlugin;
 
 impl Plugin for RegistryPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Bootstrap), init_registry);
+        app.add_systems(
+            OnEnter(GameState::Bootstrap),
+            (init_blocks, init_biomes, next_state).chain(),
+        );
     }
 }
 
-pub fn init_registry(
-    mut commands: Commands,
-    assets: Res<ImageAssets>,
-    mut state: ResMut<NextState<GameState>>,
-) {
-    let registry = GameRegistry::new(&assets);
-    commands.insert_resource(registry);
+pub fn next_state(mut state: ResMut<NextState<GameState>>) {
     state.set(GameState::Gaming);
 }

@@ -1,0 +1,14 @@
+{
+  "id": "forest",
+  "surface": "grass",
+  "objects": [
+    {
+      "block": "tree",
+      "chance": 0.05
+    },
+    {
+      "block": "lily",
+      "chance": 0.1
+    }
+  ]
+}
