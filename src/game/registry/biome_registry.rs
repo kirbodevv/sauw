@@ -61,8 +61,8 @@ pub struct BiomeMapper {
 
 pub struct BiomeMapperRule {
     pub biome: String,
-    pub temp: (f64, f64),
-    pub humid: (f64, f64),
+    pub temp: Option<(f64, f64)>,
+    pub humid: Option<(f64, f64)>,
     pub height: Option<(f64, f64)>,
     pub priority: u32,
 }
@@ -81,8 +81,8 @@ impl BiomeMapper {
         self.rules
             .iter()
             .filter(|rule| {
-                let temp_in_range = temp >= rule.temp.0 && temp <= rule.temp.1;
-                let humid_in_range = humid >= rule.humid.0 && humid <= rule.humid.1;
+                let temp_in_range = rule.temp.map_or(true, |t| temp >= t.0 && temp <= t.1);
+                let humid_in_range = rule.humid.map_or(true, |h| humid >= h.0 && humid <= h.1);
                 let height_in_range = rule.height.map_or(true, |h| height >= h.0 && height <= h.1);
 
                 temp_in_range && humid_in_range && height_in_range
@@ -169,8 +169,8 @@ pub fn init_biome_mapper(
         .iter()
         .map(|rule| BiomeMapperRule {
             biome: rule.biome.clone(),
-            temp: (rule.temperature[0], rule.temperature[1]),
-            humid: (rule.humidity[0], rule.humidity[1]),
+            temp: rule.temperature.map(|t| (t[0], t[1])),
+            humid: rule.humidity.map(|h| (h[0], h[1])),
             height: rule.height.map(|h| (h[0], h[1])),
             priority: rule.priority,
         })
