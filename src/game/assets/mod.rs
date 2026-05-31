@@ -1,11 +1,11 @@
-use bevy::prelude::*;
+pub mod atlas;
+pub mod worldgen;
 
 use crate::game::{
+    assets::atlas::{Atlas, AtlasLoader},
     assets::worldgen::{Biome, BiomeLoader, BiomeMapper, BiomeMapperLoader},
-    atlas::{Atlas, AtlasLoader},
 };
-
-pub mod worldgen;
+use bevy::prelude::*;
 
 pub struct GameAssetsPlugin;
 

@@ -26,7 +26,6 @@ use bevy_firefly::app::FireflyPlugin;
 use bevy_rapier2d::prelude::*;
 
 pub mod assets;
-pub mod atlas;
 pub mod commands;
 pub mod player;
 pub mod registry;

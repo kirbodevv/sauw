@@ -24,7 +24,7 @@ fn main() {
     code.push_str(
         r#"
         use bevy_asset_loader::asset_collection::AssetCollection;
-        use crate::game::atlas::Atlas;
+        use crate::game::assets::atlas::Atlas;
 
         #[derive(AssetCollection, Resource)]
         pub struct ImageAssets {"#,

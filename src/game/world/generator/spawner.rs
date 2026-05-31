@@ -6,7 +6,7 @@ use crate::{
     constants::{CHUNK_SIZE, TILE_SIZE},
     game::{
         ImageAssets,
-        atlas::Atlas,
+        assets::atlas::Atlas,
         registry::{block_registry::BlockDefinition, block_registry::BlockRegistry},
         world::{
             BlockEntity, BlockPos, Chunk,

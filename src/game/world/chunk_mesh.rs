@@ -7,7 +7,7 @@ use bevy::{
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME, TILE_SIZE},
     game::{
-        atlas::{Atlas, TextureId},
+        assets::atlas::{Atlas, TextureId},
         registry::block_registry::{BlockDefinition, BlockId, BlockRegistry},
         world::generator::idx,
     },
