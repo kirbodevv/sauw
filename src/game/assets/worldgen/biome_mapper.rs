@@ -18,6 +18,7 @@ pub struct BiomeMapper {
 #[derive(Debug, Deserialize)]
 pub struct BiomeMapperRules {
     pub biome: String,
+    pub layer: String,
     pub temperature: Option<[f64; 2]>,
     pub humidity: Option<[f64; 2]>,
     pub height: Option<[f64; 2]>,

@@ -61,6 +61,7 @@ pub struct BiomeMapper {
 
 pub struct BiomeMapperRule {
     pub biome: String,
+    pub layer: String,
     pub temp: Option<(f64, f64)>,
     pub humid: Option<(f64, f64)>,
     pub height: Option<(f64, f64)>,
@@ -169,6 +170,7 @@ pub fn init_biome_mapper(
         .iter()
         .map(|rule| BiomeMapperRule {
             biome: rule.biome.clone(),
+            layer: rule.layer.clone(),
             temp: rule.temperature.map(|t| (t[0], t[1])),
             humid: rule.humidity.map(|h| (h[0], h[1])),
             height: rule.height.map(|h| (h[0], h[1])),
