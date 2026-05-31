@@ -1,6 +1,6 @@
 use crate::game::{
     ImageAssets,
-    assets::worldgen::{Biome, BiomeMapper as RawBiomeMapper},
+    assets::worldgen::{Biome, BiomeMapper as RawBiomeMapper, LayerMapper as RawLayerMapper},
     registry::{
         Registry,
         block_registry::{BlockId, BlockRegistry},
@@ -41,11 +41,39 @@ impl BiomeRegistry {
 }
 
 #[derive(Resource)]
+pub struct LayerMapper {
+    pub height_scale: f64,
+    pub layers: Vec<Layer>,
+}
+
+pub struct Layer {
+    name: String,
+    height: (f64, f64),
+}
+
+#[derive(Resource)]
 pub struct BiomeMapper {
     pub rules: Vec<BiomeMapperRule>,
     pub temp_scale: f64,
     pub humid_scale: f64,
     pub height_scale: f64,
+}
+
+pub struct BiomeMapperRule {
+    pub biome: String,
+    pub temp: (f64, f64),
+    pub humid: (f64, f64),
+    pub height: Option<(f64, f64)>,
+    pub priority: u32,
+}
+
+impl LayerMapper {
+    pub fn get_layer(&self, height: f64) -> &Layer {
+        self.layers
+            .iter()
+            .find(|layer| height >= layer.height.0 && height <= layer.height.1)
+            .unwrap()
+    }
 }
 
 impl BiomeMapper {
@@ -62,14 +90,6 @@ impl BiomeMapper {
             .max_by_key(|r| r.priority)
             .map(|rule| rule.biome.as_str())
     }
-}
-
-pub struct BiomeMapperRule {
-    pub biome: String,
-    pub temp: (f64, f64),
-    pub humid: (f64, f64),
-    pub height: Option<(f64, f64)>,
-    pub priority: u32,
 }
 
 pub fn init_biomes(
@@ -105,12 +125,40 @@ pub fn init_biomes(
     commands.insert_resource(BiomeRegistry { inner });
 }
 
+pub fn init_layer_mapper(
+    mut commands: Commands,
+    mapper: Res<Assets<RawLayerMapper>>,
+    assets: Res<ImageAssets>,
+) {
+    let handle = &assets.layer_mapper;
+
+    let Some(map) = mapper.get(handle) else {
+        return;
+    };
+
+    let layers = map
+        .layers
+        .iter()
+        .map(|layer| Layer {
+            name: layer.name.clone(),
+            height: (layer.height[0], layer.height[1]),
+        })
+        .collect::<Vec<_>>();
+
+    let layer_mapper = LayerMapper {
+        height_scale: map.height_noise_scale,
+        layers,
+    };
+
+    commands.insert_resource(layer_mapper);
+}
+
 pub fn init_biome_mapper(
     mut commands: Commands,
     mapper: Res<Assets<RawBiomeMapper>>,
-    mapper_handle: Res<ImageAssets>,
+    assets: Res<ImageAssets>,
 ) {
-    let handle = &mapper_handle.biome_mapper;
+    let handle = &assets.biome_mapper;
 
     let Some(map) = mapper.get(handle) else {
         return;
