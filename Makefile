@@ -17,7 +17,8 @@ IOS_TARGETS				= aarch64-apple-ios
 
 # Android specific paths
 DEBUG_APK				= app-debug.apk
-RELEASE_APK				= app-release.apk
+RELEASE_APK				= app-release-unsigned.apk
+ANDROID_DEBUG_APK		= app-debug.apk
 GRADLE 					= ./$(BASE_ANDROID_DIR)/gradlew
 DEBUG_ANDROID_PATH		= $(BASE_ANDROID_DIR)/app/build/outputs/apk/debug
 RELEASE_ANDROID_PATH	= $(BASE_ANDROID_DIR)/app/build/outputs/apk/release
@@ -98,7 +99,8 @@ release-windows:
 	cd $(TMP_DIR)/windows && zip -r ../../windows-$(APP_NAME).zip * > /dev/null
 
 release-android: build-android
-	cp $(RELEASE_ANDROID_PATH)/$(RELEASE_APK) $(RELEASE_DIR)/android-$(APP_NAME).apk # Copy APK to release directory
+	mkdir -p $(RELEASE_DIR)
+	cp $(DEBUG_ANDROID_PATH)/$(DEBUG_APK) $(RELEASE_DIR)/android-$(APP_NAME).apk # Copy APK to release directory
 
 # -------- CLEAN --------
 
