@@ -3,20 +3,25 @@ use std::collections::HashMap;
 
 use crate::game::{
     GameState,
-    registry::{biome_registry::init_biomes, block_registry::init_blocks},
+    registry::{
+        biome_registry::init_biomes, block_registry::init_blocks, item_registry::init_items,
+    },
 };
 
 pub mod biome_registry;
 pub mod block_registry;
+pub mod item_registry;
 
 pub struct Registry<Def> {
+    type_name: &'static str,
     ids: HashMap<String, usize>,
     entries: Vec<Def>,
 }
 
 impl<Def> Registry<Def> {
-    pub fn new() -> Self {
+    pub fn new(type_name: &'static str) -> Self {
         Self {
+            type_name,
             ids: HashMap::new(),
             entries: Vec::new(),
         }
@@ -26,6 +31,7 @@ impl<Def> Registry<Def> {
         let id = self.entries.len();
         self.entries.push(def);
         self.ids.insert(name.to_string(), id);
+        info!("Inserted {} {:?} with id {}", self.type_name, name, id);
         id
     }
 
@@ -41,7 +47,7 @@ impl<Def> Registry<Def> {
         self.ids
             .get(name)
             .copied()
-            .unwrap_or_else(|| panic!("Unknown Block {:?}", name))
+            .unwrap_or_else(|| panic!("Unknown {} {:?}", self.type_name, name))
     }
 
     #[allow(dead_code)]
@@ -56,7 +62,7 @@ impl Plugin for RegistryPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             OnEnter(GameState::Bootstrap),
-            (init_blocks, init_biomes, next_state).chain(),
+            (init_blocks, init_items, init_biomes, next_state).chain(),
         );
     }
 }
