@@ -1,4 +1,7 @@
 use bevy::{input::InputSystems, prelude::*};
+use virtual_joystick::VirtualJoystickMessage;
+
+use crate::game::ui::joystick::JoystickControllerID;
 
 #[derive(Resource, Default)]
 pub struct PlayerInput {
@@ -9,7 +12,11 @@ fn reset_player_input(mut player_input: ResMut<PlayerInput>) {
     *player_input = PlayerInput::default();
 }
 
-pub fn player_movement(keyboard: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
+pub fn player_movement(
+    mut joystick_reader: MessageReader<VirtualJoystickMessage<JoystickControllerID>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mut player_input: ResMut<PlayerInput>,
+) {
     let mut dir = Vec2::ZERO;
 
     if keyboard.pressed(KeyCode::KeyW) {
@@ -23,6 +30,16 @@ pub fn player_movement(keyboard: Res<ButtonInput<KeyCode>>, mut player_input: Re
     }
     if keyboard.pressed(KeyCode::KeyD) {
         dir.x += 1.0;
+    }
+
+    for joystick in joystick_reader.read() {
+        let Vec2 { x, y } = joystick.axis();
+        match joystick.id() {
+            JoystickControllerID::Main => {
+                dir.x += x;
+                dir.y += y;
+            }
+        }
     }
 
     player_input.move_direction = dir;
