@@ -6079,8 +6079,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "27.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "afdcf84c395990db737f2dd91628706cb31e86d72e53482320d368e52b5da5eb"
+source = "git+https://github.com/NiklasEi/wgpu?branch=patch-bevy-flickering-android#45e8e45298b55ef004e6ad9f87495d34c90f44f0"
 dependencies = [
  "bitflags 2.10.0",
  "bytemuck",
