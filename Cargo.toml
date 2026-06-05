@@ -41,6 +41,7 @@ bevy = {
     "bevy_core_pipeline",
     "bevy_image",
     "bevy_mesh",
+    "bevy_pbr",
     "bevy_render",
     "bevy_state",
     "bevy_text",
@@ -70,6 +71,11 @@ rand = "0.9.2"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.150"
 thiserror = "2.0.18"
+virtual_joystick = {
+  version = "2.7.2",
+  default-features = false,
+  features = ["inspect", "serde"]
+}
 winit = "0.30.12"
 
 [build-dependencies]
