@@ -1,7 +1,7 @@
 use bevy::{input::InputSystems, prelude::*};
 use virtual_joystick::VirtualJoystickMessage;
 
-use crate::game::ui::joystick::JoystickControllerID;
+use crate::game::ui::joystick::{JoystickControllerID, USE_JOYSTICK};
 
 #[derive(Resource, Default)]
 pub struct PlayerInput {
@@ -12,11 +12,7 @@ fn reset_player_input(mut player_input: ResMut<PlayerInput>) {
     *player_input = PlayerInput::default();
 }
 
-pub fn player_movement(
-    mut joystick_reader: MessageReader<VirtualJoystickMessage<JoystickControllerID>>,
-    keyboard: Res<ButtonInput<KeyCode>>,
-    mut player_input: ResMut<PlayerInput>,
-) {
+pub fn keyboard_input(keyboard: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
     let mut dir = Vec2::ZERO;
 
     if keyboard.pressed(KeyCode::KeyW) {
@@ -32,6 +28,17 @@ pub fn player_movement(
         dir.x += 1.0;
     }
 
+    if dir != Vec2::ZERO {
+        player_input.move_direction = dir;
+    }
+}
+
+pub fn joystick_input(
+    mut joystick_reader: MessageReader<VirtualJoystickMessage<JoystickControllerID>>,
+    mut player_input: ResMut<PlayerInput>,
+) {
+    let mut dir = Vec2::ZERO;
+
     for joystick in joystick_reader.read() {
         let Vec2 { x, y } = joystick.axis();
         match joystick.id() {
@@ -42,14 +49,20 @@ pub fn player_movement(
         }
     }
 
-    player_input.move_direction = dir;
+    if player_input.move_direction == Vec2::ZERO {
+        player_input.move_direction = dir;
+    }
 }
 
 pub struct InputPlugin;
 
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(PreUpdate, (player_movement,).after(InputSystems))
-            .add_systems(PreUpdate, reset_player_input.before(InputSystems));
+        app.add_systems(PreUpdate, reset_player_input.before(InputSystems))
+            .add_systems(PreUpdate, (keyboard_input).after(InputSystems));
+
+        if USE_JOYSTICK {
+            app.add_systems(PreUpdate, joystick_input.after(InputSystems));
+        }
     }
 }
