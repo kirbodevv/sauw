@@ -28,7 +28,7 @@ pub fn spawn_camera(mut commands: Commands) {
         }),
         MainCamera,
         FireflyConfig {
-            normal_mode: NormalMode::TopDown,
+            normal_mode: NormalMode::TopDownY,
             ..default()
         },
         Msaa::Off,

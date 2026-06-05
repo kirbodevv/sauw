@@ -13,7 +13,7 @@ path = "src/main.rs"
 
 [dependencies]
 bevy = {
-  version = "0.17.3",
+  version = "0.18.1",
   default-features = false,
   features = [
     # Core
@@ -57,11 +57,11 @@ bevy = {
     "default_font",
   ]
 }
-bevy_asset_loader = "0.24.0"
-bevy_console = "0.16.0"
-bevy_firefly = "0.17.0"
-bevy_rapier2d = "0.32.0"
-bevy_winit = "0.17.3"
+bevy_asset_loader = "0.26.0"
+bevy_console = "0.17.1"
+bevy_firefly = "0.18.2"
+bevy_rapier2d = "0.34.0"
+bevy_winit = "0.18.1"
 blake3 = { version = "1.5", features = ["pure"] }
 clap = { version = "4.5.54", features = ["derive"] }
 image = "0.25.9"

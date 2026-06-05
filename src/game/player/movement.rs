@@ -27,9 +27,9 @@ pub fn player_movement(
     for (mut velocity, mut anim) in &mut query {
         if dir != Vec2::ZERO {
             let v = dir.normalize();
-            velocity.linvel = v * TILE_SIZE * 4.0;
+            velocity.linear = v * TILE_SIZE * 4.0;
         } else {
-            velocity.linvel = Vec2::ZERO;
+            velocity.linear = Vec2::ZERO;
         }
 
         anim.state = if dir == Vec2::ZERO {

@@ -57,7 +57,7 @@ fn spawn_player(
         PlayerLight,
         PointLight2d {
             color: Color::srgb(0.5, 0.45, 0.05),
-            range: TILE_SIZE * 4.0,
+            radius: TILE_SIZE * 4.0,
             intensity: 2.0,
             offset: vec3(0.0, 16.0, 0.0),
             ..default()
