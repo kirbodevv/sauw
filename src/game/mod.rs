@@ -20,6 +20,7 @@ use bevy_rapier2d::prelude::*;
 
 pub mod assets;
 pub mod commands;
+pub mod item;
 pub mod player;
 pub mod registry;
 pub mod ui;

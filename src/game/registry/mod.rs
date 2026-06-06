@@ -31,7 +31,7 @@ impl<Def> Registry<Def> {
         let id = self.entries.len();
         self.entries.push(def);
         self.ids.insert(name.to_string(), id);
-        info!("Inserted {} {:?} with id {}", self.type_name, name, id);
+        info!(target: "registry", "Inserted {} {:?} with id {}", self.type_name, name, id);
         id
     }
 
