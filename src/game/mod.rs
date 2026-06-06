@@ -62,9 +62,9 @@ impl Plugin for GamePlugin {
                     },
                     text_color: Color::LinearRgba(LinearRgba::GREEN),
                     refresh_interval: core::time::Duration::from_millis(100),
-                    enabled: true,
+                    enabled: false,
                     frame_time_graph_config: FrameTimeGraphConfig {
-                        enabled: true,
+                        enabled: false,
                         min_fps: 30.0,
                         target_fps: 144.0,
                     },
