@@ -68,7 +68,7 @@ pub struct BlockRegistry {
 
 impl BlockRegistry {
     pub fn new(assets: &ImageAssets) -> Self {
-        let mut inner = Registry::new();
+        let mut inner = Registry::new("block");
 
         inner.insert(
             BlockDefinition {

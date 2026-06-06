@@ -88,6 +88,14 @@ fn main() {
         0,
         512,
     );
+
+    generate_atlas(
+        "assets/item",
+        "assets/atlas/item_texture.png",
+        "assets/atlas/item.json",
+        0,
+        512,
+    );
 }
 
 fn generate(path: PathBuf, asset_type: &str, name_as: Option<&str>) -> String {

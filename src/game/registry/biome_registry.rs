@@ -44,7 +44,7 @@ pub fn init_biomes(
     biomes: Res<Assets<Biome>>,
     block_registry: Res<BlockRegistry>,
 ) {
-    let mut inner = Registry::new();
+    let mut inner = Registry::new("biome");
 
     for (_id, biome) in biomes.iter() {
         let id = BiomeId(biome.id.clone());
