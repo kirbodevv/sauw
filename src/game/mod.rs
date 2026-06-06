@@ -10,6 +10,7 @@ use crate::{
 };
 use bevy::{
     dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin, FrameTimeGraphConfig},
+    input::InputSystems,
     prelude::*,
     text::FontSmoothing,
     window::{PresentMode, WindowMode},
@@ -90,6 +91,7 @@ impl Plugin for GamePlugin {
             CommandsPlugin,
             UiPlugin,
         ))
+        .add_systems(Update, toggle_fps_overlay.after(InputSystems))
         .insert_resource(ClearColor(Color::BLACK));
 
         let lighting = !std::env::args().any(|a| a == "--lighting=off");
@@ -106,5 +108,12 @@ impl Plugin for GamePlugin {
                 app.add_plugins(FireflyPlugin);
             }
         }
+    }
+}
+
+fn toggle_fps_overlay(keyboard: Res<ButtonInput<KeyCode>>, mut config: ResMut<FpsOverlayConfig>) {
+    if keyboard.just_pressed(KeyCode::F3) {
+        config.enabled = !config.enabled;
+        config.frame_time_graph_config.enabled = !config.frame_time_graph_config.enabled;
     }
 }
