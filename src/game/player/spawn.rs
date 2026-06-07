@@ -11,7 +11,7 @@ use crate::{
             health::Health,
             sprite::{PlayerAnimation, PlayerState},
         },
-        ui::health::SpawnPlayerHearts,
+        ui::hud::health::SpawnPlayerHearts,
         world::camera::YSort,
     },
 };

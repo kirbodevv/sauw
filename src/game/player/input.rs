@@ -1,7 +1,7 @@
 use bevy::{input::InputSystems, prelude::*};
 use virtual_joystick::VirtualJoystickMessage;
 
-use crate::game::ui::joystick::{JoystickControllerID, USE_JOYSTICK};
+use crate::game::ui::hud::joystick::{JoystickControllerID, USE_JOYSTICK};
 
 #[derive(Resource, Default)]
 pub struct PlayerInput {
