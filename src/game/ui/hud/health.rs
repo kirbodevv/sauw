@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use crate::game::{
     GameState, ImageAssets,
     player::{Player, health::Health},
+    ui::hud::HudTop,
 };
 
 #[derive(Component)]
@@ -50,9 +51,9 @@ fn spawn_heart(commands: &mut Commands, assets: &Res<ImageAssets>, index: usize)
                 ..default()
             },
             Node {
-                width: Val::Percent(2.0),
+                width: Val::Px(32.0),
                 margin: UiRect {
-                    right: Val::Percent(0.25),
+                    right: Val::Px(2.0),
                     ..default()
                 },
                 ..default()
@@ -64,24 +65,27 @@ fn spawn_heart(commands: &mut Commands, assets: &Res<ImageAssets>, index: usize)
 fn spawn_hearts(
     mut commands: Commands,
     assets: Res<ImageAssets>,
+    hud_top: Single<Entity, With<HudTop>>,
     mut ev_spawn_player_hearts: MessageReader<SpawnPlayerHearts>,
 ) {
     for ev in ev_spawn_player_hearts.read() {
-        let root = commands
+        let hearts_container = commands
             .spawn((
                 HeartsContainer,
                 Node {
-                    width: Val::Percent(90.0),
-                    top: Val::Percent(3.5),
-                    left: Val::Percent(2.5),
+                    height: Val::Px(32.0),
                     ..default()
                 },
             ))
             .id();
 
+        commands.entity(*hud_top).add_children(&[hearts_container]);
+
         for i in 0..ev.count {
             let heart_entity = spawn_heart(&mut commands, &assets, i);
-            commands.entity(root).add_children(&[heart_entity]);
+            commands
+                .entity(hearts_container)
+                .add_children(&[heart_entity]);
         }
     }
 }

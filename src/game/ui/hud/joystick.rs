@@ -1,4 +1,4 @@
-use crate::game::{GameState, ImageAssets};
+use crate::game::{GameState, ImageAssets, ui::hud::HudBottom};
 use bevy::prelude::*;
 use virtual_joystick::*;
 
@@ -6,7 +6,7 @@ use virtual_joystick::*;
 pub const USE_JOYSTICK: bool = true;
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
-pub const USE_JOYSTICK: bool = false;
+pub const USE_JOYSTICK: bool = true;
 
 #[derive(Default, Debug, Reflect, Hash, Clone, PartialEq, Eq)]
 pub enum JoystickControllerID {
@@ -23,26 +23,73 @@ impl Plugin for JoystickPlugin {
     }
 }
 
-fn spawn_joystick(mut commands: Commands, assets: Res<ImageAssets>) {
-    create_joystick(
-        &mut commands,
-        JoystickControllerID::Main,
-        assets.ui_joystick_handle.clone(),
-        assets.ui_joystick_base.clone(),
-        None,
-        None,
-        None,
-        Vec2::new(75., 75.),
-        Vec2::new(150., 150.),
-        Node {
-            width: Val::Percent(100.),
-            height: Val::Percent(100.),
-            position_type: PositionType::Absolute,
-            left: Val::Percent(10.),
-            top: Val::Percent(50.),
-            ..default()
-        },
-        JoystickFixed,
-        NoAction,
-    );
+fn spawn_joystick(
+    mut cmd: Commands,
+    assets: Res<ImageAssets>,
+    hud_bottom: Single<Entity, With<HudBottom>>,
+) {
+    let id = JoystickControllerID::Main;
+    let knob_img = assets.ui_joystick_handle.clone();
+    let base_img = assets.ui_joystick_base.clone();
+    let knob_size = Vec2::new(75., 75.);
+    let base_size = Vec2::new(150., 150.);
+
+    cmd.entity(*hud_bottom).with_children(|parent| {
+        let mut spawn = parent.spawn(
+            VirtualJoystickBundle::new(
+                VirtualJoystickNode::<JoystickControllerID>::default()
+                    .with_id(id)
+                    .with_behavior(JoystickFixed)
+                    .with_action(NoAction),
+            )
+            .set_style(Node {
+                width: Val::Px(base_size.x),
+                height: Val::Px(base_size.y),
+                ..default()
+            }),
+        );
+
+        spawn.with_children(|parent| {
+            parent.spawn((
+                VirtualJoystickInteractionArea,
+                Node {
+                    width: Val::Px(base_size.x),
+                    height: Val::Px(base_size.y),
+                    ..default()
+                },
+            ));
+
+            parent.spawn((
+                VirtualJoystickUIKnob,
+                ImageNode {
+                    color: Color::WHITE.with_alpha(1.0),
+                    image: knob_img,
+                    ..default()
+                },
+                Node {
+                    position_type: PositionType::Absolute,
+                    width: Val::Px(knob_size.x),
+                    height: Val::Px(knob_size.y),
+                    ..default()
+                },
+                ZIndex(1),
+            ));
+
+            parent.spawn((
+                VirtualJoystickUIBackground,
+                ImageNode {
+                    color: Color::WHITE.with_alpha(1.0),
+                    image: base_img,
+                    ..default()
+                },
+                Node {
+                    position_type: PositionType::Absolute,
+                    width: Val::Px(base_size.x),
+                    height: Val::Px(base_size.y),
+                    ..default()
+                },
+                ZIndex(0),
+            ));
+        });
+    });
 }
