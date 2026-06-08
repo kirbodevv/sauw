@@ -46,6 +46,7 @@ bevy = {
     "bevy_state",
     "bevy_text",
     "bevy_ui",
+    "bevy_ui_debug",
     "bevy_ui_render",
     "png",
 
