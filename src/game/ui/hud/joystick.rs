@@ -6,7 +6,7 @@ use virtual_joystick::*;
 pub const USE_JOYSTICK: bool = true;
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
-pub const USE_JOYSTICK: bool = true;
+pub const USE_JOYSTICK: bool = false;
 
 #[derive(Default, Debug, Reflect, Hash, Clone, PartialEq, Eq)]
 pub enum JoystickControllerID {
