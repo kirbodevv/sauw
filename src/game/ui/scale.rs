@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 #[derive(Resource)]
-struct TargetScale {
+pub struct TargetScale {
     start_scale: f32,
     target_scale: f32,
     target_time: Timer,

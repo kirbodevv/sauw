@@ -31,6 +31,8 @@ pub struct HudTop;
 #[derive(Component)]
 pub struct HudBottom;
 
+pub const DEFAULT_HUD_PADDING: f32 = 16.0;
+
 pub fn spawn_root_node(mut commands: Commands) {
     commands
         .spawn((
@@ -39,12 +41,7 @@ pub fn spawn_root_node(mut commands: Commands) {
                 justify_content: JustifyContent::SpaceBetween,
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
-                padding: UiRect {
-                    top: Val::Px(16.0),
-                    left: Val::Px(16.0),
-                    bottom: Val::Px(24.0),
-                    right: Val::Px(16.0),
-                },
+                padding: Val::Px(DEFAULT_HUD_PADDING).all(),
                 ..default()
             },
             HudRoot,
