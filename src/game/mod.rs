@@ -7,6 +7,7 @@ use crate::{
         assets::GameAssetsPlugin, commands::CommandsPlugin, player::PlayerPlugin,
         registry::RegistryPlugin, ui::UiPlugin, world::WorldPlugin,
     },
+    platform::safe_zone::JNISafeZonePlugin,
 };
 use bevy::{
     dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin, FrameTimeGraphConfig},
@@ -79,6 +80,7 @@ impl Plugin for GamePlugin {
         ))
         .init_state::<GameState>()
         .add_plugins(GameAssetsPlugin)
+        .add_plugins(JNISafeZonePlugin)
         .add_loading_state(
             LoadingState::new(GameState::AssetsLoading)
                 .continue_to_state(GameState::Bootstrap)

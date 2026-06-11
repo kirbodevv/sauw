@@ -16,11 +16,13 @@ pub fn apply_safe_zone(
     ui_scale: Res<UiScale>,
 ) {
     for change in safe_zone_reader.read() {
+        let scale = ui_scale.0;
+
         let (top, bottom, left, right) = (
-            Val::Px(DEFAULT_HUD_PADDING + change.top / ui_scale.0),
-            Val::Px(DEFAULT_HUD_PADDING + change.bottom / ui_scale.0),
-            Val::Px(DEFAULT_HUD_PADDING + change.left / ui_scale.0),
-            Val::Px(DEFAULT_HUD_PADDING + change.right / ui_scale.0),
+            Val::Px(DEFAULT_HUD_PADDING + change.top / scale),
+            Val::Px(DEFAULT_HUD_PADDING + change.bottom / scale),
+            Val::Px(DEFAULT_HUD_PADDING + change.left / scale),
+            Val::Px(DEFAULT_HUD_PADDING + change.right / scale),
         );
 
         hud_root.padding = UiRect::new(left, right, top, bottom);

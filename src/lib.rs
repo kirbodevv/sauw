@@ -1,6 +1,9 @@
 pub mod constants;
 pub mod game;
 pub mod icon;
+pub mod platform {
+    pub mod safe_zone;
+}
 
 use crate::game::GamePlugin;
 use bevy::prelude::*;
