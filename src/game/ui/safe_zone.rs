@@ -13,10 +13,10 @@ pub struct ChangeSafeZone {
 pub fn apply_safe_zone(
     mut safe_zone_reader: MessageReader<ChangeSafeZone>,
     mut hud_root: Single<&mut Node, With<HudRoot>>,
-    ui_scale: Res<UiScale>,
+    window: Single<&mut Window>,
 ) {
     for change in safe_zone_reader.read() {
-        let scale = ui_scale.0;
+        let scale = window.physical_width() as f32 / window.width() as f32;
 
         let (top, bottom, left, right) = (
             Val::Px(DEFAULT_HUD_PADDING + change.top / scale),
