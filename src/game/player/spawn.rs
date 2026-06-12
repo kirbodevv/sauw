@@ -9,6 +9,7 @@ use crate::{
         player::{
             Player, PlayerLight,
             health::Health,
+            inventory::{INVENTORY_SIZE, Inventory},
             sprite::{PlayerAnimation, PlayerState},
         },
         ui::hud::health::SpawnPlayerHearts,
@@ -54,6 +55,7 @@ fn spawn_player(
         LockedAxes::ROTATION_LOCKED,
         Velocity::zero(),
         Health::new(MAX_PLAYER_HEALTH),
+        Inventory::new(INVENTORY_SIZE),
         PlayerLight,
         PointLight2d {
             color: Color::srgb(0.5, 0.45, 0.05),
