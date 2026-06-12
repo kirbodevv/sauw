@@ -57,6 +57,10 @@ impl ItemRegistry {
     pub fn id_by_name(&self, name: &str) -> ItemId {
         ItemId(self.inner.id_by_name(name) as u16)
     }
+
+    pub fn try_id_by_name(&self, name: &str) -> Option<ItemId> {
+        self.inner.try_id_by_name(name).map(|id| ItemId(id as u16))
+    }
 }
 
 pub fn init_items(mut commands: Commands, assets: Res<ImageAssets>) {
