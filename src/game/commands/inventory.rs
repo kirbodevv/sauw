@@ -35,7 +35,7 @@ pub fn inventory(
             InventoryAction::Get => {
                 let used = q_inventory.used_slots();
                 let total = q_inventory.slots.len();
-                log.reply(format!("Инвентарь ({used}/{total}):"));
+                log.reply(format!("Inventory ({used}/{total}):"));
 
                 let mut found_any = false;
                 for (i, slot) in q_inventory.slots.iter().enumerate() {
@@ -47,7 +47,7 @@ pub fn inventory(
                 }
 
                 if !found_any {
-                    log.reply("  (пусто)");
+                    log.reply("  (empty)");
                 }
             }
 
@@ -55,7 +55,7 @@ pub fn inventory(
                 let item_id = match item_registry.try_id_by_name(&item) {
                     Some(id) => id,
                     None => {
-                        log.reply_failed(format!("Неизвестный предмет: \"{item}\""));
+                        log.reply_failed(format!("Unknown item: \"{item}\""));
                         return;
                     }
                 };
@@ -63,12 +63,12 @@ pub fn inventory(
                 let stack = ItemStack::new(item_id, amount);
                 match q_inventory.add_item(stack) {
                     None => {
-                        log.reply(format!("Добавлено {amount}x {item}"));
+                        log.reply(format!("Added {amount}x {item}"));
                     }
                     Some(leftover) => {
                         let placed = amount - leftover.count;
                         log.reply_failed(format!(
-                            "Инвентарь переполнен: добавлено {placed}x {item}, не вошло {}",
+                            "Inventory full: added {placed}x {item}, not enough space for {}",
                             leftover.count
                         ));
                     }
