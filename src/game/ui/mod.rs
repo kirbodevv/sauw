@@ -14,7 +14,7 @@ impl Plugin for UiPlugin {
             safe_zone::SafeZonePlugin,
         ))
         .insert_resource(UiDebugOptions {
-            enabled: true,
+            enabled: false,
             ..default()
         });
     }

@@ -93,7 +93,10 @@ impl Plugin for GamePlugin {
             CommandsPlugin,
             UiPlugin,
         ))
-        .add_systems(Update, toggle_fps_overlay.after(InputSystems))
+        .add_systems(
+            Update,
+            (toggle_fps_overlay, toggle_ui_debug).after(InputSystems),
+        )
         .insert_resource(ClearColor(Color::BLACK));
 
         let lighting = !std::env::args().any(|a| a == "--lighting=off");
@@ -117,5 +120,11 @@ fn toggle_fps_overlay(keyboard: Res<ButtonInput<KeyCode>>, mut config: ResMut<Fp
     if keyboard.just_pressed(KeyCode::F3) {
         config.enabled = !config.enabled;
         config.frame_time_graph_config.enabled = !config.frame_time_graph_config.enabled;
+    }
+}
+
+fn toggle_ui_debug(keyboard: Res<ButtonInput<KeyCode>>, mut config: ResMut<UiDebugOptions>) {
+    if keyboard.just_pressed(KeyCode::F4) {
+        config.enabled = !config.enabled;
     }
 }
