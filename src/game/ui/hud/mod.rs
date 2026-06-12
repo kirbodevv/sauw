@@ -1,11 +1,7 @@
-use crate::game::ui::hud::{
-    health::HealthPlugin,
-    joystick::{JoystickPlugin, USE_JOYSTICK},
-};
-
 use bevy::prelude::*;
 
 pub mod health;
+pub mod hotbar;
 pub mod joystick;
 
 pub struct HudPlugin;
@@ -14,10 +10,10 @@ impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_root_node);
 
-        app.add_plugins(HealthPlugin);
+        app.add_plugins((health::HealthPlugin, hotbar::HotbarPlugin));
 
-        if USE_JOYSTICK {
-            app.add_plugins(JoystickPlugin);
+        if joystick::USE_JOYSTICK {
+            app.add_plugins(joystick::JoystickPlugin);
         }
     }
 }
