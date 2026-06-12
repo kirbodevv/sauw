@@ -10,6 +10,7 @@ use crate::game::{
 
 pub mod health;
 pub mod input;
+pub mod inventory;
 pub mod movement;
 pub mod spawn;
 pub mod sprite;

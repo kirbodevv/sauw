@@ -50,6 +50,10 @@ impl<Def> Registry<Def> {
             .unwrap_or_else(|| panic!("Unknown {} {:?}", self.type_name, name))
     }
 
+    pub fn try_id_by_name(&self, name: &str) -> Option<usize> {
+        self.ids.get(name).copied()
+    }
+
     #[allow(dead_code)]
     pub fn contains(&self, id: usize) -> bool {
         self.entries.get(id).is_some()
