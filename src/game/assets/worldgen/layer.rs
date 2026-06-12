@@ -51,7 +51,8 @@ impl AssetLoader for LayerMapperLoader {
             .map_err(|e| LayerMapperLoaderError::Io(IoError::new(ErrorKind::Other, e)))?;
 
         info!(
-            "[ Asset Loader ] Loaded layer mapper with {} layers",
+            target: "asset_loader",
+            "Loaded layer mapper with {} layers",
             layer_mapper.layers.len()
         );
 

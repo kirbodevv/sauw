@@ -51,7 +51,7 @@ impl AssetLoader for BiomeLoader {
         let biome: Biome = serde_json::from_slice(&bytes)
             .map_err(|e| BiomeLoaderError::Io(IoError::new(ErrorKind::Other, e)))?;
 
-        info!("[ Asset Loader ] Loaded biome: {}", biome.id);
+        info!(target: "asset_loader", "Loaded biome: {}", biome.id);
 
         Ok(biome)
     }

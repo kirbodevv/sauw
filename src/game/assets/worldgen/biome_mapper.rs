@@ -57,7 +57,8 @@ impl AssetLoader for BiomeMapperLoader {
             .map_err(|e| BiomeMapperLoaderError::Io(IoError::new(ErrorKind::Other, e)))?;
 
         info!(
-            "[ Asset Loader ] Loaded biome mapper with {} rules",
+            target: "asset_loader",
+            "Loaded biome mapper with {} rules",
             biome_mapper.rules.len()
         );
 

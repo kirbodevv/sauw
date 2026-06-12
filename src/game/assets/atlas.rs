@@ -77,7 +77,8 @@ impl AssetLoader for AtlasLoader {
             .map_err(|e| AtlasLoaderError::Io(IoError::new(ErrorKind::Other, e)))?;
 
         info!(
-            "[ AtlasLoader ] loaded atlas with {} entries",
+            target: "asset_loader",
+            "Loaded atlas with {} entries",
             atlas.entries.len()
         );
 
