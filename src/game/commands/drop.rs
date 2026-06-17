@@ -4,7 +4,7 @@ use clap::Parser;
 
 use crate::{
     constants::TILE_SIZE,
-    game::{drop::spawner::SpawnDrop, player::Player, registry::item_registry::ItemRegistry},
+    game::{drop::SpawnDrop, player::Player, registry::item_registry::ItemRegistry},
 };
 
 #[derive(Clone)]
