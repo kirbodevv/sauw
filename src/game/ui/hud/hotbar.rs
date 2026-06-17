@@ -177,6 +177,7 @@ fn update_hotbar_items(
     item_registry: Res<ItemRegistry>,
     mut q_icons: Query<(&HotbarItemIcon, &mut ImageNode)>,
     mut q_counts: Query<(&HotbarItemCount, &mut Text)>,
+    assets: Res<ImageAssets>,
 ) {
     let Ok(inventory) = q_player.single() else {
         return;
@@ -190,11 +191,16 @@ fn update_hotbar_items(
         {
             Some(stack) => {
                 let def = item_registry.get(stack.item);
-                img.image = def.texture.clone();
+                img.image = assets.atlas_item_texture.clone();
+                img.texture_atlas = Some(TextureAtlas {
+                    layout: item_registry.atlas_layout.clone(),
+                    index: def.atlas_index,
+                });
                 img.color = Color::WHITE;
             }
             None => {
                 img.image = Handle::default();
+                img.texture_atlas = None;
                 img.color = Color::WHITE.with_alpha(0.0);
             }
         }

@@ -1,20 +1,22 @@
+use std::collections::HashMap;
+
 use bevy::prelude::*;
 
-use crate::game::{ImageAssets, registry::Registry};
+use crate::game::{ImageAssets, assets::atlas::Atlas, registry::Registry};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ItemId(pub u16);
 
 pub struct ItemDefinition {
     pub name: &'static str,
-    pub texture: Handle<Image>,
+    pub atlas_index: usize,
 }
 
 impl Default for ItemDefinition {
     fn default() -> Self {
         Self {
             name: "none",
-            texture: Handle::default(),
+            atlas_index: 0,
         }
     }
 }
@@ -22,23 +24,10 @@ impl Default for ItemDefinition {
 #[derive(Resource)]
 pub struct ItemRegistry {
     inner: Registry<ItemDefinition>,
+    pub atlas_layout: Handle<TextureAtlasLayout>,
 }
 
 impl ItemRegistry {
-    pub fn new(assets: &ImageAssets) -> Self {
-        let mut inner = Registry::new("item");
-
-        inner.insert(
-            ItemDefinition {
-                name: "air",
-                texture: assets.block_grass.clone(),
-            },
-            "air",
-        );
-
-        Self { inner }
-    }
-
     #[allow(dead_code)]
     pub fn get(&self, id: ItemId) -> &ItemDefinition {
         self.inner
@@ -63,7 +52,39 @@ impl ItemRegistry {
     }
 }
 
-pub fn init_items(mut commands: Commands, assets: Res<ImageAssets>) {
-    let items = ItemRegistry::new(&assets);
-    commands.insert_resource(items);
+pub fn init_items(
+    mut commands: Commands,
+    assets: Res<ImageAssets>,
+    atlas_assets: Res<Assets<Atlas>>,
+    mut layouts: ResMut<Assets<TextureAtlasLayout>>,
+) {
+    let atlas = atlas_assets
+        .get(&assets.atlas_item)
+        .expect("Item atlas not loaded");
+
+    let mut layout = TextureAtlasLayout::new_empty(UVec2::new(atlas.width, atlas.height));
+    let mut name_to_index: HashMap<&str, usize> = HashMap::new();
+
+    for (name, entry) in &atlas.entries {
+        let [x, y, w, h] = [entry.x(), entry.y(), entry.width(), entry.height()];
+        let idx = layout.add_texture(URect::new(x, y, x + w, y + h));
+        name_to_index.insert(name.get_name(), idx);
+    }
+
+    let atlas_layout = layouts.add(layout);
+
+    let mut inner = Registry::new("item");
+
+    inner.insert(
+        ItemDefinition {
+            name: "apple",
+            atlas_index: name_to_index.get("apple").copied().unwrap_or(0),
+        },
+        "apple",
+    );
+
+    commands.insert_resource(ItemRegistry {
+        inner,
+        atlas_layout,
+    });
 }
