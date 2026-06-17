@@ -4,7 +4,11 @@ use clap::Parser;
 
 use crate::{
     constants::TILE_SIZE,
-    game::{drop::SpawnDrop, player::Player, registry::item_registry::ItemRegistry},
+    game::{
+        drop::{DroppedBy, SpawnDrop},
+        player::Player,
+        registry::item_registry::ItemRegistry,
+    },
 };
 
 #[derive(Clone)]
@@ -66,7 +70,11 @@ pub fn drop(
                 y.map(|y| y.to_f32())
                     .unwrap_or(player.translation.y / TILE_SIZE),
             );
-            event_writer.write(SpawnDrop { id, position });
+            event_writer.write(SpawnDrop {
+                id,
+                position,
+                dropped_by: DroppedBy::Command,
+            });
         }
     }
 }
