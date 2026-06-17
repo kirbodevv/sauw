@@ -53,15 +53,20 @@ pub fn drop(
 ) {
     if let Some(Ok(DropCommand { item, x, y })) = log.take() {
         if let Some(registry) = item_registry {
-            event_writer.write(SpawnDrop {
-                id: registry.id_by_name(&item),
-                position: Vec2::new(
-                    x.map(|x| x.to_f32())
-                        .unwrap_or(player.translation.x / TILE_SIZE),
-                    y.map(|y| y.to_f32())
-                        .unwrap_or(player.translation.y / TILE_SIZE),
-                ),
-            });
+            let id = registry.try_id_by_name(&item);
+
+            let Some(id) = id else {
+                log.reply_failed(format!("item not found: {}", item));
+                return;
+            };
+
+            let position = Vec2::new(
+                x.map(|x| x.to_f32())
+                    .unwrap_or(player.translation.x / TILE_SIZE),
+                y.map(|y| y.to_f32())
+                    .unwrap_or(player.translation.y / TILE_SIZE),
+            );
+            event_writer.write(SpawnDrop { id, position });
         }
     }
 }
