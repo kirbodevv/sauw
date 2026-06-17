@@ -15,6 +15,7 @@ use crate::{
 #[derive(Component)]
 pub struct Drop {
     id: ItemId,
+    count: u32,
 }
 
 #[derive(Component, Clone)]
@@ -36,6 +37,7 @@ impl DroppedBy {
 #[derive(Message)]
 pub struct SpawnDrop {
     pub id: ItemId,
+    pub count: u32,
     pub position: Vec2,
     pub dropped_by: DroppedBy,
 }
@@ -50,7 +52,10 @@ pub fn spawn_drop(
         let item = item_registry.get(event.id);
 
         commands.spawn((
-            Drop { id: event.id },
+            Drop {
+                id: event.id,
+                count: event.count,
+            },
             Sprite {
                 image: assets.atlas_item_texture.clone(),
                 texture_atlas: Some(TextureAtlas {
@@ -89,7 +94,7 @@ pub fn drop_collection(
             commands.entity(drop_entity).despawn();
             inventory.add_item(ItemStack {
                 item: drop.id,
-                count: 1,
+                count: drop.count,
             });
             return;
         }
@@ -126,6 +131,7 @@ pub fn drop_item(
             );
             message_writer.write(SpawnDrop {
                 id: item.item,
+                count: item.count,
                 position: transform.translation.xy().map(|v| v / TILE_SIZE),
                 dropped_by: DroppedBy::Player {
                     player_moved: false,
