@@ -1,16 +1,12 @@
 use bevy::prelude::*;
 use std::collections::HashMap;
 
-use crate::game::{
-    GameState,
-    registry::{
-        biome_registry::init_biomes, block_registry::init_blocks, item_registry::init_items,
-    },
-};
+use crate::game::GameState;
 
 pub mod biome_registry;
 pub mod block_registry;
 pub mod item_registry;
+pub mod recipe_registry;
 
 pub struct Registry<Def> {
     type_name: &'static str,
@@ -66,7 +62,14 @@ impl Plugin for RegistryPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             OnEnter(GameState::Bootstrap),
-            (init_blocks, init_items, init_biomes, next_state).chain(),
+            (
+                block_registry::init_blocks,
+                item_registry::init_items,
+                biome_registry::init_biomes,
+                recipe_registry::init_recipes,
+                next_state,
+            )
+                .chain(),
         );
     }
 }

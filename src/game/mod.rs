@@ -16,6 +16,7 @@ use bevy_rapier2d::prelude::*;
 
 pub mod assets;
 pub mod commands;
+pub mod crafting;
 pub mod drop;
 pub mod item;
 pub mod player;
@@ -86,6 +87,7 @@ impl Plugin for GamePlugin {
             world::WorldPlugin,
             player::PlayerPlugin,
             commands::CommandsPlugin,
+            crafting::CraftingPlugin,
             ui::UiPlugin,
             drop::DropPlugin,
         ))
