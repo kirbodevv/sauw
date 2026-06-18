@@ -124,11 +124,7 @@ pub fn drop_item(
         let (transform, mut inventory) = player_q.into_inner();
 
         let slot = selected_slot.0;
-        if let Some(item) = inventory.take_slot(slot) {
-            info!(
-                "Dropping item: {:?} at {:?}",
-                item.item, transform.translation
-            );
+        if let Some(item) = inventory.take_from_slot(slot, 1) {
             message_writer.write(SpawnDrop {
                 id: item.item,
                 count: item.count,
