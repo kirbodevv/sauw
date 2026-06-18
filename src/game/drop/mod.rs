@@ -18,21 +18,15 @@ pub struct Drop {
     count: u32,
 }
 
-#[derive(Component, Clone)]
+#[derive(Component, Clone, PartialEq, Eq)]
 pub enum DroppedBy {
-    Player { player_moved: bool },
+    Player(Entity),
     Spawned,
     Command,
 }
 
-impl DroppedBy {
-    pub fn is_collectable(&self) -> bool {
-        matches!(
-            self,
-            DroppedBy::Player { player_moved: true } | DroppedBy::Spawned | DroppedBy::Command
-        )
-    }
-}
+#[derive(Component)]
+pub struct PickupLocked;
 
 #[derive(Message)]
 pub struct SpawnDrop {
@@ -50,8 +44,7 @@ pub fn spawn_drop(
 ) {
     for event in spawn_reader.read() {
         let item = item_registry.get(event.id);
-
-        commands.spawn((
+        let mut entity = commands.spawn((
             Drop {
                 id: event.id,
                 count: event.count,
@@ -70,44 +63,47 @@ pub fn spawn_drop(
             Velocity::zero(),
             Transform::from_translation(event.position.map(|v| v * TILE_SIZE).extend(20.0)),
         ));
+
+        if let DroppedBy::Player(_) = event.dropped_by {
+            entity.insert(PickupLocked);
+        }
     }
 }
 
-pub fn drop_collection(
+pub fn collect_drops(
     mut commands: Commands,
-    mut drop_q: Query<(Entity, &mut Velocity, &Transform, &Drop, &mut DroppedBy), Without<Player>>,
-    player_q: Single<(&mut Transform, &mut Inventory), With<Player>>,
+    mut inventory: Single<&mut Inventory, With<Player>>,
+    player_q: Single<&Transform, With<Player>>,
+    drops: Query<(Entity, &Transform, &Drop), Without<PickupLocked>>,
 ) {
-    let (transform, mut inventory) = player_q.into_inner();
-    let player_pos = transform.translation.xy();
+    let player_pos = player_q.translation.xy();
 
-    for (drop_entity, mut velocity, drop_transform, drop, dropped_by) in drop_q.iter_mut() {
-        let drop_pos = drop_transform.translation.xy();
-        let drop_distance = drop_pos.distance(player_pos);
+    for (entity, transform, drop) in &drops {
+        let distance = transform.translation.xy().distance(player_pos);
 
-        let is_player_far = drop_distance > 2.0 * TILE_SIZE;
-        let is_near_to_move = drop_distance < 1.5 * TILE_SIZE;
-        let is_near_to_collect = drop_distance < 0.1 * TILE_SIZE;
-        let is_collectable = dropped_by.is_collectable();
-
-        if is_near_to_collect && is_collectable {
-            commands.entity(drop_entity).despawn();
+        if distance < 0.1 * TILE_SIZE {
             inventory.add_item(ItemStack {
                 item: drop.id,
                 count: drop.count,
             });
-            return;
-        }
 
-        if let DroppedBy::Player { player_moved } = dropped_by.into_inner() {
-            if !*player_moved && is_player_far {
-                *player_moved = true;
-            }
+            commands.entity(entity).despawn();
         }
+    }
+}
 
-        if is_near_to_move && is_collectable {
-            let dir = (player_pos - drop_pos).normalize();
-            velocity.linear = dir * 1.5 * TILE_SIZE;
+pub fn move_drops(
+    player_q: Single<&Transform, With<Player>>,
+    mut drops: Query<(&Transform, &mut Velocity), (Without<PickupLocked>, With<Drop>)>,
+) {
+    let player_pos = player_q.translation.xy();
+
+    for (transform, mut velocity) in &mut drops {
+        let drop_pos = transform.translation.xy();
+        let distance = drop_pos.distance(player_pos);
+
+        if distance < 1.5 * TILE_SIZE {
+            velocity.linear = (player_pos - drop_pos).normalize() * 1.5 * TILE_SIZE;
         } else {
             velocity.linear = Vec2::ZERO;
         }
@@ -116,12 +112,12 @@ pub fn drop_collection(
 
 pub fn drop_item(
     keyboard: Res<ButtonInput<KeyCode>>,
-    player_q: Single<(&mut Transform, &mut Inventory), With<Player>>,
+    player_q: Single<(Entity, &mut Transform, &mut Inventory), With<Player>>,
     mut message_writer: MessageWriter<SpawnDrop>,
     selected_slot: Res<SelectedHotbarSlot>,
 ) {
     if keyboard.just_pressed(KeyCode::KeyQ) {
-        let (transform, mut inventory) = player_q.into_inner();
+        let (entity, transform, mut inventory) = player_q.into_inner();
 
         let slot = selected_slot.0;
         if let Some(item) = inventory.take_from_slot(slot, 1) {
@@ -129,10 +125,24 @@ pub fn drop_item(
                 id: item.item,
                 count: item.count,
                 position: transform.translation.xy().map(|v| v / TILE_SIZE),
-                dropped_by: DroppedBy::Player {
-                    player_moved: false,
-                },
+                dropped_by: DroppedBy::Player(entity),
             });
+        }
+    }
+}
+
+pub fn unlock_drops(
+    mut commands: Commands,
+    player_q: Single<&Transform, With<Player>>,
+    drops: Query<(Entity, &Transform), With<PickupLocked>>,
+) {
+    let player_pos = player_q.translation.xy();
+
+    for (entity, transform) in &drops {
+        let distance = transform.translation.xy().distance(player_pos);
+
+        if distance > 2.0 * TILE_SIZE {
+            commands.entity(entity).remove::<PickupLocked>();
         }
     }
 }
@@ -143,7 +153,14 @@ impl Plugin for DropPlugin {
     fn build(&self, app: &mut App) {
         app.add_message::<SpawnDrop>().add_systems(
             Update,
-            (spawn_drop, drop_collection, drop_item).run_if(in_state(GameState::Gaming)),
+            (
+                spawn_drop,
+                collect_drops,
+                move_drops,
+                drop_item,
+                unlock_drops,
+            )
+                .run_if(in_state(GameState::Gaming)),
         );
     }
 }
