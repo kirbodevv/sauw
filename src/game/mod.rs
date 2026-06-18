@@ -1,14 +1,7 @@
 #[cfg(not(rust_analyzer))]
 include!(concat!(env!("OUT_DIR"), "/assets.rs"));
 
-use crate::{
-    constants::TILE_SIZE,
-    game::{
-        assets::GameAssetsPlugin, commands::CommandsPlugin, player::PlayerPlugin,
-        registry::RegistryPlugin, ui::UiPlugin, world::WorldPlugin,
-    },
-    platform::safe_zone::JNISafeZonePlugin,
-};
+use crate::{constants::TILE_SIZE, platform::safe_zone::JNISafeZonePlugin};
 use bevy::{
     dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin, FrameTimeGraphConfig},
     input::InputSystems,
@@ -16,12 +9,14 @@ use bevy::{
     text::FontSmoothing,
     window::{PresentMode, WindowMode},
 };
+
 use bevy_asset_loader::prelude::*;
-use bevy_firefly::app::FireflyPlugin;
+use bevy_firefly::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 pub mod assets;
 pub mod commands;
+pub mod drop;
 pub mod item;
 pub mod player;
 pub mod registry;
@@ -79,7 +74,7 @@ impl Plugin for GamePlugin {
             },
         ))
         .init_state::<GameState>()
-        .add_plugins(GameAssetsPlugin)
+        .add_plugins(assets::GameAssetsPlugin)
         .add_plugins(JNISafeZonePlugin)
         .add_loading_state(
             LoadingState::new(GameState::AssetsLoading)
@@ -87,11 +82,12 @@ impl Plugin for GamePlugin {
                 .load_collection::<ImageAssets>(),
         )
         .add_plugins((
-            RegistryPlugin,
-            WorldPlugin,
-            PlayerPlugin,
-            CommandsPlugin,
-            UiPlugin,
+            registry::RegistryPlugin,
+            world::WorldPlugin,
+            player::PlayerPlugin,
+            commands::CommandsPlugin,
+            ui::UiPlugin,
+            drop::DropPlugin,
         ))
         .add_systems(
             Update,

@@ -18,6 +18,10 @@ impl TextureId {
     pub fn new(name: &str) -> Self {
         Self(name.to_string())
     }
+
+    pub fn get_name(&self) -> &str {
+        &self.0
+    }
 }
 
 #[derive(Debug, Deserialize)]
