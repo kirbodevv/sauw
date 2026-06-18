@@ -75,13 +75,37 @@ pub fn init_items(
 
     let mut inner = Registry::new("item");
 
-    inner.insert(
-        ItemDefinition {
-            name: "apple",
-            atlas_index: name_to_index.get("apple").copied().unwrap_or(0),
-        },
-        "apple",
-    );
+    let mut insert_item = |name: &'static str| {
+        inner.insert(
+            ItemDefinition {
+                name,
+                atlas_index: name_to_index.get(name).copied().unwrap_or(0),
+            },
+            name,
+        )
+    };
+
+    insert_item("aluminium_can");
+    insert_item("apple");
+    insert_item("furnace");
+    insert_item("hammer");
+    insert_item("handsaw");
+    insert_item("iron_ingot");
+    insert_item("iron_ore");
+    insert_item("iron_plate");
+    insert_item("log");
+    insert_item("peanut");
+    insert_item("planks");
+    insert_item("rope");
+    insert_item("sapling");
+    insert_item("stick");
+    insert_item("stick_1");
+    insert_item("stone");
+    insert_item("stone_axe");
+    insert_item("stone_pickaxe");
+    insert_item("stone_shovel");
+    insert_item("vegetable_fiber");
+    insert_item("watermelon");
 
     commands.insert_resource(ItemRegistry {
         inner,
