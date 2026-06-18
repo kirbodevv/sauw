@@ -1,0 +1,18 @@
+{
+  "result": "stone_shovel",
+  "count": 1,
+  "ingredients": [
+    {
+      "item": "rope",
+      "count": 1
+    },
+    {
+      "item": "stone",
+      "count": 1
+    },
+    {
+      "item": "stick",
+      "count": 2
+    }
+  ]
+}

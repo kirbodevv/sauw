@@ -24,7 +24,7 @@ fn main() {
     code.push_str(
         r#"
         use bevy_asset_loader::asset_collection::AssetCollection;
-        use crate::game::assets::{atlas::Atlas, worldgen::{Biome, BiomeMapper, LayerMapper}};
+        use crate::game::assets::{atlas::Atlas, worldgen::{Biome, BiomeMapper, LayerMapper}, recipe::Recipe};
 
         #[derive(AssetCollection, Resource)]
         pub struct ImageAssets {"#,
@@ -44,6 +44,10 @@ fn main() {
 
     for entry in fs::read_dir("assets/worldgen/biome").unwrap() {
         code.push_str(&generate(entry.unwrap().path(), "Biome", None));
+    }
+
+    for entry in fs::read_dir("assets/recipes").unwrap() {
+        code.push_str(&generate(entry.unwrap().path(), "Recipe", None));
     }
 
     for entry in fs::read_dir("assets/block").unwrap() {

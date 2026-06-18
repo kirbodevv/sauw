@@ -1,0 +1,18 @@
+{
+  "result": "stone_pickaxe",
+  "count": 1,
+  "ingredients": [
+    {
+      "item": "rope",
+      "count": 1
+    },
+    {
+      "item": "stone",
+      "count": 3
+    },
+    {
+      "item": "stick",
+      "count": 2
+    }
+  ]
+}
