@@ -5,9 +5,26 @@ use crate::game::{
     registry::{Registry, item_registry::ItemRegistry},
 };
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct RecipeId(pub u32);
+
 #[derive(Resource)]
 pub struct RecipeRegistry {
     inner: Registry<Recipe>,
+}
+
+impl RecipeRegistry {
+    pub fn find_by_id(&self, id: RecipeId) -> &Recipe {
+        self.inner.get(id.0 as usize).unwrap()
+    }
+
+    pub fn try_id_by_name(&self, name: &str) -> Option<RecipeId> {
+        self.inner
+            .ids
+            .get(name)
+            .copied()
+            .map(|id| RecipeId(id as u32))
+    }
 }
 
 pub fn init_recipes(mut commands: Commands, item_registry: Res<ItemRegistry>) {
@@ -21,7 +38,7 @@ pub fn init_recipes(mut commands: Commands, item_registry: Res<ItemRegistry>) {
     let stone_axe = item_registry.id_by_name("stone_axe");
     let stone_shovel = item_registry.id_by_name("stone_shovel");
 
-    inner.insert(Recipe::new(rope, 3, vec![(vegetable_fiber, 1)]), "rope");
+    inner.insert(Recipe::new(rope, 1, vec![(vegetable_fiber, 3)]), "rope");
     inner.insert(
         Recipe::new(stone_pickaxe, 1, vec![(rope, 1), (stone, 3), (stick, 2)]),
         "stone_pickaxe",

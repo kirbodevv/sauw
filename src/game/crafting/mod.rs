@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::game::registry::item_registry::ItemId;
+use crate::game::{GameState, crafting::craft::craft_item, registry::item_registry::ItemId};
+
+pub mod components;
+pub mod craft;
 
 pub struct Recipe {
     pub result: ItemId,
@@ -35,5 +38,8 @@ impl Ingredient {
 pub struct CraftingPlugin;
 
 impl Plugin for CraftingPlugin {
-    fn build(&self, app: &mut App) {}
+    fn build(&self, app: &mut App) {
+        app.add_message::<components::CraftItem>()
+            .add_systems(Update, craft_item.run_if(in_state(GameState::Gaming)));
+    }
 }

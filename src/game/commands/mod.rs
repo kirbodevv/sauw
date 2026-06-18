@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin};
 
 mod camzoom;
+mod craft;
 mod damage;
 mod debug;
 mod drop;
@@ -13,6 +14,7 @@ mod time;
 mod tp;
 
 use camzoom::*;
+use craft::*;
 use damage::*;
 use debug::*;
 use drop::*;
@@ -38,6 +40,7 @@ impl Plugin for CommandsPlugin {
             .add_console_command::<InventoryCommand, _>(inventory)
             .add_console_command::<TimeCommand, _>(time)
             .add_console_command::<SafeZoneCommand, _>(safe_zone)
+            .add_console_command::<CraftCommand, _>(craft)
             .add_console_command::<DropCommand, _>(drop);
     }
 }
