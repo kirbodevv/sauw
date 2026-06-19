@@ -1,9 +1,10 @@
 name: Release
 
 on:
+  workflow_dispatch:
   push:
-    tags:
-      - "*"
+    branches:
+      - ci-builds
 
 env:
   binary: sauw
