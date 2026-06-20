@@ -153,3 +153,51 @@ jobs:
           asset_name: ${{ env.name }}-macos-${{ steps.get_version.outputs.tag }}.dmg
           tag: ${{ github.ref }}
           overwrite: true
+
+  release-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: olegtarasov/get-tag@v2.1.2
+        id: get_version
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: armv7-linux-androideabi, aarch64-linux-android
+
+      - name: Install Android NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r27c
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk
+
+      - name: Build ARM64
+        run: |
+          cargo ndk \
+            -t aarch64-linux-android \
+            -t armv7-linux-androideabi \
+            -o platform/android/app/src/main/jniLibs build --release
+
+      - name: Build APK
+        working-directory: ./platform/android
+        run: |
+          ./gradlew build
+          cp app/build/outputs/apk/debug/app-debug.apk \
+            ../../${{ env.name }}.apk
+
+      - name: Upload binaries to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.name }}.apk
+          name: ${{ env.name }}-android-${{ steps.get_version.outputs.tag }}
+          retention-days: 1
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.name }}.apk
+          asset_name: ${{ env.name }}-android-${{ steps.get_version.outputs.tag }}.apk
+          tag: ${{ github.ref }}
+          overwrite: true
