@@ -7,27 +7,21 @@ on:
       - ci-builds
 
 env:
-  binary: sauw
+  name: sauw
   add_binaries_to_github_release: true
-
-  # Before enabling LFS, please take a look at GitHub's documentation for costs and quota limits:
-  # https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-storage-and-bandwidth-usage
-  use_git_lfs: false
 
 jobs:
   release-linux:
     runs-on: ubuntu-latest
-
     steps:
       - uses: olegtarasov/get-tag@v2.1.2
         id: get_version
       - uses: actions/checkout@v4
-        with:
-          lfs: ${{ env.use_git_lfs }}
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-unknown-linux-gnu
-      - name: install dependencies
+
+      - name: Install dependencies
         run: |
           sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libwayland-dev
 
@@ -38,40 +32,36 @@ jobs:
       - name: Prepare package
         run: |
           mkdir linux
-          cp target/x86_64-unknown-linux-gnu/release/${{ env.binary }} linux/
-          cp -r assets linux/ || true # Try to copy, but ignore if it can't copy if source directory does not exist
+          cp target/x86_64-unknown-linux-gnu/release/${{ env.name }} linux/
+          cp -r assets linux/
 
       - name: Package as a zip
         working-directory: ./linux
         run: |
-          zip --recurse-paths ../${{ env.binary }}.zip .
+          zip --recurse-paths ../${{ env.name }}.zip .
 
       - name: Upload binaries to artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: ${{ env.binary }}.zip
-          name: linux
+          path: ${{ env.name }}.zip
+          name: ${{ env.name }}-linux-${{ steps.get_version.outputs.tag }}
           retention-days: 1
 
       - name: Upload binaries to release
-        if: ${{ env.add_binaries_to_github_release == 'true' }}
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.binary }}.zip
-          asset_name: ${{ env.binary }}-linux-${{ steps.get_version.outputs.tag }}.zip
+          file: ${{ env.name }}.zip
+          asset_name: ${{ env.name }}-linux-${{ steps.get_version.outputs.tag }}.zip
           tag: ${{ github.ref }}
           overwrite: true
 
   release-windows:
     runs-on: windows-latest
-
     steps:
       - uses: olegtarasov/get-tag@v2.1.2
         id: get_version
       - uses: actions/checkout@v4
-        with:
-          lfs: ${{ env.use_git_lfs }}
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-pc-windows-msvc
@@ -83,134 +73,84 @@ jobs:
       - name: Prepare package
         run: |
           mkdir windows
-          cp target/x86_64-pc-windows-msvc/release/${{ env.binary }}.exe windows/
-          mkdir assets -ea 0 # create the assets directory if it does not exist, it will get ignored in the zip if empty
+          cp target/x86_64-pc-windows-msvc/release/${{ env.name }}.exe windows/
           cp -r assets windows/
 
       - name: Package as a zip
         run: |
-          Compress-Archive -Path windows/* -DestinationPath ${{ env.binary }}.zip
+          Compress-Archive -Path windows/* -DestinationPath ${{ env.name }}.zip
 
       - name: Upload binaries to artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: ${{ env.binary }}.zip
-          name: windows
+          path: ${{ env.name }}.zip
+          name: ${{ env.name }}-windows-${{ steps.get_version.outputs.tag }}
           retention-days: 1
 
       - name: Upload binaries to release
-        if: ${{ env.add_binaries_to_github_release == 'true' }}
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.binary }}.zip
-          asset_name: ${{ env.binary }}-windows-${{ steps.get_version.outputs.tag }}.zip
+          file: ${{ env.name }}.zip
+          asset_name: ${{ env.name }}-windows-${{ steps.get_version.outputs.tag }}.zip
           tag: ${{ github.ref }}
           overwrite: true
 
-  release-macOS-intel:
+  release-macOS:
     runs-on: macOS-latest
-
     steps:
       - uses: olegtarasov/get-tag@v2.1.2
         id: get_version
       - uses: actions/checkout@v4
-        with:
-          lfs: ${{ env.use_git_lfs }}
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: x86_64-apple-darwin
-      - name: Environment Setup
-        run: |
-          export CFLAGS="-fno-stack-check"
-          export MACOSX_DEPLOYMENT_TARGET="10.9"
-
-      - name: Build
-        run: |
-          cargo build --release --target x86_64-apple-darwin
-
-      - name: Prepare Package
-        run: |
-          mkdir -p ${{ env.binary }}.app/Contents/MacOS
-          cp target/x86_64-apple-darwin/release/${{ env.binary }} ${{ env.binary }}.app/Contents/MacOS/
-          cp -r assets ${{ env.binary }}.app/Contents/MacOS/ || true # Try to copy, but ignore if it can't copy if source directory does not exist
-          hdiutil create -fs HFS+ -volname "${{ env.binary }}" -srcfolder ${{ env.binary }}.app ${{ env.binary }}-macOS-intel.dmg
-
-      - name: Upload binaries to artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          path: ${{ env.binary }}-macOS-intel.dmg
-          name: macOS-intel
-          retention-days: 1
-
-      - name: Upload binaries to release
-        if: ${{ env.add_binaries_to_github_release == 'true' }}
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.binary }}-macOS-intel.dmg
-          asset_name: ${{ env.binary }}-macOS-intel-${{ steps.get_version.outputs.tag }}.dmg
-          tag: ${{ github.ref }}
-          overwrite: true
-
-  release-macOS-apple-silicon:
-    runs-on: macOS-latest
-    env:
-      MACOSX_DEPLOYMENT_TARGET: "11"
-
-    steps:
-      - uses: olegtarasov/get-tag@v2.1.2
-        id: get_version
-      - uses: actions/checkout@v4
-        with:
-          lfs: ${{ env.use_git_lfs }}
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: aarch64-apple-darwin
+          targets: aarch64-apple-darwin, x86_64-apple-darwin
 
       - name: Build
         run: |
           cargo build --release --target aarch64-apple-darwin
+          cargo build --release --target x86_64-apple-darwin
 
       - name: Generate .icns
         run: |
-          mkdir sauw.iconset
-          sips -z 16 16     assets/ui/icon.png --out sauw.iconset/icon_16x16.png
-          sips -z 32 32     assets/ui/icon.png --out sauw.iconset/icon_16x16@2x.png
-          sips -z 32 32     assets/ui/icon.png --out sauw.iconset/icon_32x32.png
-          sips -z 64 64     assets/ui/icon.png --out sauw.iconset/icon_32x32@2x.png
-          sips -z 128 128   assets/ui/icon.png --out sauw.iconset/icon_128x128.png
-          sips -z 256 256   assets/ui/icon.png --out sauw.iconset/icon_128x128@2x.png
-          sips -z 256 256   assets/ui/icon.png --out sauw.iconset/icon_256x256.png
-          sips -z 512 512   assets/ui/icon.png --out sauw.iconset/icon_256x256@2x.png
-          sips -z 512 512   assets/ui/icon.png --out sauw.iconset/icon_512x512.png
-          sips -z 1024 1024 assets/ui/icon.png --out sauw.iconset/icon_512x512@2x.png
-          iconutil -c icns -o sauw.icns sauw.iconset
-          rm -R sauw.iconset
+          mkdir ${{ env.name }}.iconset
+          sips -z 16 16     assets/ui/icon.png --out ${{ env.name }}.iconset/icon_16x16.png
+          sips -z 32 32     assets/ui/icon.png --out ${{ env.name }}.iconset/icon_16x16@2x.png
+          sips -z 32 32     assets/ui/icon.png --out ${{ env.name }}.iconset/icon_32x32.png
+          sips -z 64 64     assets/ui/icon.png --out ${{ env.name }}.iconset/icon_32x32@2x.png
+          sips -z 128 128   assets/ui/icon.png --out ${{ env.name }}.iconset/icon_128x128.png
+          sips -z 256 256   assets/ui/icon.png --out ${{ env.name }}.iconset/icon_128x128@2x.png
+          sips -z 256 256   assets/ui/icon.png --out ${{ env.name }}.iconset/icon_256x256.png
+          sips -z 512 512   assets/ui/icon.png --out ${{ env.name }}.iconset/icon_256x256@2x.png
+          sips -z 512 512   assets/ui/icon.png --out ${{ env.name }}.iconset/icon_512x512.png
+          sips -z 1024 1024 assets/ui/icon.png --out ${{ env.name }}.iconset/icon_512x512@2x.png
+          iconutil -c icns -o ${{ env.name }}.icns ${{ env.name }}.iconset
+          rm -R ${{ env.name }}.iconset
 
       - name: Build Apple Bundle
         run: |
-          mkdir -p bundle/sauw.app/Contents/{MacOS,Resources}
-          cp target/aarch64-apple-darwin/release/sauw ./bundle/sauw.app/Contents/MacOS/
-          cp ./sauw.icns ./bundle/sauw.app/Contents/Resources/
-          cp ./platform/macos/Info.plist ./bundle/sauw.app/Contents/
-          cp -r assets bundle/sauw.app/Contents/Resources/assets || true
-          chmod +x ./bundle/sauw.app/Contents/MacOS/sauw
-          hdiutil create -fs HFS+ -volname "sauw-macOS-apple-silicon" -srcfolder bundle/sauw.app sauw-macOS-apple-silicon.dmg
+          mkdir -p bundle/${{ env.name }}.app/Contents/{MacOS,Resources}
+          lipo "target/aarch64-apple-darwin/release/${{ env.name }}" \
+               "target/x86_64-apple-darwin/release/${{ env.name }}" \
+               -create -output "bundle/${{ env.name }}.app/Contents/MacOS/${{ env.name }}"
+          cp ./${{ env.name }}.icns ./bundle/${{ env.name }}.app/Contents/Resources/
+          cp ./platform/macos/Info.plist ./bundle/${{ env.name }}.app/Contents/
+          cp -r assets bundle/${{ env.name }}.app/Contents/MacOS/assets
+          chmod +x ./bundle/${{ env.name }}.app/Contents/MacOS/${{ env.name }}
+          hdiutil create -fs HFS+ -volname "${{ env.name }}-macos" -srcfolder bundle/${{ env.name }}.app ${{ env.name }}-macos.dmg
 
       - name: Upload binaries to artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: sauw-macOS-apple-silicon.dmg
-          name: macOS-apple-silicon
+          path: ${{ env.name }}-macos.dmg
+          name: ${{ env.name }}-macos-${{ steps.get_version.outputs.tag }}
           retention-days: 1
 
       - name: Upload binaries to release
-        if: ${{ env.add_binaries_to_github_release == 'true' }}
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: sauw-macOS-apple-silicon.dmg
-          asset_name: sauw-macOS-apple-silicon-${{ steps.get_version.outputs.tag }}.dmg
+          file: ${{ env.name }}-macos.dmg
+          asset_name: ${{ env.name }}-macos-${{ steps.get_version.outputs.tag }}.dmg
           tag: ${{ github.ref }}
           overwrite: true
