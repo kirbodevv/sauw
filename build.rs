@@ -126,12 +126,12 @@ fn generate(path: PathBuf, asset_type: &str, name_as: Option<&str>) -> String {
         None => key.replace("/", "_").replace(&ext_pattern, ""),
     };
 
-    return format!(
+    format!(
         r#"
         #[asset(path = "{0}")]
         {1}: Handle<{2}>,"#,
         key, name, asset_type,
-    );
+    )
 }
 
 #[derive(Serialize)]
