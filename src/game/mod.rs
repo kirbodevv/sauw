@@ -37,7 +37,7 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((
+        let mut default_plugins =
             DefaultPlugins
                 .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
@@ -49,7 +49,31 @@ impl Plugin for GamePlugin {
                         ..default()
                     }),
                     ..default()
-                }),
+                });
+        if cfg!(target_os = "macos") {
+            let current_exe = std::env::current_exe().unwrap();
+            if current_exe
+                .to_str()
+                .unwrap_or("")
+                .contains("/Contents/MacOS")
+            {
+                info!("Running from a bundled MacOS app");
+                default_plugins = default_plugins.set(AssetPlugin {
+                    file_path: current_exe
+                        .parent()
+                        .unwrap()
+                        .parent()
+                        .unwrap()
+                        .join("Resources")
+                        .join("assets")
+                        .display()
+                        .to_string(),
+                    ..default()
+                })
+            }
+        }
+        app.add_plugins((
+            default_plugins,
             FpsOverlayPlugin {
                 config: FpsOverlayConfig {
                     text_config: TextFont {

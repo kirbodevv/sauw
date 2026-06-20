@@ -1,0 +1,203 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+env:
+  name: sauw
+  add_binaries_to_github_release: true
+
+jobs:
+  release-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: olegtarasov/get-tag@v2.1.2
+        id: get_version
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libwayland-dev
+
+      - name: Build
+        run: |
+          cargo build --release --target x86_64-unknown-linux-gnu
+
+      - name: Prepare package
+        run: |
+          mkdir linux
+          cp target/x86_64-unknown-linux-gnu/release/${{ env.name }} linux/
+          cp -r assets linux/
+
+      - name: Package as a zip
+        working-directory: ./linux
+        run: |
+          zip --recurse-paths ../${{ env.name }}.zip .
+
+      - name: Upload binaries to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.name }}.zip
+          name: ${{ env.name }}-linux-${{ steps.get_version.outputs.tag }}
+          retention-days: 1
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.name }}.zip
+          asset_name: ${{ env.name }}-linux-${{ steps.get_version.outputs.tag }}.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+  release-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: olegtarasov/get-tag@v2.1.2
+        id: get_version
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Build
+        run: |
+          cargo build --release --target x86_64-pc-windows-msvc
+
+      - name: Prepare package
+        run: |
+          mkdir windows
+          cp target/x86_64-pc-windows-msvc/release/${{ env.name }}.exe windows/
+          cp -r assets windows/
+
+      - name: Package as a zip
+        run: |
+          Compress-Archive -Path windows/* -DestinationPath ${{ env.name }}.zip
+
+      - name: Upload binaries to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.name }}.zip
+          name: ${{ env.name }}-windows-${{ steps.get_version.outputs.tag }}
+          retention-days: 1
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.name }}.zip
+          asset_name: ${{ env.name }}-windows-${{ steps.get_version.outputs.tag }}.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+  release-macOS:
+    runs-on: macOS-latest
+    steps:
+      - uses: olegtarasov/get-tag@v2.1.2
+        id: get_version
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin, x86_64-apple-darwin
+
+      - name: Build
+        run: |
+          cargo build --release --target aarch64-apple-darwin
+          cargo build --release --target x86_64-apple-darwin
+
+      - name: Generate .icns
+        run: |
+          mkdir ${{ env.name }}.iconset
+          sips -z 16 16     assets/ui/icon.png --out ${{ env.name }}.iconset/icon_16x16.png
+          sips -z 32 32     assets/ui/icon.png --out ${{ env.name }}.iconset/icon_16x16@2x.png
+          sips -z 32 32     assets/ui/icon.png --out ${{ env.name }}.iconset/icon_32x32.png
+          sips -z 64 64     assets/ui/icon.png --out ${{ env.name }}.iconset/icon_32x32@2x.png
+          sips -z 128 128   assets/ui/icon.png --out ${{ env.name }}.iconset/icon_128x128.png
+          sips -z 256 256   assets/ui/icon.png --out ${{ env.name }}.iconset/icon_128x128@2x.png
+          sips -z 256 256   assets/ui/icon.png --out ${{ env.name }}.iconset/icon_256x256.png
+          sips -z 512 512   assets/ui/icon.png --out ${{ env.name }}.iconset/icon_256x256@2x.png
+          sips -z 512 512   assets/ui/icon.png --out ${{ env.name }}.iconset/icon_512x512.png
+          sips -z 1024 1024 assets/ui/icon.png --out ${{ env.name }}.iconset/icon_512x512@2x.png
+          iconutil -c icns -o ${{ env.name }}.icns ${{ env.name }}.iconset
+          rm -R ${{ env.name }}.iconset
+
+      - name: Build Apple Bundle
+        run: |
+          mkdir -p bundle/${{ env.name }}.app/Contents/{MacOS,Resources}
+          lipo "target/aarch64-apple-darwin/release/${{ env.name }}" \
+               "target/x86_64-apple-darwin/release/${{ env.name }}" \
+               -create -output "bundle/${{ env.name }}.app/Contents/MacOS/${{ env.name }}"
+          cp ./${{ env.name }}.icns ./bundle/${{ env.name }}.app/Contents/Resources/
+          cp ./platform/macos/Info.plist ./bundle/${{ env.name }}.app/Contents/
+          cp -r assets bundle/${{ env.name }}.app/Contents/Resources/assets
+          chmod +x ./bundle/${{ env.name }}.app/Contents/MacOS/${{ env.name }}
+          hdiutil create -fs HFS+ -volname "${{ env.name }}-macos" -srcfolder bundle/${{ env.name }}.app ${{ env.name }}-macos.dmg
+
+      - name: Upload binaries to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.name }}-macos.dmg
+          name: ${{ env.name }}-macos-${{ steps.get_version.outputs.tag }}
+          retention-days: 1
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.name }}-macos.dmg
+          asset_name: ${{ env.name }}-macos-${{ steps.get_version.outputs.tag }}.dmg
+          tag: ${{ github.ref }}
+          overwrite: true
+
+  release-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: olegtarasov/get-tag@v2.1.2
+        id: get_version
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: armv7-linux-androideabi, aarch64-linux-android
+
+      - name: Install Android NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r27c
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk
+
+      - name: Build ARM64
+        run: |
+          cargo ndk \
+            -t aarch64-linux-android \
+            -t armv7-linux-androideabi \
+            -o platform/android/app/src/main/jniLibs build --release
+
+      - name: Build APK
+        working-directory: ./platform/android
+        run: |
+          ./gradlew build
+          cp app/build/outputs/apk/debug/app-debug.apk \
+            ../../${{ env.name }}.apk
+
+      - name: Upload binaries to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.name }}.apk
+          name: ${{ env.name }}-android-${{ steps.get_version.outputs.tag }}
+          retention-days: 1
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.name }}.apk
+          asset_name: ${{ env.name }}-android-${{ steps.get_version.outputs.tag }}.apk
+          tag: ${{ github.ref }}
+          overwrite: true
