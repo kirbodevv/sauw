@@ -135,7 +135,7 @@ jobs:
                -create -output "bundle/${{ env.name }}.app/Contents/MacOS/${{ env.name }}"
           cp ./${{ env.name }}.icns ./bundle/${{ env.name }}.app/Contents/Resources/
           cp ./platform/macos/Info.plist ./bundle/${{ env.name }}.app/Contents/
-          cp -r assets bundle/${{ env.name }}.app/Contents/MacOS/assets
+          cp -r assets bundle/${{ env.name }}.app/Contents/Resources/assets
           chmod +x ./bundle/${{ env.name }}.app/Contents/MacOS/${{ env.name }}
           hdiutil create -fs HFS+ -volname "${{ env.name }}-macos" -srcfolder bundle/${{ env.name }}.app ${{ env.name }}-macos.dmg
 
