@@ -4,7 +4,6 @@ use bevy::{
     reflect::TypePath,
 };
 use serde::Deserialize;
-use std::io::{Error as IoError, ErrorKind};
 use thiserror::Error;
 
 #[derive(Asset, TypePath, Debug, Deserialize)]
@@ -54,7 +53,7 @@ impl AssetLoader for BiomeMapperLoader {
         reader.read_to_end(&mut bytes).await?;
 
         let biome_mapper: BiomeMapper = serde_json::from_slice(&bytes)
-            .map_err(|e| BiomeMapperLoaderError::Io(IoError::new(ErrorKind::Other, e)))?;
+            .map_err(|e| BiomeMapperLoaderError::Io(std::io::Error::other(e)))?;
 
         info!(
             target: "asset_loader",
