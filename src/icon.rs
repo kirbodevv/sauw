@@ -23,7 +23,7 @@ struct WindowIconPath(String);
 
 fn set_window_icon(mut commands: Commands, _marker: NonSendMarker, icon_path: Res<WindowIconPath>) {
     WINIT_WINDOWS.with_borrow(|winit_windows| {
-        if winit_windows.windows.len() == 0 {
+        if winit_windows.windows.is_empty() {
             return;
         }
 
