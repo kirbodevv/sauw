@@ -34,7 +34,7 @@ fn spawn_player(
     commands.spawn((
         Sprite {
             image: texture.clone(),
-            custom_size: Some(size.clone()),
+            custom_size: Some(size),
             texture_atlas: Some(TextureAtlas {
                 layout: texture_atlas_layout.clone(),
                 index: 0,
