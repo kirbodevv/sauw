@@ -16,7 +16,7 @@ pub fn apply_safe_zone(
     window: Single<&mut Window>,
 ) {
     for change in safe_zone_reader.read() {
-        let scale = window.physical_width() as f32 / window.width() as f32;
+        let scale = window.physical_width() as f32 / window.width();
 
         let (top, bottom, left, right) = (
             Val::Px(DEFAULT_HUD_PADDING + change.top / scale),
