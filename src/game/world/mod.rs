@@ -49,7 +49,7 @@ pub struct ChunkCoord {
 #[derive(Resource)]
 pub struct WorldSeed(pub u32);
 
-#[derive(Resource)]
+#[derive(Default, Resource)]
 pub struct LoadedChunks {
     pub set: HashSet<ChunkCoord>,
 }
@@ -57,14 +57,6 @@ pub struct LoadedChunks {
 #[derive(Resource)]
 pub struct Settings {
     pub load_radius: i32,
-}
-
-impl LoadedChunks {
-    pub fn new() -> Self {
-        Self {
-            set: HashSet::new(),
-        }
-    }
 }
 
 fn configure_physics(mut rapier_config: Query<&mut RapierConfiguration>) {
@@ -127,7 +119,7 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(LoadedChunks::new())
+        app.insert_resource(LoadedChunks::default())
             .insert_resource(WorldSeed(0))
             .insert_resource(Settings { load_radius: 2 })
             .add_systems(Startup, configure_physics)
