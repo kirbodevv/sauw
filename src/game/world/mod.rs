@@ -81,10 +81,10 @@ fn manage_chunks(
         y: (player_pos.y / CHUNK_WORLD).floor() as i32,
     };
 
-    if let Some(chunk) = last_player_chunk.0 {
-        if current_player_chunk == chunk {
-            return;
-        }
+    if let Some(chunk) = last_player_chunk.0
+        && current_player_chunk == chunk
+    {
+        return;
     }
 
     last_player_chunk.0 = Some(current_player_chunk);

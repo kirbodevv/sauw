@@ -19,14 +19,14 @@ impl Inventory {
 
     pub fn add_item(&mut self, mut stack: ItemStack) -> Option<ItemStack> {
         for slot in self.slots.iter_mut() {
-            if let Some(existing) = slot {
-                if existing.can_stack_with(&stack) {
-                    let leftover = existing.add(stack.count, MAX_STACK_SIZE);
-                    if leftover == 0 {
-                        return None;
-                    }
-                    stack.count = leftover;
+            if let Some(existing) = slot
+                && existing.can_stack_with(&stack)
+            {
+                let leftover = existing.add(stack.count, MAX_STACK_SIZE);
+                if leftover == 0 {
+                    return None;
                 }
+                stack.count = leftover;
             }
         }
 
@@ -94,20 +94,20 @@ impl Inventory {
             if amount == 0 {
                 break;
             }
-            if let Some(stack) = slot {
-                if stack.item == item_id {
-                    let taken = stack.count.min(amount);
-                    stack.count -= taken;
-                    amount -= taken;
-                }
+            if let Some(stack) = slot
+                && stack.item == item_id
+            {
+                let taken = stack.count.min(amount);
+                stack.count -= taken;
+                amount -= taken;
             }
         }
 
         for slot in self.slots.iter_mut() {
-            if let Some(stack) = slot {
-                if stack.is_empty() {
-                    *slot = None;
-                }
+            if let Some(stack) = slot
+                && stack.is_empty()
+            {
+                *slot = None;
             }
         }
 
