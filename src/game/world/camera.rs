@@ -48,13 +48,10 @@ pub fn zoom_camera(
 ) {
     let speed = 3.0;
 
-    match *camera_query.into_inner() {
-        Projection::Orthographic(ref mut orthographic) => {
-            orthographic.scale = orthographic
-                .scale
-                .lerp(target_zoom.0, speed * time.delta_secs());
-        }
-        _ => (),
+    if let Projection::Orthographic(ref mut orthographic) = *camera_query.into_inner() {
+        orthographic.scale = orthographic
+            .scale
+            .lerp(target_zoom.0, speed * time.delta_secs());
     }
 }
 
