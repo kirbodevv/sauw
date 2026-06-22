@@ -48,8 +48,8 @@ impl BiomeMapper {
             .iter()
             .filter(|rule| rule.layer == layer)
             .filter(|rule| {
-                let temp_in_range = rule.temp.map_or(true, |t| temp >= t.0 && temp <= t.1);
-                let humid_in_range = rule.humid.map_or(true, |h| humid >= h.0 && humid <= h.1);
+                let temp_in_range = rule.temp.is_none_or(|t| temp >= t.0 && temp <= t.1);
+                let humid_in_range = rule.humid.is_none_or(|h| humid >= h.0 && humid <= h.1);
 
                 temp_in_range && humid_in_range
             })
