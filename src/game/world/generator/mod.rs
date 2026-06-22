@@ -8,7 +8,7 @@ use crate::{
         world::{
             ChunkCoord,
             generator::{
-                generator::generate_chunk,
+                chunk::generate_chunk,
                 mappers::{init_biome_mapper, init_layer_mapper},
                 spawner::spawn_chunk,
             },
@@ -16,7 +16,7 @@ use crate::{
     },
 };
 
-pub mod generator;
+pub mod chunk;
 pub mod mappers;
 pub mod spawner;
 
