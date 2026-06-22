@@ -16,10 +16,10 @@ pub fn player_movement(
     mut query: Query<(&mut Velocity, &mut PlayerAnimation), With<Player>>,
     player_input: ResMut<PlayerInput>,
 ) {
-    if let Some(console_open) = console_open {
-        if console_open.open {
-            return;
-        }
+    if let Some(console_open) = console_open
+        && console_open.open
+    {
+        return;
     }
 
     let dir = player_input.move_direction;

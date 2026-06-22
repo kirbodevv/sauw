@@ -33,6 +33,7 @@ pub fn collect_drops(
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub fn move_drops(
     player_q: Single<&Transform, With<Player>>,
     mut drops: Query<(&Transform, &mut Velocity), (Without<PickupLocked>, With<Drop>)>,

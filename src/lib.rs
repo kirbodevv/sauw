@@ -4,6 +4,7 @@ pub mod icon;
 pub mod platform {
     pub mod safe_zone;
 }
+pub mod shared;
 
 use crate::game::GamePlugin;
 use bevy::prelude::*;

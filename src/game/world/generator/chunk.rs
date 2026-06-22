@@ -25,8 +25,8 @@ pub fn generate_chunk(
     mut reader: MessageReader<ChunkGenerateRequest>,
     mut writer: MessageWriter<GeneratedChunk>,
 ) {
-    let width = CHUNK_SIZE as usize;
-    let height = CHUNK_SIZE as usize;
+    let width = CHUNK_SIZE;
+    let height = CHUNK_SIZE;
 
     let temp_perlin = Perlin::new(seed.0);
     let humid_perlin = Perlin::new(seed.0 + 1337);

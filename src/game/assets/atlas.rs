@@ -5,10 +5,7 @@ use bevy::{
 };
 
 use serde::Deserialize;
-use std::{
-    collections::HashMap,
-    io::{Error as IoError, ErrorKind},
-};
+use std::collections::HashMap;
 use thiserror::Error;
 
 #[derive(Debug, Deserialize, Eq, Hash, PartialEq)]
@@ -78,7 +75,7 @@ impl AssetLoader for AtlasLoader {
         reader.read_to_end(&mut bytes).await?;
 
         let atlas: Atlas = serde_json::from_slice(&bytes)
-            .map_err(|e| AtlasLoaderError::Io(IoError::new(ErrorKind::Other, e)))?;
+            .map_err(|e| AtlasLoaderError::Io(std::io::Error::other(e)))?;
 
         info!(
             target: "asset_loader",

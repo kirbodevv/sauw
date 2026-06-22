@@ -80,6 +80,7 @@ pub fn build_object_quad(block: &BlockDefinition, atlas: &Atlas) -> Mesh {
     )
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn spawn_chunk_mesh(
     parent: &mut ChildSpawnerCommands<'_>,
     chunk_blocks: &[BlockId; CHUNK_VOLUME],
@@ -127,6 +128,7 @@ pub fn spawn_chunk_mesh(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn append_quad(
     block: &BlockDefinition,
     atlas: &Atlas,

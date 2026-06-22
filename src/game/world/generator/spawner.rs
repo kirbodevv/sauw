@@ -43,7 +43,7 @@ pub fn spawn_chunk(
                 &chunk.blocks,
                 &registry,
                 &image_assets.atlas_block_texture,
-                &atlases.get(image_assets.atlas_block.id()).unwrap(),
+                atlases.get(image_assets.atlas_block.id()).unwrap(),
                 &mut meshes,
                 &mut materials,
                 chunk_world_y,

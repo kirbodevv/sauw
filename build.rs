@@ -25,7 +25,7 @@ fn main() {
         r#"
         use bevy_asset_loader::asset_collection::AssetCollection;
         use crate::game::assets::{atlas::Atlas, worldgen::{Biome, BiomeMapper, LayerMapper}, recipe::Recipe};
-
+        #[allow(dead_code)]
         #[derive(AssetCollection, Resource)]
         pub struct ImageAssets {"#,
     );
