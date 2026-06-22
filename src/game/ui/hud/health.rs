@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
 use crate::game::{
-    GameState, ImageAssets,
+    GameState,
+    assets::resource::ImageAssets,
     player::{Player, health::Health},
     ui::hud::HudTop,
 };

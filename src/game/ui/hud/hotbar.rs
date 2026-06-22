@@ -1,5 +1,6 @@
 use crate::game::{
-    GameState, ImageAssets,
+    GameState,
+    assets::resource::ImageAssets,
     player::{Player, inventory::Inventory},
     registry::item_registry::ItemRegistry,
     ui::hud::HudBottom,
@@ -191,7 +192,7 @@ fn update_hotbar_items(
         {
             Some(stack) => {
                 let def = item_registry.get(stack.item);
-                img.image = assets.atlas_item_texture.clone();
+                img.image = assets.item.clone();
                 img.texture_atlas = Some(TextureAtlas {
                     layout: item_registry.atlas_layout.clone(),
                     index: def.atlas_index,

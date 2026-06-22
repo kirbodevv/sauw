@@ -5,7 +5,8 @@ use bevy_rapier2d::prelude::*;
 use crate::{
     constants::TILE_SIZE,
     game::{
-        GameState, ImageAssets,
+        GameState,
+        assets::resource::ImageAssets,
         player::{
             Player, PlayerLight,
             health::Health,
@@ -25,7 +26,7 @@ fn spawn_player(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut ev_spawn_player_hears: MessageWriter<SpawnPlayerHearts>,
 ) {
-    let texture = assets.entity_player.clone();
+    let texture = assets.player.clone();
     let layout = TextureAtlasLayout::from_grid(UVec2 { x: 10, y: 26 }, 4, 3, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 

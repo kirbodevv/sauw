@@ -1,6 +1,6 @@
-use crate::game::{
-    ImageAssets,
-    assets::worldgen::{BiomeMapper as RawBiomeMapper, LayerMapper as RawLayerMapper},
+use crate::game::assets::{
+    resource::WorldgenAssets,
+    worldgen::{BiomeMapper as RawBiomeMapper, LayerMapper as RawLayerMapper},
 };
 use bevy::prelude::*;
 
@@ -61,7 +61,7 @@ impl BiomeMapper {
 pub fn init_layer_mapper(
     mut commands: Commands,
     mapper: Res<Assets<RawLayerMapper>>,
-    assets: Res<ImageAssets>,
+    assets: Res<WorldgenAssets>,
 ) {
     let handle = &assets.layer_mapper;
 
@@ -89,7 +89,7 @@ pub fn init_layer_mapper(
 pub fn init_biome_mapper(
     mut commands: Commands,
     mapper: Res<Assets<RawBiomeMapper>>,
-    assets: Res<ImageAssets>,
+    assets: Res<WorldgenAssets>,
 ) {
     let handle = &assets.biome_mapper;
 

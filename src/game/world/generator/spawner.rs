@@ -5,9 +5,11 @@ use bevy_rapier2d::dynamics::RigidBody;
 use crate::{
     constants::{CHUNK_SIZE, TILE_SIZE},
     game::{
-        ImageAssets,
-        assets::atlas::Atlas,
-        registry::{block_registry::BlockDefinition, block_registry::BlockRegistry},
+        assets::{
+            atlas::Atlas,
+            resource::{AtlasAssets, ImageAssets},
+        },
+        registry::block_registry::{BlockDefinition, BlockRegistry},
         world::{
             BlockEntity, BlockPos, Chunk,
             chunk_mesh::spawn_chunk_mesh,
@@ -16,6 +18,7 @@ use crate::{
     },
 };
 
+#[allow(clippy::too_many_arguments)]
 pub fn spawn_chunk(
     registry: Res<BlockRegistry>,
     mut commands: Commands,
@@ -24,6 +27,7 @@ pub fn spawn_chunk(
     mut materials: ResMut<Assets<ColorMaterial>>,
     atlases: Res<Assets<Atlas>>,
     image_assets: Res<ImageAssets>,
+    atlas_assets: Res<AtlasAssets>,
 ) {
     let air = registry.id_by_name("air");
     for chunk in reader.read() {
@@ -42,8 +46,8 @@ pub fn spawn_chunk(
                 parent,
                 &chunk.blocks,
                 &registry,
-                &image_assets.atlas_block_texture,
-                atlases.get(image_assets.atlas_block.id()).unwrap(),
+                &image_assets.block,
+                atlases.get(atlas_assets.block.id()).unwrap(),
                 &mut meshes,
                 &mut materials,
                 chunk_world_y,

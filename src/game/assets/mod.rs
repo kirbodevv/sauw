@@ -1,8 +1,12 @@
 pub mod atlas;
 pub mod recipe;
+pub mod resource;
 pub mod worldgen;
 
 use bevy::prelude::*;
+use bevy_asset_loader::prelude::*;
+
+use crate::game::GameState;
 
 pub struct GameAssetsPlugin;
 
@@ -17,6 +21,14 @@ impl Plugin for GameAssetsPlugin {
             .init_asset_loader::<worldgen::BiomeMapperLoader>()
             .init_asset_loader::<worldgen::BiomeLoader>()
             .init_asset_loader::<worldgen::LayerMapperLoader>()
-            .init_asset_loader::<recipe::RecipeLoader>();
+            .init_asset_loader::<recipe::RecipeLoader>()
+            .add_loading_state(
+                LoadingState::new(GameState::AssetsLoading)
+                    .continue_to_state(GameState::Bootstrap)
+                    .load_collection::<resource::ImageAssets>()
+                    .load_collection::<resource::AtlasAssets>()
+                    .load_collection::<resource::WorldgenAssets>()
+                    .load_collection::<resource::RecipeAssets>(),
+            );
     }
 }

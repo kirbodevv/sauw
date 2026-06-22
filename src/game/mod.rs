@@ -1,6 +1,3 @@
-#[cfg(not(rust_analyzer))]
-include!(concat!(env!("OUT_DIR"), "/assets.rs"));
-
 use crate::{constants::TILE_SIZE, platform::safe_zone::JNISafeZonePlugin};
 use bevy::{
     dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin, FrameTimeGraphConfig},
@@ -10,7 +7,6 @@ use bevy::{
     window::{PresentMode, WindowMode},
 };
 
-use bevy_asset_loader::prelude::*;
 use bevy_firefly::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -101,11 +97,6 @@ impl Plugin for GamePlugin {
         .init_state::<GameState>()
         .add_plugins(assets::GameAssetsPlugin)
         .add_plugins(JNISafeZonePlugin)
-        .add_loading_state(
-            LoadingState::new(GameState::AssetsLoading)
-                .continue_to_state(GameState::Bootstrap)
-                .load_collection::<ImageAssets>(),
-        )
         .add_plugins((
             registry::RegistryPlugin,
             world::WorldPlugin,

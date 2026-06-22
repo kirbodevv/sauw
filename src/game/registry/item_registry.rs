@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use bevy::prelude::*;
 
-use crate::game::{ImageAssets, assets::atlas::Atlas, registry::Registry};
+use crate::game::{
+    assets::{atlas::Atlas, resource::AtlasAssets},
+    registry::Registry,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ItemId(pub u16);
@@ -54,12 +57,12 @@ impl ItemRegistry {
 
 pub fn init_items(
     mut commands: Commands,
-    assets: Res<ImageAssets>,
+    assets: Res<AtlasAssets>,
     atlas_assets: Res<Assets<Atlas>>,
     mut layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let atlas = atlas_assets
-        .get(&assets.atlas_item)
+        .get(&assets.item)
         .expect("Item atlas not loaded");
 
     let mut layout = TextureAtlasLayout::new_empty(UVec2::new(atlas.width, atlas.height));

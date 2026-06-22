@@ -1,4 +1,4 @@
-use crate::game::{GameState, ImageAssets, ui::hud::HudBottom};
+use crate::game::{GameState, assets::resource::ImageAssets, ui::hud::HudBottom};
 use bevy::prelude::*;
 use virtual_joystick::*;
 

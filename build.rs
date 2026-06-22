@@ -1,8 +1,6 @@
 use std::collections::BTreeMap;
-use std::env;
 use std::fs;
 use std::path::Path;
-use std::path::PathBuf;
 
 use image::GenericImage;
 use image::RgbaImage;
@@ -10,84 +8,18 @@ use serde::Serialize;
 extern crate embed_resource;
 
 fn main() {
+    println!("cargo::rustc-check-cfg=cfg(rust_analyzer)");
+    println!("cargo::rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=assets");
+
     let target = std::env::var("TARGET").unwrap();
     if target.contains("windows") {
         embed_resource::compile("platform/windows/embed/icon.rc");
     }
 
-    println!("cargo::rustc-check-cfg=cfg(rust_analyzer)");
-    let out_dir = env::var_os("OUT_DIR").unwrap();
-    let dest_path = Path::new(&out_dir).join("assets.rs");
-
-    let mut code = String::new();
-
-    code.push_str(
-        r#"
-        use bevy_asset_loader::asset_collection::AssetCollection;
-        use crate::game::assets::{atlas::Atlas, worldgen::{Biome, BiomeMapper, LayerMapper}, recipe::Recipe};
-        #[allow(dead_code)]
-        #[derive(AssetCollection, Resource)]
-        pub struct ImageAssets {"#,
-    );
-
-    code.push_str(&generate(
-        PathBuf::from("assets/worldgen/biome.bmap"),
-        "BiomeMapper",
-        Some("biome_mapper"),
-    ));
-
-    code.push_str(&generate(
-        PathBuf::from("assets/worldgen/layer.lmap"),
-        "LayerMapper",
-        Some("layer_mapper"),
-    ));
-
-    for entry in fs::read_dir("assets/worldgen/biome").unwrap() {
-        code.push_str(&generate(entry.unwrap().path(), "Biome", None));
-    }
-
-    for entry in fs::read_dir("assets/recipes").unwrap() {
-        code.push_str(&generate(entry.unwrap().path(), "Recipe", None));
-    }
-
-    for entry in fs::read_dir("assets/block").unwrap() {
-        code.push_str(&generate(entry.unwrap().path(), "Image", None));
-    }
-
-    for entry in fs::read_dir("assets/entity").unwrap() {
-        code.push_str(&generate(entry.unwrap().path(), "Image", None));
-    }
-
-    for entry in fs::read_dir("assets/ui").unwrap() {
-        code.push_str(&generate(entry.unwrap().path(), "Image", None));
-    }
-
-    for entry in fs::read_dir("assets/atlas").unwrap() {
-        let path = entry.unwrap().path();
-        let ext = if let Some(ext) = path.extension() {
-            ext.to_str().unwrap_or("")
-        } else {
-            continue;
-        };
-
-        let asset_type = match ext {
-            "json" => "Atlas".to_string(),
-            "png" => "Image".to_string(),
-            _ => continue,
-        };
-        code.push_str(&generate(path, &asset_type, None));
-    }
-
-    code.push_str("\n}\n");
-
-    fs::write(&dest_path, code).unwrap();
-
-    println!("cargo::rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=assets");
-
     generate_atlas(
         "assets/block",
-        "assets/atlas/block_texture.png",
+        "assets/atlas/block.png",
         "assets/atlas/block.json",
         0,
         512,
@@ -95,43 +27,11 @@ fn main() {
 
     generate_atlas(
         "assets/item",
-        "assets/atlas/item_texture.png",
+        "assets/atlas/item.png",
         "assets/atlas/item.json",
         0,
         512,
     );
-}
-
-fn generate(path: PathBuf, asset_type: &str, name_as: Option<&str>) -> String {
-    if path.is_dir() {
-        return "".to_string();
-    }
-
-    let ext = if let Some(ext) = path.extension() {
-        ext.to_str().unwrap_or("")
-    } else {
-        return "".to_string();
-    };
-
-    let key = path
-        .strip_prefix("assets")
-        .unwrap()
-        .to_string_lossy()
-        .replace("\\", "/");
-
-    let ext_pattern = format!(".{}", ext);
-
-    let name = match name_as {
-        Some(name) => name.to_string(),
-        None => key.replace("/", "_").replace(&ext_pattern, ""),
-    };
-
-    format!(
-        r#"
-        #[asset(path = "{0}")]
-        {1}: Handle<{2}>,"#,
-        key, name, asset_type,
-    )
 }
 
 #[derive(Serialize)]

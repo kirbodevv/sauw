@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     constants::TILE_SIZE,
-    game::{ImageAssets, registry::item_registry::ItemRegistry},
+    game::{assets::resource::ImageAssets, registry::item_registry::ItemRegistry},
 };
 
 use super::components::{Drop, DroppedBy, PickupLocked, SpawnDrop};
@@ -22,7 +22,7 @@ pub fn spawn_drop(
                 count: event.count,
             },
             Sprite {
-                image: assets.atlas_item_texture.clone(),
+                image: assets.item.clone(),
                 texture_atlas: Some(TextureAtlas {
                     layout: item_registry.atlas_layout.clone(),
                     index: item.atlas_index,
