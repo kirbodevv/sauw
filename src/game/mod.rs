@@ -1,7 +1,6 @@
 use crate::{constants::TILE_SIZE, platform::safe_zone::JNISafeZonePlugin};
 use bevy::{
     dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin, FrameTimeGraphConfig},
-    input::InputSystems,
     prelude::*,
     text::FontSmoothing,
     window::{PresentMode, WindowMode},
@@ -14,6 +13,7 @@ pub mod assets;
 pub mod commands;
 pub mod crafting;
 pub mod drop;
+pub mod input;
 pub mod item;
 pub mod player;
 pub mod registry;
@@ -100,16 +100,13 @@ impl Plugin for GamePlugin {
         .add_plugins((
             registry::RegistryPlugin,
             world::WorldPlugin,
+            input::InputPlugin,
             player::PlayerPlugin,
             commands::CommandsPlugin,
             crafting::CraftingPlugin,
             ui::UiPlugin,
             drop::DropPlugin,
         ))
-        .add_systems(
-            Update,
-            (toggle_fps_overlay, toggle_ui_debug).after(InputSystems),
-        )
         .insert_resource(ClearColor(Color::BLACK));
 
         let lighting = !std::env::args().any(|a| a == "--lighting=off");
@@ -126,18 +123,5 @@ impl Plugin for GamePlugin {
                 app.add_plugins(FireflyPlugin);
             }
         }
-    }
-}
-
-fn toggle_fps_overlay(keyboard: Res<ButtonInput<KeyCode>>, mut config: ResMut<FpsOverlayConfig>) {
-    if keyboard.just_pressed(KeyCode::F3) {
-        config.enabled = !config.enabled;
-        config.frame_time_graph_config.enabled = !config.frame_time_graph_config.enabled;
-    }
-}
-
-fn toggle_ui_debug(keyboard: Res<ButtonInput<KeyCode>>, mut config: ResMut<UiDebugOptions>) {
-    if keyboard.just_pressed(KeyCode::F4) {
-        config.enabled = !config.enabled;
     }
 }

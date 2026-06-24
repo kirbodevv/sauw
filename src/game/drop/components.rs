@@ -25,3 +25,6 @@ pub struct SpawnDrop {
     pub position: Vec2,
     pub dropped_by: DroppedBy,
 }
+
+#[derive(Message)]
+pub struct DropItem;

@@ -1,15 +1,11 @@
 use bevy::prelude::*;
 
 use crate::game::{
-    player::{
-        input::InputPlugin, movement::MovementPlugin, spawn::PlayerSpawnPlugin,
-        sprite::SpritePlugin,
-    },
+    player::{movement::MovementPlugin, spawn::PlayerSpawnPlugin, sprite::SpritePlugin},
     world::ChunkCoord,
 };
 
 pub mod health;
-pub mod input;
 pub mod inventory;
 pub mod movement;
 pub mod spawn;
@@ -28,7 +24,7 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((PlayerSpawnPlugin, InputPlugin, MovementPlugin, SpritePlugin))
+        app.add_plugins((PlayerSpawnPlugin, MovementPlugin, SpritePlugin))
             .insert_resource(CurrentPlayerChunk(None));
     }
 }

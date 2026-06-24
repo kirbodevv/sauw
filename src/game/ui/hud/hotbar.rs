@@ -11,17 +11,6 @@ pub const HOTBAR_SLOT_COUNT: usize = 8;
 const SLOT_SIZE: f32 = 60.0;
 const ITEM_SIZE: f32 = 32.0;
 
-const DIGIT_KEYS: [KeyCode; HOTBAR_SLOT_COUNT] = [
-    KeyCode::Digit1,
-    KeyCode::Digit2,
-    KeyCode::Digit3,
-    KeyCode::Digit4,
-    KeyCode::Digit5,
-    KeyCode::Digit6,
-    KeyCode::Digit7,
-    KeyCode::Digit8,
-];
-
 #[derive(Component)]
 pub struct Hotbar;
 
@@ -45,6 +34,9 @@ struct HotbarSelectedMarker;
 
 #[derive(Resource, Default)]
 pub struct SelectedHotbarSlot(pub usize);
+
+#[derive(Message)]
+pub struct ChangeSelectedHotbarSlot(pub usize);
 
 fn spawn_wrapper(cmd: &mut Commands) -> Entity {
     cmd.spawn(Node {
@@ -221,39 +213,37 @@ fn update_hotbar_items(
 
 fn handle_slot_selection(
     mut cmd: Commands,
-    keyboard: Res<ButtonInput<KeyCode>>,
     mut selected: ResMut<SelectedHotbarSlot>,
+    mut message_reader: MessageReader<ChangeSelectedHotbarSlot>,
     assets: Res<ImageAssets>,
     q_slots: Query<(Entity, &HotbarSlot)>,
     q_markers: Query<Entity, With<HotbarSelectedMarker>>,
 ) {
-    let new_index = DIGIT_KEYS
-        .iter()
-        .enumerate()
-        .find_map(|(i, key)| keyboard.just_pressed(*key).then_some(i));
+    for message in message_reader.read() {
+        if selected.0 == message.0 {
+            continue;
+        }
+        selected.0 = message.0;
 
-    let Some(new_index) = new_index else { return };
-    if selected.0 == new_index {
-        return;
+        for entity in &q_markers {
+            cmd.entity(entity).despawn();
+        }
+
+        let Some((slot_entity, _)) = q_slots.iter().find(|(_, slot)| slot.index == selected.0)
+        else {
+            return;
+        };
+        let marker = spawn_selected_marker(&mut cmd, &assets);
+        cmd.entity(slot_entity).add_child(marker);
     }
-    selected.0 = new_index;
-
-    for entity in &q_markers {
-        cmd.entity(entity).despawn();
-    }
-
-    let Some((slot_entity, _)) = q_slots.iter().find(|(_, slot)| slot.index == new_index) else {
-        return;
-    };
-    let marker = spawn_selected_marker(&mut cmd, &assets);
-    cmd.entity(slot_entity).add_child(marker);
 }
 
 pub struct HotbarPlugin;
 
 impl Plugin for HotbarPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<SelectedHotbarSlot>()
+        app.add_message::<ChangeSelectedHotbarSlot>()
+            .init_resource::<SelectedHotbarSlot>()
             .add_systems(OnEnter(GameState::Bootstrap), spawn_hotbar)
             .add_systems(
                 Update,

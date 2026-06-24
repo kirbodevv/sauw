@@ -6,15 +6,19 @@ use crate::{
     constants::TILE_SIZE,
     game::player::{
         Player,
-        input::PlayerInput,
         sprite::{PlayerAnimation, PlayerState},
     },
 };
 
+#[derive(Resource, Default)]
+pub struct PlayerInputState {
+    pub move_direction: Vec2,
+}
+
 pub fn player_movement(
     console_open: Option<Res<ConsoleOpen>>,
     mut query: Query<(&mut Velocity, &mut PlayerAnimation), With<Player>>,
-    player_input: ResMut<PlayerInput>,
+    player_input: ResMut<PlayerInputState>,
 ) {
     if let Some(console_open) = console_open
         && console_open.open
@@ -63,6 +67,6 @@ pub struct MovementPlugin;
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, player_movement)
-            .insert_resource(PlayerInput::default());
+            .insert_resource(PlayerInputState::default());
     }
 }
