@@ -20,29 +20,6 @@ pub struct SpawnPlayerHearts {
     pub count: usize,
 }
 
-#[derive(Message)]
-struct HealthChanged {
-    entity: Entity,
-    #[allow(dead_code)]
-    health_change: u8,
-}
-
-fn check_health_changed(
-    mut q_healths: Query<(Entity, &mut Health)>,
-    mut ev_health_changed: MessageWriter<HealthChanged>,
-) {
-    for (entity, mut health) in &mut q_healths {
-        if health.health != health.old_health {
-            let health_change = health.health.abs_diff(health.old_health);
-            ev_health_changed.write(HealthChanged {
-                entity,
-                health_change,
-            });
-            health.old_health = health.health;
-        }
-    }
-}
-
 fn spawn_heart(commands: &mut Commands, assets: &Res<ImageAssets>, index: usize) -> Entity {
     commands
         .spawn((
@@ -102,23 +79,17 @@ fn despawn_hearts(
 
 fn update_player_hearts(
     assets: Res<ImageAssets>,
-    q_player: Query<&Health, With<Player>>,
+    q_health: Single<&Health, (With<Player>, Changed<Health>)>,
     mut q_hearts: Query<(&mut ImageNode, &Heart)>,
-    mut ev_health_changed: MessageReader<HealthChanged>,
 ) {
-    for ev in ev_health_changed.read() {
-        let player_health = match q_player.get(ev.entity) {
-            Ok(p) => p,
-            Err(_) => continue,
-        };
+    let health = q_health.health;
 
-        let threshold_index = player_health.health as usize;
-        for (mut ui_image, heart) in &mut q_hearts {
-            if heart.index >= threshold_index {
-                ui_image.image = assets.ui_heart_empty.clone();
-            } else {
-                ui_image.image = assets.ui_heart_full.clone();
-            }
+    let threshold_index = health as usize;
+    for (mut ui_image, heart) in &mut q_hearts {
+        if heart.index >= threshold_index {
+            ui_image.image = assets.ui_heart_empty.clone();
+        } else {
+            ui_image.image = assets.ui_heart_full.clone();
         }
     }
 }
@@ -129,11 +100,9 @@ impl Plugin for HealthPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (check_health_changed, spawn_hearts, update_player_hearts)
-                .run_if(in_state(GameState::Gaming)),
+            (spawn_hearts, update_player_hearts).run_if(in_state(GameState::Gaming)),
         )
         .add_message::<SpawnPlayerHearts>()
-        .add_message::<HealthChanged>()
         .add_systems(OnEnter(GameState::GameOver), despawn_hearts);
     }
 }
