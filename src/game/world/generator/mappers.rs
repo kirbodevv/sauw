@@ -1,5 +1,5 @@
 use crate::game::assets::{
-    resource::WorldgenAssets,
+    resource::WorldgenMapperAssets,
     worldgen::{BiomeMapperAsset as RawBiomeMapper, LayerMapperAsset as RawLayerMapper},
 };
 use bevy::prelude::*;
@@ -59,7 +59,7 @@ impl BiomeMapper {
 pub fn init_layer_mapper(
     mut commands: Commands,
     mapper: Res<Assets<RawLayerMapper>>,
-    assets: Res<WorldgenAssets>,
+    assets: Res<WorldgenMapperAssets>,
 ) {
     let handle = &assets.layer_mapper;
 
@@ -87,7 +87,7 @@ pub fn init_layer_mapper(
 pub fn init_biome_mapper(
     mut commands: Commands,
     mapper: Res<Assets<RawBiomeMapper>>,
-    assets: Res<WorldgenAssets>,
+    assets: Res<WorldgenMapperAssets>,
 ) {
     let handle = &assets.biome_mapper;
 

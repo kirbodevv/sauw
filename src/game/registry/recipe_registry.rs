@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::game::{
-    assets::recipe::RecipeAsset,
+    assets::{recipe::RecipeAsset, resource::RecipeAssets},
     crafting::{Ingredient, Recipe},
     registry::{Registry, item_registry::ItemRegistry},
 };
@@ -53,6 +53,6 @@ pub fn init_recipes(
         );
     }
 
-    let recipes = RecipeRegistry { inner };
-    commands.insert_resource(recipes);
+    commands.insert_resource(RecipeRegistry { inner });
+    commands.remove_resource::<RecipeAssets>();
 }

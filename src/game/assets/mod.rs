@@ -27,8 +27,9 @@ impl Plugin for GameAssetsPlugin {
                     .continue_to_state(GameState::Bootstrap)
                     .load_collection::<resource::ImageAssets>()
                     .load_collection::<resource::AtlasAssets>()
-                    .load_collection::<resource::WorldgenAssets>()
-                    .load_collection::<resource::RecipeAssets>(),
+                    .load_collection::<resource::WorldgenMapperAssets>()
+                    .load_collection::<resource::RecipeAssets>()
+                    .load_collection::<resource::BiomeAssets>(),
             );
     }
 }

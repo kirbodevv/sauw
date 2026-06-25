@@ -46,40 +46,22 @@ pub struct ImageAssets {
 }
 
 #[derive(AssetCollection, Resource)]
-pub struct WorldgenAssets {
+pub struct WorldgenMapperAssets {
     #[asset(path = "worldgen/layer.lmap")]
     pub layer_mapper: Handle<LayerMapperAsset>,
 
     #[asset(path = "worldgen/biome.bmap")]
     pub biome_mapper: Handle<BiomeMapperAsset>,
+}
 
-    #[asset(path = "worldgen/biome/beach.biome")]
-    pub beach_biome: Handle<BiomeAsset>,
-
-    #[asset(path = "worldgen/biome/desert.biome")]
-    pub desert_biome: Handle<BiomeAsset>,
-
-    #[asset(path = "worldgen/biome/forest.biome")]
-    pub forest_biome: Handle<BiomeAsset>,
-
-    #[asset(path = "worldgen/biome/ocean.biome")]
-    pub ocean_biome: Handle<BiomeAsset>,
-
-    #[asset(path = "worldgen/biome/plains.biome")]
-    pub plains_biome: Handle<BiomeAsset>,
+#[derive(AssetCollection, Resource)]
+pub struct BiomeAssets {
+    #[asset(path = "worldgen/biome", collection(typed))]
+    pub biomes: Vec<Handle<BiomeAsset>>,
 }
 
 #[derive(AssetCollection, Resource)]
 pub struct RecipeAssets {
-    #[asset(path = "recipes/rope.recipe")]
-    pub rope: Handle<RecipeAsset>,
-
-    #[asset(path = "recipes/stone_axe.recipe")]
-    pub stone_axe: Handle<RecipeAsset>,
-
-    #[asset(path = "recipes/stone_pickaxe.recipe")]
-    pub stone_pickaxe: Handle<RecipeAsset>,
-
-    #[asset(path = "recipes/stone_shovel.recipe")]
-    pub stone_shovel: Handle<RecipeAsset>,
+    #[asset(path = "recipes", collection(typed))]
+    pub recipes: Vec<Handle<RecipeAsset>>,
 }

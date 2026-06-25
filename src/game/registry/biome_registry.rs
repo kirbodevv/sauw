@@ -1,5 +1,5 @@
 use crate::game::{
-    assets::worldgen::BiomeAsset,
+    assets::{resource::BiomeAssets, worldgen::BiomeAsset},
     registry::{
         Registry,
         block_registry::{BlockId, BlockRegistry},
@@ -70,4 +70,5 @@ pub fn init_biomes(
     }
 
     commands.insert_resource(BiomeRegistry { inner });
+    commands.remove_resource::<BiomeAssets>();
 }
