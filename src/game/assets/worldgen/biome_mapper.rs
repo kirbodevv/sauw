@@ -10,7 +10,6 @@ use thiserror::Error;
 pub struct BiomeMapper {
     pub temperature_noise_scale: f64,
     pub humidity_noise_scale: f64,
-    pub height_noise_scale: f64,
     pub rules: Vec<BiomeMapperRules>,
 }
 
@@ -20,7 +19,6 @@ pub struct BiomeMapperRules {
     pub layer: String,
     pub temperature: Option<[f64; 2]>,
     pub humidity: Option<[f64; 2]>,
-    pub height: Option<[f64; 2]>,
     pub priority: u32,
 }
 
