@@ -1,7 +1,7 @@
 use crate::game::assets::{
-    atlas::Atlas,
-    recipe::Recipe,
-    worldgen::{Biome, BiomeMapper, LayerMapper},
+    atlas::AtlasAsset,
+    recipe::RecipeAsset,
+    worldgen::{BiomeAsset, BiomeMapperAsset, LayerMapperAsset},
 };
 use bevy::prelude::*;
 use bevy_asset_loader::asset_collection::AssetCollection;
@@ -9,10 +9,10 @@ use bevy_asset_loader::asset_collection::AssetCollection;
 #[derive(AssetCollection, Resource)]
 pub struct AtlasAssets {
     #[asset(path = "atlas/block.json")]
-    pub block: Handle<Atlas>,
+    pub block: Handle<AtlasAsset>,
 
     #[asset(path = "atlas/item.json")]
-    pub item: Handle<Atlas>,
+    pub item: Handle<AtlasAsset>,
 }
 
 #[derive(AssetCollection, Resource)]
@@ -48,38 +48,38 @@ pub struct ImageAssets {
 #[derive(AssetCollection, Resource)]
 pub struct WorldgenAssets {
     #[asset(path = "worldgen/layer.lmap")]
-    pub layer_mapper: Handle<LayerMapper>,
+    pub layer_mapper: Handle<LayerMapperAsset>,
 
     #[asset(path = "worldgen/biome.bmap")]
-    pub biome_mapper: Handle<BiomeMapper>,
+    pub biome_mapper: Handle<BiomeMapperAsset>,
 
     #[asset(path = "worldgen/biome/beach.biome")]
-    pub beach_biome: Handle<Biome>,
+    pub beach_biome: Handle<BiomeAsset>,
 
     #[asset(path = "worldgen/biome/desert.biome")]
-    pub desert_biome: Handle<Biome>,
+    pub desert_biome: Handle<BiomeAsset>,
 
     #[asset(path = "worldgen/biome/forest.biome")]
-    pub forest_biome: Handle<Biome>,
+    pub forest_biome: Handle<BiomeAsset>,
 
     #[asset(path = "worldgen/biome/ocean.biome")]
-    pub ocean_biome: Handle<Biome>,
+    pub ocean_biome: Handle<BiomeAsset>,
 
     #[asset(path = "worldgen/biome/plains.biome")]
-    pub plains_biome: Handle<Biome>,
+    pub plains_biome: Handle<BiomeAsset>,
 }
 
 #[derive(AssetCollection, Resource)]
 pub struct RecipeAssets {
     #[asset(path = "recipes/rope.recipe")]
-    pub rope: Handle<Recipe>,
+    pub rope: Handle<RecipeAsset>,
 
     #[asset(path = "recipes/stone_axe.recipe")]
-    pub stone_axe: Handle<Recipe>,
+    pub stone_axe: Handle<RecipeAsset>,
 
     #[asset(path = "recipes/stone_pickaxe.recipe")]
-    pub stone_pickaxe: Handle<Recipe>,
+    pub stone_pickaxe: Handle<RecipeAsset>,
 
     #[asset(path = "recipes/stone_shovel.recipe")]
-    pub stone_shovel: Handle<Recipe>,
+    pub stone_shovel: Handle<RecipeAsset>,
 }

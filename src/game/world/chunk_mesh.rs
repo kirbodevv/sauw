@@ -7,7 +7,7 @@ use bevy::{
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME, TILE_SIZE},
     game::{
-        assets::atlas::{Atlas, TextureId},
+        assets::atlas::{AtlasAsset, TextureId},
         registry::block_registry::{BlockDefinition, BlockId, BlockRegistry},
         world::generator::idx,
     },
@@ -16,7 +16,7 @@ use crate::{
 pub fn build_ground_mesh(
     chunk_blocks: &[BlockId; CHUNK_VOLUME],
     registry: &BlockRegistry,
-    atlas: &Atlas,
+    atlas: &AtlasAsset,
 ) -> Mesh {
     let mut positions = Vec::new();
     let mut uvs = Vec::new();
@@ -47,7 +47,7 @@ pub fn build_ground_mesh(
     make_mesh(positions, uvs, indices)
 }
 
-pub fn build_object_quad(block: &BlockDefinition, atlas: &Atlas) -> Mesh {
+pub fn build_object_quad(block: &BlockDefinition, atlas: &AtlasAsset) -> Mesh {
     let texture_id = TextureId::new(block.name);
     let atlas_entry = &atlas.entries[&texture_id];
 
@@ -86,7 +86,7 @@ pub fn spawn_chunk_mesh(
     chunk_blocks: &[BlockId; CHUNK_VOLUME],
     registry: &BlockRegistry,
     block_texture: &Handle<Image>,
-    block_atlas: &Atlas,
+    block_atlas: &AtlasAsset,
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<ColorMaterial>,
     chunk_world_y: f32,
@@ -131,7 +131,7 @@ pub fn spawn_chunk_mesh(
 #[allow(clippy::too_many_arguments)]
 fn append_quad(
     block: &BlockDefinition,
-    atlas: &Atlas,
+    atlas: &AtlasAsset,
     cx: usize,
     cy: usize,
     z: f32,

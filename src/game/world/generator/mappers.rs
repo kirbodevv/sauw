@@ -1,6 +1,6 @@
 use crate::game::assets::{
     resource::WorldgenAssets,
-    worldgen::{BiomeMapper as RawBiomeMapper, LayerMapper as RawLayerMapper},
+    worldgen::{BiomeMapperAsset as RawBiomeMapper, LayerMapperAsset as RawLayerMapper},
 };
 use bevy::prelude::*;
 

@@ -22,9 +22,9 @@ impl TextureId {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct AtlasEntry([u32; 4]);
+pub struct AtlasEntryAsset([u32; 4]);
 
-impl AtlasEntry {
+impl AtlasEntryAsset {
     pub fn x(&self) -> u32 {
         self.0[0]
     }
@@ -40,26 +40,26 @@ impl AtlasEntry {
 }
 
 #[derive(Asset, TypePath, Debug, Deserialize)]
-pub struct Atlas {
+pub struct AtlasAsset {
     pub width: u32,
     pub height: u32,
-    pub entries: HashMap<TextureId, AtlasEntry>,
+    pub entries: HashMap<TextureId, AtlasEntryAsset>,
 }
 
 #[derive(Default, TypePath)]
-pub struct AtlasLoader;
+pub struct AtlasAssetLoader;
 
 #[non_exhaustive]
 #[derive(Debug, Error)]
-pub enum AtlasLoaderError {
+pub enum AtlasAssetLoaderError {
     #[error("Could not load asset: {0}")]
     Io(#[from] std::io::Error),
 }
 
-impl AssetLoader for AtlasLoader {
-    type Asset = Atlas;
+impl AssetLoader for AtlasAssetLoader {
+    type Asset = AtlasAsset;
     type Settings = ();
-    type Error = AtlasLoaderError;
+    type Error = AtlasAssetLoaderError;
 
     fn extensions(&self) -> &[&str] {
         &["json"]
@@ -74,8 +74,8 @@ impl AssetLoader for AtlasLoader {
         let mut bytes = Vec::new();
         reader.read_to_end(&mut bytes).await?;
 
-        let atlas: Atlas = serde_json::from_slice(&bytes)
-            .map_err(|e| AtlasLoaderError::Io(std::io::Error::other(e)))?;
+        let atlas: AtlasAsset = serde_json::from_slice(&bytes)
+            .map_err(|e| Self::Error::Io(std::io::Error::other(e)))?;
 
         info!(
             target: "asset_loader",

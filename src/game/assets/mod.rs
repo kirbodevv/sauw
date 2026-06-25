@@ -12,16 +12,16 @@ pub struct GameAssetsPlugin;
 
 impl Plugin for GameAssetsPlugin {
     fn build(&self, app: &mut App) {
-        app.init_asset::<atlas::Atlas>()
-            .init_asset::<worldgen::Biome>()
-            .init_asset::<worldgen::BiomeMapper>()
-            .init_asset::<worldgen::LayerMapper>()
-            .init_asset::<recipe::Recipe>()
-            .init_asset_loader::<atlas::AtlasLoader>()
-            .init_asset_loader::<worldgen::BiomeMapperLoader>()
-            .init_asset_loader::<worldgen::BiomeLoader>()
-            .init_asset_loader::<worldgen::LayerMapperLoader>()
-            .init_asset_loader::<recipe::RecipeLoader>()
+        app.init_asset::<atlas::AtlasAsset>()
+            .init_asset::<worldgen::BiomeAsset>()
+            .init_asset::<worldgen::BiomeMapperAsset>()
+            .init_asset::<worldgen::LayerMapperAsset>()
+            .init_asset::<recipe::RecipeAsset>()
+            .init_asset_loader::<atlas::AtlasAssetLoader>()
+            .init_asset_loader::<worldgen::BiomeMapperAssetLoader>()
+            .init_asset_loader::<worldgen::BiomeAssetLoader>()
+            .init_asset_loader::<worldgen::LayerMapperAssetLoader>()
+            .init_asset_loader::<recipe::RecipeAssetLoader>()
             .add_loading_state(
                 LoadingState::new(GameState::AssetsLoading)
                     .continue_to_state(GameState::Bootstrap)

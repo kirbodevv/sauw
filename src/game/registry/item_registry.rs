@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::prelude::*;
 
 use crate::game::{
-    assets::{atlas::Atlas, resource::AtlasAssets},
+    assets::{atlas::AtlasAsset, resource::AtlasAssets},
     registry::Registry,
 };
 
@@ -58,7 +58,7 @@ impl ItemRegistry {
 pub fn init_items(
     mut commands: Commands,
     assets: Res<AtlasAssets>,
-    atlas_assets: Res<Assets<Atlas>>,
+    atlas_assets: Res<Assets<AtlasAsset>>,
     mut layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let atlas = atlas_assets

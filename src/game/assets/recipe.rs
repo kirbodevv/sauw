@@ -8,35 +8,35 @@ use serde::Deserialize;
 use thiserror::Error;
 
 #[derive(Asset, TypePath, Debug, Deserialize)]
-pub struct Recipe {
+pub struct RecipeAsset {
     #[serde(skip)]
     #[serde(default)]
     pub name: String,
     pub result: String,
     pub count: u32,
-    pub ingredients: Vec<Ingredient>,
+    pub ingredients: Vec<IngredientAsset>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Ingredient {
+pub struct IngredientAsset {
     pub item: String,
     pub count: i32,
 }
 
 #[derive(Default, TypePath)]
-pub struct RecipeLoader;
+pub struct RecipeAssetLoader;
 
 #[non_exhaustive]
 #[derive(Debug, Error)]
-pub enum RecipeLoaderError {
+pub enum RecipeAssetLoaderError {
     #[error("Could not load asset: {0}")]
     Io(#[from] std::io::Error),
 }
 
-impl AssetLoader for RecipeLoader {
-    type Asset = Recipe;
+impl AssetLoader for RecipeAssetLoader {
+    type Asset = RecipeAsset;
     type Settings = ();
-    type Error = RecipeLoaderError;
+    type Error = RecipeAssetLoaderError;
 
     fn extensions(&self) -> &[&str] {
         &["recipe"]
@@ -59,8 +59,8 @@ impl AssetLoader for RecipeLoader {
             .unwrap()
             .to_string();
 
-        let mut recipe: Recipe = serde_json::from_slice(&bytes)
-            .map_err(|e| RecipeLoaderError::Io(std::io::Error::other(e)))?;
+        let mut recipe: RecipeAsset = serde_json::from_slice(&bytes)
+            .map_err(|e| Self::Error::Io(std::io::Error::other(e)))?;
 
         recipe.name = file_name;
 

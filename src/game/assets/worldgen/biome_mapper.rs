@@ -7,14 +7,14 @@ use serde::Deserialize;
 use thiserror::Error;
 
 #[derive(Asset, TypePath, Debug, Deserialize)]
-pub struct BiomeMapper {
+pub struct BiomeMapperAsset {
     pub temperature_noise_scale: f64,
     pub humidity_noise_scale: f64,
-    pub rules: Vec<BiomeMapperRules>,
+    pub rules: Vec<BiomeMapperRulesAsset>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct BiomeMapperRules {
+pub struct BiomeMapperRulesAsset {
     pub biome: String,
     pub layer: String,
     pub temperature: Option<[f64; 2]>,
@@ -24,18 +24,18 @@ pub struct BiomeMapperRules {
 
 #[non_exhaustive]
 #[derive(Debug, Error)]
-pub enum BiomeMapperLoaderError {
+pub enum BiomeMapperAssetLoaderError {
     #[error("Could not load asset: {0}")]
     Io(#[from] std::io::Error),
 }
 
 #[derive(Default, TypePath)]
-pub struct BiomeMapperLoader;
+pub struct BiomeMapperAssetLoader;
 
-impl AssetLoader for BiomeMapperLoader {
-    type Asset = BiomeMapper;
+impl AssetLoader for BiomeMapperAssetLoader {
+    type Asset = BiomeMapperAsset;
     type Settings = ();
-    type Error = BiomeMapperLoaderError;
+    type Error = BiomeMapperAssetLoaderError;
 
     fn extensions(&self) -> &[&str] {
         &["bmap"]
@@ -50,8 +50,8 @@ impl AssetLoader for BiomeMapperLoader {
         let mut bytes = Vec::new();
         reader.read_to_end(&mut bytes).await?;
 
-        let biome_mapper: BiomeMapper = serde_json::from_slice(&bytes)
-            .map_err(|e| BiomeMapperLoaderError::Io(std::io::Error::other(e)))?;
+        let biome_mapper: BiomeMapperAsset = serde_json::from_slice(&bytes)
+            .map_err(|e| BiomeMapperAssetLoaderError::Io(std::io::Error::other(e)))?;
 
         info!(
             target: "asset_loader",

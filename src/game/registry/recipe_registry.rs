@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::game::{
-    assets::recipe::Recipe as RecipeAsset,
+    assets::recipe::RecipeAsset,
     crafting::{Ingredient, Recipe},
     registry::{Registry, item_registry::ItemRegistry},
 };

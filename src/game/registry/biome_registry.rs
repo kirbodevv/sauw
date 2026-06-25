@@ -1,5 +1,5 @@
 use crate::game::{
-    assets::worldgen::Biome,
+    assets::worldgen::BiomeAsset,
     registry::{
         Registry,
         block_registry::{BlockId, BlockRegistry},
@@ -41,7 +41,7 @@ impl BiomeRegistry {
 
 pub fn init_biomes(
     mut commands: Commands,
-    biomes: Res<Assets<Biome>>,
+    biomes: Res<Assets<BiomeAsset>>,
     block_registry: Res<BlockRegistry>,
 ) {
     let mut inner = Registry::new("biome");

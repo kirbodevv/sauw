@@ -6,7 +6,7 @@ use crate::{
     constants::{CHUNK_SIZE, TILE_SIZE},
     game::{
         assets::{
-            atlas::Atlas,
+            atlas::AtlasAsset,
             resource::{AtlasAssets, ImageAssets},
         },
         registry::block_registry::{BlockDefinition, BlockRegistry},
@@ -25,7 +25,7 @@ pub fn spawn_chunk(
     mut reader: MessageReader<GeneratedChunk>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    atlases: Res<Assets<Atlas>>,
+    atlases: Res<Assets<AtlasAsset>>,
     image_assets: Res<ImageAssets>,
     atlas_assets: Res<AtlasAssets>,
 ) {

@@ -7,31 +7,31 @@ use serde::Deserialize;
 use thiserror::Error;
 
 #[derive(Asset, TypePath, Debug, Deserialize)]
-pub struct LayerMapper {
+pub struct LayerMapperAsset {
     pub height_noise_scale: f64,
-    pub layers: Vec<Layer>,
+    pub layers: Vec<LayerAsset>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Layer {
+pub struct LayerAsset {
     pub name: String,
     pub height: [f64; 2],
 }
 
 #[non_exhaustive]
 #[derive(Debug, Error)]
-pub enum LayerMapperLoaderError {
+pub enum LayerMapperAssetLoaderError {
     #[error("Could not load asset: {0}")]
     Io(#[from] std::io::Error),
 }
 
 #[derive(Default, TypePath)]
-pub struct LayerMapperLoader;
+pub struct LayerMapperAssetLoader;
 
-impl AssetLoader for LayerMapperLoader {
-    type Asset = LayerMapper;
+impl AssetLoader for LayerMapperAssetLoader {
+    type Asset = LayerMapperAsset;
     type Settings = ();
-    type Error = LayerMapperLoaderError;
+    type Error = LayerMapperAssetLoaderError;
 
     fn extensions(&self) -> &[&str] {
         &["lmap"]
@@ -46,8 +46,8 @@ impl AssetLoader for LayerMapperLoader {
         let mut bytes = Vec::new();
         reader.read_to_end(&mut bytes).await?;
 
-        let layer_mapper: LayerMapper = serde_json::from_slice(&bytes)
-            .map_err(|e| LayerMapperLoaderError::Io(std::io::Error::other(e)))?;
+        let layer_mapper: LayerMapperAsset = serde_json::from_slice(&bytes)
+            .map_err(|e| Self::Error::Io(std::io::Error::other(e)))?;
 
         info!(
             target: "asset_loader",
