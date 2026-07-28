@@ -29,6 +29,7 @@ pub fn spawn_camera(mut commands: Commands) {
         MainCamera,
         FireflyConfig {
             normal_mode: NormalMode::TopDownY,
+            enable_32bit_stencils: true,
             ..default()
         },
         Msaa::Off,
