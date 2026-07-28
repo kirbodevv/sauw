@@ -105,7 +105,7 @@ pub fn init_blocks(mut commands: Commands) {
             name: "tree",
             sprite_size: Vec2::new(32., 64.),
             sprite_offset: Vec2::new(0., 16.),
-            collider: collider_with_offset(Collider::cuboid(5.0, 2.5), Vec2::new(0.0, -12.0)),
+            collider: collider_with_offset(Collider::cuboid(5.0, 2.5), Vec2::new(0.0, -13.0)),
             occluders: vec![Occluder::new(Vec2::new(6.0, 6.0), Vec2::new(0.0, -12.0))],
             ..default()
         },
