@@ -26,6 +26,7 @@ impl Plugin for GameAssetsPlugin {
                 LoadingState::new(GameState::AssetsLoading)
                     .continue_to_state(GameState::Bootstrap)
                     .load_collection::<resource::ImageAssets>()
+                    .load_collection::<resource::NormalMapAssets>()
                     .load_collection::<resource::AtlasAssets>()
                     .load_collection::<resource::WorldgenMapperAssets>()
                     .load_collection::<resource::RecipeAssets>()
