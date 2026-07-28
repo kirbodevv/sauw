@@ -1,17 +1,21 @@
-use bevy::prelude::*;
-use bevy_firefly::occluders::Occluder2d;
+use bevy::{prelude::*, sprite::Anchor};
+use bevy_firefly::{
+    occluders::Occluder2d,
+    sprites::{NormalMap, SpriteHeight},
+};
 use bevy_rapier2d::dynamics::RigidBody;
 
 use crate::{
     constants::{CHUNK_SIZE, TILE_SIZE},
     game::{
         assets::{
-            atlas::AtlasAsset,
-            resource::{AtlasAssets, ImageAssets},
+            atlas::{AtlasAsset, TextureId},
+            resource::{AtlasAssets, ImageAssets, NormalMapAssets},
         },
         registry::block_registry::{BlockDefinition, BlockRegistry},
         world::{
             BlockEntity, BlockPos, Chunk,
+            camera::{YSort, y_sort_z},
             chunk_mesh::spawn_chunk_mesh,
             generator::{GeneratedChunk, idx},
         },
@@ -27,6 +31,7 @@ pub fn spawn_chunk(
     mut materials: ResMut<Assets<ColorMaterial>>,
     atlases: Res<Assets<AtlasAsset>>,
     image_assets: Res<ImageAssets>,
+    normal_map_assets: Res<NormalMapAssets>,
     atlas_assets: Res<AtlasAssets>,
 ) {
     let air = registry.id_by_name("air");
@@ -50,7 +55,6 @@ pub fn spawn_chunk(
                 atlases.get(atlas_assets.block.id()).unwrap(),
                 &mut meshes,
                 &mut materials,
-                chunk_world_y,
             );
 
             for x in 0..CHUNK_SIZE {
@@ -60,37 +64,75 @@ pub fn spawn_chunk(
                         continue;
                     }
                     let block = registry.get(block);
-                    spawn_block(parent, block, BlockPos::new(x as u8, y as u8, 1));
+                    spawn_block(
+                        parent,
+                        block,
+                        BlockPos::new(x as u8, y as u8, 1),
+                        &image_assets.block,
+                        &normal_map_assets.block,
+                        atlases.get(atlas_assets.block.id()).unwrap(),
+                        chunk_world_y,
+                    );
                 }
             }
         });
     }
 }
 
-pub fn spawn_block(parent: &mut ChildSpawnerCommands<'_>, block: &BlockDefinition, pos: BlockPos) {
+#[allow(clippy::too_many_arguments)]
+pub fn spawn_block(
+    parent: &mut ChildSpawnerCommands<'_>,
+    block: &BlockDefinition,
+    pos: BlockPos,
+    block_texture: &Handle<Image>,
+    block_normal_texture: &Handle<Image>,
+    block_atlas: &AtlasAsset,
+    chunk_world_y: f32,
+) {
     let local_x = pos.x as f32 * TILE_SIZE + TILE_SIZE / 2.0;
     let local_y = pos.y as f32 * TILE_SIZE + TILE_SIZE / 2.0;
-    let is_object = pos.layer == 1;
+    let atlas_entry = &block_atlas.entries[&TextureId::new(block.name)];
+    let padding = 0.5;
+    let sprite_rect = Rect::new(
+        atlas_entry.x() as f32 + padding,
+        atlas_entry.y() as f32 + padding,
+        (atlas_entry.x() + atlas_entry.width()) as f32 - padding,
+        (atlas_entry.y() + atlas_entry.height()) as f32 - padding,
+    );
 
-    if is_object {
-        let mut entity = parent.spawn((
-            Transform::from_xyz(local_x, local_y, pos.layer as f32),
-            BlockEntity,
-            RigidBody::Fixed,
-            block.collider.clone(),
-            pos.clone(),
+    let mut entity = parent.spawn((
+        Transform::from_xyz(
+            local_x,
+            local_y,
+            y_sort_z(block.y_sort, chunk_world_y + local_y),
+        ),
+        Visibility::default(),
+        YSort { z: block.y_sort },
+        BlockEntity,
+        RigidBody::Fixed,
+        block.collider.clone(),
+        pos,
+    ));
+
+    entity.with_children(|parent| {
+        parent.spawn((
+            Sprite {
+                image: block_texture.clone(),
+                rect: Some(sprite_rect),
+                custom_size: Some(block.sprite_size),
+                ..default()
+            },
+            Anchor::CENTER,
+            NormalMap::from_image(block_normal_texture.clone()),
+            SpriteHeight(0.0),
+            Transform::from_translation(block.sprite_offset.extend(0.0)),
         ));
+
         for occluder in &block.occluders {
-            entity.with_children(|parent| {
-                parent.spawn((
-                    Occluder2d::rectangle(occluder.size.x, occluder.size.y),
-                    Transform::from_xyz(
-                        occluder.offset.x,
-                        occluder.offset.y,
-                        pos.layer as f32 * TILE_SIZE,
-                    ),
-                ));
-            });
+            parent.spawn((
+                Occluder2d::rectangle(occluder.size.x, occluder.size.y),
+                Transform::from_translation(occluder.offset.extend(0.0)),
+            ));
         }
-    }
+    });
 }
