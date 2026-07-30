@@ -47,39 +47,6 @@ pub fn build_ground_mesh(
     make_mesh(positions, uvs, indices)
 }
 
-pub fn build_object_quad(block: &BlockDefinition, atlas: &AtlasAsset) -> Mesh {
-    let texture_id = TextureId::new(block.name);
-    let atlas_entry = &atlas.entries[&texture_id];
-
-    let size = block.sprite_size;
-    let hw = size.x / 2.0;
-    let hh = size.y / 2.0;
-
-    let tex_x = atlas_entry.x() as f32;
-    let tex_y = atlas_entry.y() as f32;
-    let tex_w = atlas_entry.width() as f32;
-    let tex_h = atlas_entry.height() as f32;
-    let atlas_w = atlas.width as f32;
-    let atlas_h = atlas.height as f32;
-
-    let pad = 0.5;
-    let u0 = (tex_x + pad) / atlas_w;
-    let v0 = (tex_y + pad) / atlas_h;
-    let u1 = (tex_x + tex_w - pad) / atlas_w;
-    let v1 = (tex_y + tex_h - pad) / atlas_h;
-
-    make_mesh(
-        vec![
-            [-hw, -hh, 0.0_f32],
-            [hw, -hh, 0.0],
-            [-hw, hh, 0.0],
-            [hw, hh, 0.0],
-        ],
-        vec![[u0, v1], [u1, v1], [u0, v0], [u1, v0]],
-        vec![0u32, 1, 2, 2, 1, 3],
-    )
-}
-
 #[allow(clippy::too_many_arguments)]
 pub fn spawn_chunk_mesh(
     parent: &mut ChildSpawnerCommands<'_>,
@@ -89,7 +56,6 @@ pub fn spawn_chunk_mesh(
     block_atlas: &AtlasAsset,
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<ColorMaterial>,
-    chunk_world_y: f32,
 ) {
     let material = materials.add(ColorMaterial {
         texture: Some(block_texture.clone()),
@@ -102,30 +68,6 @@ pub fn spawn_chunk_mesh(
         MeshMaterial2d(material.clone()),
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
-
-    let air = registry.id_by_name("air");
-    for x in 0..CHUNK_SIZE {
-        for y in 0..CHUNK_SIZE {
-            let block_id = chunk_blocks[idx(x, y, 1)];
-            if block_id == air {
-                continue;
-            }
-            let block = registry.get(block_id);
-
-            let local_x = x as f32 * TILE_SIZE + TILE_SIZE / 2.0 + block.sprite_offset.x;
-            let local_y = y as f32 * TILE_SIZE + TILE_SIZE / 2.0 + block.sprite_offset.y;
-
-            let feet_world_y = chunk_world_y + y as f32 * TILE_SIZE;
-            let render_z = 10.0 - feet_world_y * 0.001;
-
-            let quad = build_object_quad(block, block_atlas);
-            parent.spawn((
-                Mesh2d(meshes.add(quad)),
-                MeshMaterial2d(material.clone()),
-                Transform::from_xyz(local_x, local_y, render_z),
-            ));
-        }
-    }
 }
 
 #[allow(clippy::too_many_arguments)]

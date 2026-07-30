@@ -20,6 +20,9 @@ pub struct ImageAssets {
     #[asset(path = "atlas/block.png")]
     pub block: Handle<Image>,
 
+    #[asset(path = "atlas/block_normal.png")]
+    pub block_normal: Handle<Image>,
+
     #[asset(path = "atlas/item.png")]
     pub item: Handle<Image>,
 
