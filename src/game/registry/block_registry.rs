@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_firefly::occluders::{Occluder2d, Occluder2dShape};
 use bevy_rapier2d::prelude::Collider;
 
 use crate::{constants::TILE_SIZE, game::registry::Registry};
@@ -160,6 +161,8 @@ pub fn init_blocks(mut commands: Commands) {
     inner.insert(
         BlockDefinition {
             name: "cactus",
+            collider: collider_with_offset(Collider::cuboid(5.0, 2.5), Vec2::new(0.0, -13.0)),
+            occluders: vec![Occluder::new(Vec2::new(6.0, 6.0), Vec2::new(0.0, -12.0))],
             ..default()
         },
         "cactus",
