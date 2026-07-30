@@ -32,7 +32,7 @@ fn spawn_player(
 
     let size = Vec2::new(32.0 * 10.0 / 26.0, 32.0);
 
-    commands.spawn((
+    let mut player = commands.spawn((
         Sprite {
             image: texture.clone(),
             custom_size: Some(size),
@@ -57,6 +57,11 @@ fn spawn_player(
         Velocity::zero(),
         Health::new(MAX_PLAYER_HEALTH),
         Inventory::new(INVENTORY_SIZE),
+    ));
+
+    player.with_child((
+        LightHeight(16.),
+        Transform::from_xyz(0., -size.y / 2., 0.),
         PlayerLight,
         PointLight2d {
             color: Color::srgb(0.5, 0.45, 0.05),
@@ -65,7 +70,6 @@ fn spawn_player(
             offset: vec3(0.0, 16.0, 0.0),
             ..default()
         },
-        LightHeight(16.),
     ));
 
     ev_spawn_player_hears.write(SpawnPlayerHearts {
