@@ -10,7 +10,7 @@ use crate::{
     game::{
         assets::{
             atlas::{AtlasAsset, TextureId},
-            resource::{AtlasAssets, ImageAssets, NormalMapAssets},
+            resource::{AtlasAssets, ImageAssets},
         },
         registry::block_registry::{BlockDefinition, BlockRegistry},
         world::{
@@ -31,7 +31,6 @@ pub fn spawn_chunk(
     mut materials: ResMut<Assets<ColorMaterial>>,
     atlases: Res<Assets<AtlasAsset>>,
     image_assets: Res<ImageAssets>,
-    normal_map_assets: Res<NormalMapAssets>,
     atlas_assets: Res<AtlasAssets>,
 ) {
     let air = registry.id_by_name("air");
@@ -69,7 +68,7 @@ pub fn spawn_chunk(
                         block,
                         BlockPos::new(x as u8, y as u8, 1),
                         &image_assets.block,
-                        &normal_map_assets.block,
+                        &image_assets.block_normal,
                         atlases.get(atlas_assets.block.id()).unwrap(),
                         chunk_world_y,
                     );
