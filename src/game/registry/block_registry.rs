@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_firefly::occluders::{Occluder2d, Occluder2dShape};
 use bevy_rapier2d::prelude::Collider;
 
 use crate::{constants::TILE_SIZE, game::registry::Registry};
