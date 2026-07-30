@@ -29,22 +29,22 @@ pub struct ImageAssets {
     #[asset(path = "entity/player.png")]
     pub player: Handle<Image>,
 
-    #[asset(path = "ui/heart_full.png")]
+    #[asset(path = "ui/hud/heart_full.png")]
     pub ui_heart_full: Handle<Image>,
 
-    #[asset(path = "ui/heart_empty.png")]
+    #[asset(path = "ui/hud/heart_empty.png")]
     pub ui_heart_empty: Handle<Image>,
 
-    #[asset(path = "ui/inventory.png")]
+    #[asset(path = "ui/hud/inventory.png")]
     pub ui_inventory: Handle<Image>,
 
-    #[asset(path = "ui/selected_slot.png")]
+    #[asset(path = "ui/hud/selected_slot.png")]
     pub ui_selected_slot: Handle<Image>,
 
-    #[asset(path = "ui/joystick_handle.png")]
+    #[asset(path = "ui/hud/joystick_handle.png")]
     pub ui_joystick_handle: Handle<Image>,
 
-    #[asset(path = "ui/joystick_base.png")]
+    #[asset(path = "ui/hud/joystick_base.png")]
     pub ui_joystick_base: Handle<Image>,
 }
 
