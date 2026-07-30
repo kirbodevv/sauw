@@ -114,14 +114,6 @@ pub fn init_blocks(mut commands: Commands) {
 
     inner.insert(
         BlockDefinition {
-            name: "dirt",
-            ..default()
-        },
-        "dirt",
-    );
-
-    inner.insert(
-        BlockDefinition {
             name: "flowers",
             y_sort: 0.1,
             ..default()
