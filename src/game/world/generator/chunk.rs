@@ -1,17 +1,16 @@
 use bevy::prelude::*;
-use bevy_rapier2d::na::clamp;
-use noise::{Fbm, NoiseFn, Perlin};
 
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME},
     game::{
         registry::{biome_registry::BiomeRegistry, block_registry::BlockRegistry},
-        world::{
-            WorldSeed,
-            generator::{
-                ChunkGenerateRequest, GeneratedChunk, idx,
-                mappers::{BiomeMapper, LayerMapper},
-            },
+        world::generator::{
+            ChunkGenerateRequest, GeneratedChunk,
+            biome::get_biome,
+            idx,
+            mappers::{BiomeMapper, LayerMapper},
+            noise::WorldNoise,
+            terrain::terrain_height,
         },
     },
 };
@@ -19,20 +18,18 @@ use crate::{
 pub fn generate_chunk(
     biomes: Res<BiomeRegistry>,
     blocks: Res<BlockRegistry>,
-    seed: Res<WorldSeed>,
     layer_mapper: Res<LayerMapper>,
     biome_mapper: Res<BiomeMapper>,
+    noise: Res<WorldNoise>,
     mut reader: MessageReader<ChunkGenerateRequest>,
     mut writer: MessageWriter<GeneratedChunk>,
 ) {
-    let width = CHUNK_SIZE;
-    let height = CHUNK_SIZE;
+    if reader.is_empty() {
+        return;
+    }
 
-    let temp_perlin = Perlin::new(seed.0);
-    let humid_perlin = Perlin::new(seed.0 + 1337);
-
-    let terrain_fbm = Fbm::<Perlin>::new(seed.0);
-    let continent_fbm = Fbm::<Perlin>::new(seed.0 + 9999);
+    const WIDTH: usize = CHUNK_SIZE;
+    const HEIGHT: usize = CHUNK_SIZE;
 
     let air = blocks.id_by_name("air");
 
@@ -41,36 +38,13 @@ pub fn generate_chunk(
 
         let chunk_coord = chunk.0;
 
-        for x in 0..width {
-            for y in 0..height {
-                let cx = chunk_coord.x as f64 * CHUNK_SIZE as f64;
-                let cy = chunk_coord.y as f64 * CHUNK_SIZE as f64;
-                let x = x as f64;
-                let y = y as f64;
+        for x in 0..WIDTH {
+            for y in 0..HEIGHT {
+                let rx = chunk_coord.x as f64 * CHUNK_SIZE as f64 + x as f64;
+                let ry = chunk_coord.y as f64 * CHUNK_SIZE as f64 + y as f64;
 
-                let terrain = normalize(terrain_fbm.get([
-                    (x + cx) * layer_mapper.height_scale,
-                    (y + cy) * layer_mapper.height_scale,
-                ]));
-
-                let continent =
-                    normalize(continent_fbm.get([(x + cx) * 0.0001, (y + cy) * 0.0001]));
-
-                let continent_bias = (continent - 0.5) * 2.0;
-
-                let height = terrain + continent_bias * 0.35;
-                let height = clamp(height, 0.0, 1.0);
-                let height = height.powf(1.3);
-
-                let layer = layer_mapper.get_layer(height);
-
-                let temp = generate_value(&temp_perlin, x, y, cx, cy, biome_mapper.temp_scale);
-                let humid = generate_value(&humid_perlin, x, y, cx, cy, biome_mapper.humid_scale);
-
-                let biome_name = biome_mapper
-                    .get_biome(layer, temp, humid)
-                    .unwrap_or("desert");
-                let biome = biomes.by_name(biome_name).unwrap();
+                let layer = layer_mapper.get_layer(terrain_height(&noise, &layer_mapper, rx, ry));
+                let biome = get_biome(&noise, &biomes, &biome_mapper, layer, rx, ry);
 
                 let surface = biome.surface;
 
@@ -91,8 +65,8 @@ pub fn generate_chunk(
                     }
                 }
 
-                blocks[idx(x as usize, y as usize, 0)] = surface;
-                blocks[idx(x as usize, y as usize, 1)] = top;
+                blocks[idx(x, y, 0)] = surface;
+                blocks[idx(x, y, 1)] = top;
             }
         }
 
@@ -101,14 +75,4 @@ pub fn generate_chunk(
             blocks,
         });
     }
-}
-
-#[inline]
-fn generate_value(perlin: &Perlin, x: f64, y: f64, chunk_x: f64, chunk_y: f64, scale: f64) -> f64 {
-    normalize(perlin.get([(x + chunk_x) * scale, (y + chunk_y) * scale]))
-}
-
-#[inline]
-fn normalize(val: f64) -> f64 {
-    (val + 1.0) / 2.0
 }

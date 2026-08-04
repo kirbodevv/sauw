@@ -16,8 +16,8 @@ use crate::{
         world::{
             BlockEntity, BlockPos, Chunk,
             camera::{YSort, y_sort_z},
-            chunk_mesh::spawn_chunk_mesh,
             generator::{GeneratedChunk, idx},
+            render::chunk_mesh::spawn_chunk_mesh,
         },
     },
 };

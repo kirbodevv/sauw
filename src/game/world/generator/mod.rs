@@ -10,15 +10,17 @@ use crate::{
             generator::{
                 chunk::generate_chunk,
                 mappers::{init_biome_mapper, init_layer_mapper},
-                spawner::spawn_chunk,
+                noise::init_noise,
             },
         },
     },
 };
 
+pub mod biome;
 pub mod chunk;
 pub mod mappers;
-pub mod spawner;
+pub mod noise;
+pub mod terrain;
 
 #[inline]
 pub fn idx(x: usize, y: usize, layer: usize) -> usize {
@@ -42,13 +44,8 @@ impl Plugin for GeneratorPlugin {
             .add_message::<GeneratedChunk>()
             .add_systems(
                 OnEnter(GameState::Gaming),
-                (init_biome_mapper, init_layer_mapper),
+                (init_noise, init_biome_mapper, init_layer_mapper),
             )
-            .add_systems(
-                Update,
-                (generate_chunk, spawn_chunk)
-                    .chain()
-                    .run_if(in_state(GameState::Gaming)),
-            );
+            .add_systems(Update, generate_chunk.run_if(in_state(GameState::Gaming)));
     }
 }
