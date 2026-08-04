@@ -6,11 +6,6 @@ use crate::constants::VIEWPORT_WIDTH;
 use crate::game::player::Player;
 
 #[derive(Component)]
-pub struct YSort {
-    pub z: f32,
-}
-
-#[derive(Component)]
 pub struct MainCamera;
 
 #[derive(Resource)]
@@ -34,18 +29,6 @@ pub fn spawn_camera(mut commands: Commands) {
         },
         Msaa::Off,
     ));
-}
-
-const Y_SORT_BASE: f32 = 10.0;
-
-pub fn y_sort_z(layer: f32, world_y: f32) -> f32 {
-    Y_SORT_BASE + layer - 1.0 / (1.0 + 2.0_f32.powf(-0.01 * world_y))
-}
-
-pub fn apply_y_sort(mut query: Query<(&mut Transform, &GlobalTransform, &YSort)>) {
-    for (mut transform, global_transform, y_sort) in &mut query {
-        transform.translation.z = y_sort_z(y_sort.z, global_transform.translation().y);
-    }
 }
 
 pub fn zoom_camera(
@@ -78,6 +61,6 @@ impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(TargetCameraZoom(1.0))
             .add_systems(Startup, spawn_camera)
-            .add_systems(Update, (zoom_camera, camera_follow, apply_y_sort));
+            .add_systems(Update, (zoom_camera, camera_follow));
     }
 }

@@ -15,9 +15,8 @@ use crate::{
         registry::block_registry::{BlockDefinition, BlockRegistry},
         world::{
             BlockEntity, BlockPos, Chunk,
-            camera::{YSort, y_sort_z},
             generator::{GeneratedChunk, idx},
-            render::chunk_mesh::spawn_chunk_mesh,
+            render::{YSort, chunk_mesh::spawn_chunk_mesh, y_sort_z},
         },
     },
 };
