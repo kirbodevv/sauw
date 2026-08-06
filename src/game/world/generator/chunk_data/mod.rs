@@ -1,7 +1,7 @@
 use crate::{
     constants::{CHUNK_LAYER_VOLUME, CHUNK_SIZE},
     game::{
-        registry::biome_registry::{BiomeId, BiomeRegistry},
+        registry::biome_registry::BiomeId,
         world::{
             ChunkCoord,
             generator::{
@@ -33,7 +33,6 @@ pub fn generate(
     coord: ChunkCoord,
     noise: &WorldNoise,
     biome_mapper: &BiomeMapper,
-    biome_registry: &BiomeRegistry,
     layer_mapper: &LayerMapper,
 ) -> ChunkData {
     const WIDTH: usize = CHUNK_SIZE;
@@ -51,13 +50,7 @@ pub fn generate(
             let climate = climate::generate(noise, rx, ry);
             let height = height::generate(noise, rx, ry);
             let layer = layer::generate(layer_mapper, height);
-            let biome = biome::generate(
-                biome_mapper,
-                biome_registry,
-                layer,
-                climate.temp,
-                climate.humid,
-            );
+            let biome = biome::generate(biome_mapper, layer, climate.temp, climate.humid);
 
             let index = idx_2d(x, y) as usize;
 

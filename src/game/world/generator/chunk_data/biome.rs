@@ -1,16 +1,10 @@
 use crate::game::{
-    registry::biome_registry::{BiomeId, BiomeRegistry},
+    registry::biome_registry::BiomeId,
     world::generator::mappers::{BiomeMapper, LayerId},
 };
 
-pub fn generate(
-    mapper: &BiomeMapper,
-    biomes: &BiomeRegistry,
-    layer: LayerId,
-    temp: f64,
-    humid: f64,
-) -> BiomeId {
-    let biome = mapper
+pub fn generate(mapper: &BiomeMapper, layer: LayerId, temp: f64, humid: f64) -> BiomeId {
+    mapper
         .rules
         .iter()
         .filter(|rule| {
@@ -24,7 +18,6 @@ pub fn generate(
             rule.humid.is_none_or(|h| humid >= h.0 && humid <= h.1)
         })
         .max_by_key(|r| r.priority)
-        .map(|rule| rule.biome.to_string())
-        .unwrap_or("desert".to_string());
-    biomes.id_by_name(&biome)
+        .map(|rule| rule.biome)
+        .unwrap()
 }

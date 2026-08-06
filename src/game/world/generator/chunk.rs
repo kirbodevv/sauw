@@ -35,8 +35,7 @@ pub fn generate_chunk(
 
         let chunk_coord = chunk.0;
 
-        let chunk_data =
-            chunk_data::generate(chunk_coord, &noise, &biome_mapper, &biomes, &layer_mapper);
+        let chunk_data = chunk_data::generate(chunk_coord, &noise, &biome_mapper, &layer_mapper);
 
         for x in 0..WIDTH {
             for y in 0..HEIGHT {

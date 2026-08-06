@@ -1,6 +1,9 @@
-use crate::game::assets::{
-    resource::WorldgenMapperAssets,
-    worldgen::{BiomeMapperAsset as RawBiomeMapper, LayerMapperAsset as RawLayerMapper},
+use crate::game::{
+    assets::{
+        resource::WorldgenMapperAssets,
+        worldgen::{BiomeMapperAsset as RawBiomeMapper, LayerMapperAsset as RawLayerMapper},
+    },
+    registry::biome_registry::{BiomeId, BiomeRegistry},
 };
 use bevy::prelude::*;
 
@@ -23,7 +26,7 @@ pub struct BiomeMapper {
 }
 
 pub struct BiomeMapperRule {
-    pub biome: String,
+    pub biome: BiomeId,
     pub layer: LayerId,
     pub temp: Option<(f64, f64)>,
     pub humid: Option<(f64, f64)>,
@@ -68,6 +71,7 @@ pub fn init_layer_mapper(
 pub fn init_biome_mapper(
     mut commands: Commands,
     layer_mapper: Res<LayerMapper>,
+    biomes: Res<BiomeRegistry>,
     mapper: Res<Assets<RawBiomeMapper>>,
     assets: Res<WorldgenMapperAssets>,
 ) {
@@ -81,7 +85,7 @@ pub fn init_biome_mapper(
         .rules
         .iter()
         .map(|rule| BiomeMapperRule {
-            biome: rule.biome.clone(),
+            biome: biomes.id_by_name(&rule.biome),
             layer: layer_mapper.id_by_name(&rule.layer),
             temp: rule.temperature.map(|t| (t[0], t[1])),
             humid: rule.humidity.map(|h| (h[0], h[1])),
