@@ -1,9 +1,12 @@
 use crate::game::{
     registry::biome_registry::BiomeId,
-    world::generator::mappers::{BiomeMapper, LayerId},
+    world::generator::{
+        chunk_data::climate::CellClimate,
+        mappers::{BiomeMapper, LayerId},
+    },
 };
 
-pub fn generate(mapper: &BiomeMapper, layer: LayerId, temp: f64, humid: f64) -> BiomeId {
+pub fn generate(mapper: &BiomeMapper, layer: LayerId, climate: CellClimate) -> BiomeId {
     mapper
         .rules
         .iter()
@@ -12,10 +15,14 @@ pub fn generate(mapper: &BiomeMapper, layer: LayerId, temp: f64, humid: f64) -> 
                 return false;
             }
 
-            if !rule.temp.is_none_or(|t| temp >= t.0 && temp <= t.1) {
+            if !rule
+                .temp
+                .is_none_or(|t| climate.temp >= t.0 && climate.temp <= t.1)
+            {
                 return false;
             }
-            rule.humid.is_none_or(|h| humid >= h.0 && humid <= h.1)
+            rule.humid
+                .is_none_or(|h| climate.humid >= h.0 && climate.humid <= h.1)
         })
         .max_by_key(|r| r.priority)
         .map(|rule| rule.biome)

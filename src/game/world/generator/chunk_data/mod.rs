@@ -50,7 +50,7 @@ pub fn generate(
             let climate = climate::generate(noise, rx, ry);
             let height = height::generate(noise, rx, ry);
             let layer = layer::generate(layer_mapper, height);
-            let biome = biome::generate(biome_mapper, layer, climate.temp, climate.humid);
+            let biome = biome::generate(biome_mapper, layer, climate);
 
             let index = idx_2d(x, y) as usize;
 
