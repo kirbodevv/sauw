@@ -8,7 +8,6 @@ use thiserror::Error;
 
 #[derive(Asset, TypePath, Debug, Deserialize)]
 pub struct LayerMapperAsset {
-    pub height_noise_scale: f64,
     pub layers: Vec<LayerAsset>,
 }
 

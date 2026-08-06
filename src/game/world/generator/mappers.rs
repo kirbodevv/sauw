@@ -4,55 +4,39 @@ use crate::game::assets::{
 };
 use bevy::prelude::*;
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub struct LayerId(pub u8);
+
 #[derive(Resource)]
 pub struct LayerMapper {
-    pub height_scale: f64,
     pub layers: Vec<Layer>,
 }
 
 pub struct Layer {
-    name: String,
-    height: (f64, f64),
+    pub name: String,
+    pub height: (f64, f64),
 }
 
 #[derive(Resource)]
 pub struct BiomeMapper {
     pub rules: Vec<BiomeMapperRule>,
-    pub temp_scale: f64,
-    pub humid_scale: f64,
 }
 
 pub struct BiomeMapperRule {
     pub biome: String,
-    pub layer: String,
+    pub layer: LayerId,
     pub temp: Option<(f64, f64)>,
     pub humid: Option<(f64, f64)>,
     pub priority: u32,
 }
 
 impl LayerMapper {
-    pub fn get_layer(&self, height: f64) -> &str {
+    pub fn id_by_name(&self, name: &str) -> LayerId {
         self.layers
             .iter()
-            .find(|layer| height >= layer.height.0 && height <= layer.height.1)
-            .map(|layer| layer.name.as_str())
+            .position(|layer| layer.name.as_str() == name)
+            .map(|i| LayerId(i as u8))
             .unwrap()
-    }
-}
-
-impl BiomeMapper {
-    pub fn get_biome(&self, layer: &str, temp: f64, humid: f64) -> Option<&str> {
-        self.rules
-            .iter()
-            .filter(|rule| rule.layer == layer)
-            .filter(|rule| {
-                let temp_in_range = rule.temp.is_none_or(|t| temp >= t.0 && temp <= t.1);
-                let humid_in_range = rule.humid.is_none_or(|h| humid >= h.0 && humid <= h.1);
-
-                temp_in_range && humid_in_range
-            })
-            .max_by_key(|r| r.priority)
-            .map(|rule| rule.biome.as_str())
     }
 }
 
@@ -76,16 +60,14 @@ pub fn init_layer_mapper(
         })
         .collect::<Vec<_>>();
 
-    let layer_mapper = LayerMapper {
-        height_scale: map.height_noise_scale,
-        layers,
-    };
+    let layer_mapper = LayerMapper { layers };
 
     commands.insert_resource(layer_mapper);
 }
 
 pub fn init_biome_mapper(
     mut commands: Commands,
+    layer_mapper: Res<LayerMapper>,
     mapper: Res<Assets<RawBiomeMapper>>,
     assets: Res<WorldgenMapperAssets>,
 ) {
@@ -100,18 +82,14 @@ pub fn init_biome_mapper(
         .iter()
         .map(|rule| BiomeMapperRule {
             biome: rule.biome.clone(),
-            layer: rule.layer.clone(),
+            layer: layer_mapper.id_by_name(&rule.layer),
             temp: rule.temperature.map(|t| (t[0], t[1])),
             humid: rule.humidity.map(|h| (h[0], h[1])),
             priority: rule.priority,
         })
         .collect::<Vec<_>>();
 
-    let mapper = BiomeMapper {
-        rules,
-        temp_scale: map.temperature_noise_scale,
-        humid_scale: map.humidity_noise_scale,
-    };
+    let mapper = BiomeMapper { rules };
 
     commands.insert_resource(mapper);
 }

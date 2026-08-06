@@ -1,0 +1,75 @@
+use crate::{
+    constants::{CHUNK_LAYER_VOLUME, CHUNK_SIZE},
+    game::{
+        registry::biome_registry::{BiomeId, BiomeRegistry},
+        world::{
+            ChunkCoord,
+            generator::{
+                chunk_data::climate::CellClimate,
+                idx_2d,
+                mappers::{BiomeMapper, LayerMapper},
+                noise::WorldNoise,
+            },
+        },
+    },
+};
+
+pub mod biome;
+pub mod climate;
+pub mod height;
+pub mod layer;
+
+pub struct BiomeMap(pub [BiomeId; CHUNK_LAYER_VOLUME]);
+pub struct HeightMap(pub [f64; CHUNK_LAYER_VOLUME]);
+pub struct ClimateMap(pub [CellClimate; CHUNK_LAYER_VOLUME]);
+
+pub struct ChunkData {
+    pub climate: ClimateMap,
+    pub height: HeightMap,
+    pub biomes: BiomeMap,
+}
+
+pub fn generate(
+    coord: ChunkCoord,
+    noise: &WorldNoise,
+    biome_mapper: &BiomeMapper,
+    biome_registry: &BiomeRegistry,
+    layer_mapper: &LayerMapper,
+) -> ChunkData {
+    const WIDTH: usize = CHUNK_SIZE;
+    const HEIGHT: usize = CHUNK_SIZE;
+
+    let mut climate_map = [CellClimate::default(); CHUNK_LAYER_VOLUME];
+    let mut height_map = [0.0; CHUNK_LAYER_VOLUME];
+    let mut biome_map = [BiomeId(0); CHUNK_LAYER_VOLUME];
+
+    for x in 0..WIDTH {
+        for y in 0..HEIGHT {
+            let rx = coord.x as f64 * CHUNK_SIZE as f64 + x as f64;
+            let ry = coord.y as f64 * CHUNK_SIZE as f64 + y as f64;
+
+            let climate = climate::generate(noise, rx, ry);
+            let height = height::generate(noise, rx, ry);
+            let layer = layer::generate(layer_mapper, height);
+            let biome = biome::generate(
+                biome_mapper,
+                biome_registry,
+                layer,
+                climate.temp,
+                climate.humid,
+            );
+
+            let index = idx_2d(x, y) as usize;
+
+            climate_map[index] = climate;
+            height_map[index] = height;
+            biome_map[index] = biome;
+        }
+    }
+
+    ChunkData {
+        climate: ClimateMap(climate_map),
+        height: HeightMap(height_map),
+        biomes: BiomeMap(biome_map),
+    }
+}

@@ -16,11 +16,13 @@ impl Plugin for GameAssetsPlugin {
             .init_asset::<worldgen::BiomeAsset>()
             .init_asset::<worldgen::BiomeMapperAsset>()
             .init_asset::<worldgen::LayerMapperAsset>()
+            .init_asset::<worldgen::NoiseSettingsAsset>()
             .init_asset::<recipe::RecipeAsset>()
             .init_asset_loader::<atlas::AtlasAssetLoader>()
-            .init_asset_loader::<worldgen::BiomeMapperAssetLoader>()
             .init_asset_loader::<worldgen::BiomeAssetLoader>()
+            .init_asset_loader::<worldgen::BiomeMapperAssetLoader>()
             .init_asset_loader::<worldgen::LayerMapperAssetLoader>()
+            .init_asset_loader::<worldgen::NoiseSettingsAssetLoader>()
             .init_asset_loader::<recipe::RecipeAssetLoader>()
             .add_loading_state(
                 LoadingState::new(GameState::AssetsLoading)
@@ -28,6 +30,7 @@ impl Plugin for GameAssetsPlugin {
                     .load_collection::<resource::ImageAssets>()
                     .load_collection::<resource::AtlasAssets>()
                     .load_collection::<resource::WorldgenMapperAssets>()
+                    .load_collection::<resource::NoiseSettingsAssets>()
                     .load_collection::<resource::RecipeAssets>()
                     .load_collection::<resource::BiomeAssets>(),
             );

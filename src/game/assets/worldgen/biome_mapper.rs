@@ -8,8 +8,6 @@ use thiserror::Error;
 
 #[derive(Asset, TypePath, Debug, Deserialize)]
 pub struct BiomeMapperAsset {
-    pub temperature_noise_scale: f64,
-    pub humidity_noise_scale: f64,
     pub rules: Vec<BiomeMapperRulesAsset>,
 }
 

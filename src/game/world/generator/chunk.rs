@@ -5,12 +5,9 @@ use crate::{
     game::{
         registry::{biome_registry::BiomeRegistry, block_registry::BlockRegistry},
         world::generator::{
-            ChunkGenerateRequest, GeneratedChunk,
-            biome::get_biome,
-            idx,
+            ChunkGenerateRequest, GeneratedChunk, chunk_data, idx, idx_2d,
             mappers::{BiomeMapper, LayerMapper},
             noise::WorldNoise,
-            terrain::terrain_height,
         },
     },
 };
@@ -38,13 +35,13 @@ pub fn generate_chunk(
 
         let chunk_coord = chunk.0;
 
+        let chunk_data =
+            chunk_data::generate(chunk_coord, &noise, &biome_mapper, &biomes, &layer_mapper);
+
         for x in 0..WIDTH {
             for y in 0..HEIGHT {
-                let rx = chunk_coord.x as f64 * CHUNK_SIZE as f64 + x as f64;
-                let ry = chunk_coord.y as f64 * CHUNK_SIZE as f64 + y as f64;
-
-                let layer = layer_mapper.get_layer(terrain_height(&noise, &layer_mapper, rx, ry));
-                let biome = get_biome(&noise, &biomes, &biome_mapper, layer, rx, ry);
+                let index = idx_2d(x, y);
+                let biome = biomes.by_id(chunk_data.biomes.0[index]);
 
                 let surface = biome.surface;
 

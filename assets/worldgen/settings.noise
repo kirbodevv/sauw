@@ -1,0 +1,5 @@
+{
+  "height_scale": 0.01,
+  "temperature_scale": 0.005,
+  "humidity_scale": 0.001
+}

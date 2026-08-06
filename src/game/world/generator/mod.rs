@@ -16,15 +16,19 @@ use crate::{
     },
 };
 
-pub mod biome;
 pub mod chunk;
+pub mod chunk_data;
 pub mod mappers;
 pub mod noise;
-pub mod terrain;
 
 #[inline]
 pub fn idx(x: usize, y: usize, layer: usize) -> usize {
     x + y * CHUNK_SIZE + layer * CHUNK_SIZE * CHUNK_SIZE
+}
+
+#[inline]
+pub fn idx_2d(x: usize, y: usize) -> usize {
+    x + y * CHUNK_SIZE
 }
 
 #[derive(Message)]
@@ -44,7 +48,7 @@ impl Plugin for GeneratorPlugin {
             .add_message::<GeneratedChunk>()
             .add_systems(
                 OnEnter(GameState::Gaming),
-                (init_noise, init_biome_mapper, init_layer_mapper),
+                (init_noise, init_layer_mapper, init_biome_mapper).chain(),
             )
             .add_systems(Update, generate_chunk.run_if(in_state(GameState::Gaming)));
     }

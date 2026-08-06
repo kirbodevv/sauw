@@ -1,7 +1,4 @@
 {
-  "temperature_noise_scale": 0.005,
-  "humidity_noise_scale": 0.001,
-
   "rules": [
     {
       "biome": "ocean",

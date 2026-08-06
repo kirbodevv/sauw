@@ -1,7 +1,7 @@
 use crate::game::assets::{
     atlas::AtlasAsset,
     recipe::RecipeAsset,
-    worldgen::{BiomeAsset, BiomeMapperAsset, LayerMapperAsset},
+    worldgen::{BiomeAsset, BiomeMapperAsset, LayerMapperAsset, NoiseSettingsAsset},
 };
 use bevy::prelude::*;
 use bevy_asset_loader::asset_collection::AssetCollection;
@@ -67,4 +67,10 @@ pub struct BiomeAssets {
 pub struct RecipeAssets {
     #[asset(path = "recipes", collection(typed))]
     pub recipes: Vec<Handle<RecipeAsset>>,
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct NoiseSettingsAssets {
+    #[asset(path = "worldgen/settings.noise")]
+    pub noise_settings: Handle<NoiseSettingsAsset>,
 }
