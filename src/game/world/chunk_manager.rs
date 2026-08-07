@@ -5,15 +5,21 @@ use crate::{
         world::{
             components::{Chunk, ChunkCoord, LoadedChunks, Settings},
             generator::ChunkGenerateRequest,
+            render::chunk_spawner::DespawnChunk,
         },
     },
 };
 use bevy::prelude::*;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
+
+#[derive(Resource, Default)]
+pub struct ChunkManager {
+    pub entities: HashMap<ChunkCoord, Entity>,
+}
 
 pub fn manage_chunks(
-    mut commands: Commands,
-    mut writer: MessageWriter<ChunkGenerateRequest>,
+    mut g_writer: MessageWriter<ChunkGenerateRequest>,
+    mut d_writer: MessageWriter<DespawnChunk>,
     mut loaded: ResMut<LoadedChunks>,
     mut last_player_chunk: ResMut<CurrentPlayerChunk>,
     settings: Res<Settings>,
@@ -46,16 +52,26 @@ pub fn manage_chunks(
 
     for coord in required.iter() {
         if !loaded.set.contains(coord) {
-            writer.write(ChunkGenerateRequest(*coord));
+            g_writer.write(ChunkGenerateRequest(*coord));
             loaded.set.insert(*coord);
         }
     }
 
-    for (entity, chunk) in &chunks {
+    for (_, chunk) in &chunks {
         if !required.contains(chunk) {
-            commands.entity(entity).despawn();
+            d_writer.write(DespawnChunk {
+                chunk_coord: *chunk,
+            });
         }
     }
 
     loaded.set = required;
+}
+
+pub struct ChunkManagerPlugin;
+
+impl Plugin for ChunkManagerPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(ChunkManager::default());
+    }
 }

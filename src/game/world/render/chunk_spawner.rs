@@ -8,6 +8,7 @@ use bevy_rapier2d::dynamics::RigidBody;
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME, TILE_SIZE},
     game::{
+        GameState,
         assets::{
             atlas::{AtlasAsset, TextureId},
             resource::{AtlasAssets, ImageAssets},
@@ -15,6 +16,7 @@ use crate::{
         registry::block_registry::{BlockDefinition, BlockId, BlockRegistry},
         world::{
             BlockEntity, BlockPos, Chunk, ChunkCoord,
+            chunk_manager::ChunkManager,
             generator::idx,
             render::{YSort, chunk_mesh::spawn_chunk_mesh, y_sort_z},
         },
@@ -27,6 +29,11 @@ pub struct SpawnChunk {
     pub blocks: [BlockId; CHUNK_VOLUME],
 }
 
+#[derive(Message)]
+pub struct DespawnChunk {
+    pub chunk_coord: ChunkCoord,
+}
+
 #[allow(clippy::too_many_arguments)]
 pub fn spawn_chunk(
     registry: Res<BlockRegistry>,
@@ -37,6 +44,7 @@ pub fn spawn_chunk(
     atlases: Res<Assets<AtlasAsset>>,
     image_assets: Res<ImageAssets>,
     atlas_assets: Res<AtlasAssets>,
+    mut manager: ResMut<ChunkManager>,
 ) {
     let air = registry.id_by_name("air");
     for chunk in reader.read() {
@@ -80,6 +88,21 @@ pub fn spawn_chunk(
                 }
             }
         });
+        manager
+            .entities
+            .insert(chunk.chunk_coord, chunk_entity.id());
+    }
+}
+
+pub fn despawn_chunk(
+    mut commands: Commands,
+    mut reader: MessageReader<DespawnChunk>,
+    mut manager: ResMut<ChunkManager>,
+) {
+    for chunk in reader.read() {
+        if let Some(entity) = manager.entities.remove(&chunk.chunk_coord) {
+            commands.entity(entity).despawn();
+        }
     }
 }
 
@@ -139,4 +162,19 @@ pub fn spawn_block(
             ));
         }
     });
+}
+
+pub struct ChunkSpawnerPlugin;
+
+impl Plugin for ChunkSpawnerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_message::<SpawnChunk>()
+            .add_message::<DespawnChunk>()
+            .add_systems(
+                Update,
+                (despawn_chunk, spawn_chunk)
+                    .chain()
+                    .run_if(in_state(GameState::Gaming)),
+            );
+    }
 }

@@ -24,6 +24,7 @@ impl Plugin for WorldPlugin {
                 chunk_manager::manage_chunks.run_if(in_state(GameState::Gaming)),
             )
             .add_plugins((
+                chunk_manager::ChunkManagerPlugin,
                 camera::CameraPlugin,
                 generator::GeneratorPlugin,
                 render::WorldRenderPlugin,
