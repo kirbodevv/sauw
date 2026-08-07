@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::game::GameState;
+
 #[derive(Component)]
 pub struct YSort {
     pub z: f32,
@@ -14,5 +16,13 @@ pub fn y_sort_z(layer: f32, world_y: f32) -> f32 {
 pub fn apply_y_sort(mut query: Query<(&mut Transform, &GlobalTransform, &YSort)>) {
     for (mut transform, global_transform, y_sort) in &mut query {
         transform.translation.z = y_sort_z(y_sort.z, global_transform.translation().y);
+    }
+}
+
+pub struct YSortPlugin;
+
+impl Plugin for YSortPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, (apply_y_sort).run_if(in_state(GameState::Gaming)));
     }
 }
