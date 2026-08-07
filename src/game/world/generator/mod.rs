@@ -1,10 +1,9 @@
 use bevy::prelude::*;
 
 use crate::{
-    constants::{CHUNK_SIZE, CHUNK_VOLUME},
+    constants::CHUNK_SIZE,
     game::{
         GameState,
-        registry::block_registry::BlockId,
         world::{
             ChunkCoord,
             generator::{
@@ -34,18 +33,11 @@ pub fn idx_2d(x: usize, y: usize) -> usize {
 #[derive(Message)]
 pub struct ChunkGenerateRequest(pub ChunkCoord);
 
-#[derive(Message)]
-pub struct GeneratedChunk {
-    pub chunk_coord: ChunkCoord,
-    pub blocks: [BlockId; CHUNK_VOLUME],
-}
-
 pub struct GeneratorPlugin;
 
 impl Plugin for GeneratorPlugin {
     fn build(&self, app: &mut App) {
         app.add_message::<ChunkGenerateRequest>()
-            .add_message::<GeneratedChunk>()
             .add_systems(
                 OnEnter(GameState::Gaming),
                 (init_noise, init_layer_mapper, init_biome_mapper).chain(),

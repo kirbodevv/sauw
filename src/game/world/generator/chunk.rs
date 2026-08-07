@@ -4,10 +4,13 @@ use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME},
     game::{
         registry::{biome_registry::BiomeRegistry, block_registry::BlockRegistry},
-        world::generator::{
-            ChunkGenerateRequest, GeneratedChunk, chunk_data, idx, idx_2d,
-            mappers::{BiomeMapper, LayerMapper},
-            noise::WorldNoise,
+        world::{
+            generator::{
+                ChunkGenerateRequest, chunk_data, idx, idx_2d,
+                mappers::{BiomeMapper, LayerMapper},
+                noise::WorldNoise,
+            },
+            render::chunk_spawner::SpawnChunk,
         },
     },
 };
@@ -19,7 +22,7 @@ pub fn generate_chunk(
     biome_mapper: Res<BiomeMapper>,
     noise: Res<WorldNoise>,
     mut reader: MessageReader<ChunkGenerateRequest>,
-    mut writer: MessageWriter<GeneratedChunk>,
+    mut writer: MessageWriter<SpawnChunk>,
 ) {
     if reader.is_empty() {
         return;
@@ -66,7 +69,7 @@ pub fn generate_chunk(
             }
         }
 
-        writer.write(GeneratedChunk {
+        writer.write(SpawnChunk {
             chunk_coord,
             blocks,
         });

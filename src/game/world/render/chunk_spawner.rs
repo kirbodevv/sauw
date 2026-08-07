@@ -6,26 +6,32 @@ use bevy_firefly::{
 use bevy_rapier2d::dynamics::RigidBody;
 
 use crate::{
-    constants::{CHUNK_SIZE, TILE_SIZE},
+    constants::{CHUNK_SIZE, CHUNK_VOLUME, TILE_SIZE},
     game::{
         assets::{
             atlas::{AtlasAsset, TextureId},
             resource::{AtlasAssets, ImageAssets},
         },
-        registry::block_registry::{BlockDefinition, BlockRegistry},
+        registry::block_registry::{BlockDefinition, BlockId, BlockRegistry},
         world::{
-            BlockEntity, BlockPos, Chunk,
-            generator::{GeneratedChunk, idx},
+            BlockEntity, BlockPos, Chunk, ChunkCoord,
+            generator::idx,
             render::{YSort, chunk_mesh::spawn_chunk_mesh, y_sort_z},
         },
     },
 };
 
+#[derive(Message)]
+pub struct SpawnChunk {
+    pub chunk_coord: ChunkCoord,
+    pub blocks: [BlockId; CHUNK_VOLUME],
+}
+
 #[allow(clippy::too_many_arguments)]
 pub fn spawn_chunk(
     registry: Res<BlockRegistry>,
     mut commands: Commands,
-    mut reader: MessageReader<GeneratedChunk>,
+    mut reader: MessageReader<SpawnChunk>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     atlases: Res<Assets<AtlasAsset>>,
