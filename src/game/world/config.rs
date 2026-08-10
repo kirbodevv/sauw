@@ -7,3 +7,29 @@ pub fn configure_physics(mut rapier_config: Query<&mut RapierConfiguration>) {
     };
     rapier_config.gravity = Vec2::ZERO;
 }
+
+pub struct WorldSeed(pub u32);
+
+#[derive(Resource)]
+pub struct WorldConfig {
+    pub seed: WorldSeed,
+    pub load_radius: i32,
+}
+
+impl Default for WorldConfig {
+    fn default() -> Self {
+        Self {
+            seed: WorldSeed(0),
+            load_radius: 2,
+        }
+    }
+}
+
+pub struct WorldConfigPlugin;
+
+impl Plugin for WorldConfigPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(WorldConfig::default())
+            .add_systems(Startup, configure_physics);
+    }
+}

@@ -26,15 +26,7 @@ pub struct ChunkCoord {
     pub y: i32,
 }
 
-#[derive(Resource)]
-pub struct WorldSeed(pub u32);
-
 #[derive(Default, Resource)]
 pub struct LoadedChunks {
     pub set: HashSet<ChunkCoord>,
-}
-
-#[derive(Resource)]
-pub struct Settings {
-    pub load_radius: i32,
 }

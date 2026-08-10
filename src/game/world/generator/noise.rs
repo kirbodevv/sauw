@@ -3,7 +3,7 @@ use noise::{Fbm, Perlin};
 
 use crate::game::{
     assets::{resource::NoiseSettingsAssets, worldgen::NoiseSettingsAsset},
-    world::WorldSeed,
+    world::config::{WorldConfig, WorldSeed},
 };
 
 #[derive(Resource)]
@@ -35,7 +35,7 @@ impl WorldNoise {
 
 pub fn init_noise(
     mut commands: Commands,
-    seed: Res<WorldSeed>,
+    config: Res<WorldConfig>,
     noise_settings: Res<Assets<NoiseSettingsAsset>>,
     assets: Res<NoiseSettingsAssets>,
 ) {
@@ -51,7 +51,7 @@ pub fn init_noise(
         humidity_scale: map.humidity_scale,
     };
 
-    commands.insert_resource(WorldNoise::new(&seed, settings));
+    commands.insert_resource(WorldNoise::new(&config.seed, settings));
 }
 
 #[inline]

@@ -3,7 +3,8 @@ use crate::{
     game::{
         player::{CurrentPlayerChunk, Player},
         world::{
-            components::{Chunk, ChunkCoord, LoadedChunks, Settings},
+            components::{Chunk, ChunkCoord, LoadedChunks},
+            config::WorldConfig,
             generator::ChunkGenerateRequest,
             render::chunk_spawner::DespawnChunk,
         },
@@ -22,7 +23,7 @@ pub fn manage_chunks(
     mut d_writer: MessageWriter<DespawnChunk>,
     mut loaded: ResMut<LoadedChunks>,
     mut last_player_chunk: ResMut<CurrentPlayerChunk>,
-    settings: Res<Settings>,
+    config: Res<WorldConfig>,
     player: Single<&Transform, With<Player>>,
     chunks: Query<(Entity, &ChunkCoord), With<Chunk>>,
 ) {
@@ -42,7 +43,7 @@ pub fn manage_chunks(
 
     let mut required = HashSet::new();
 
-    let load_radius = settings.load_radius;
+    let load_radius = config.load_radius;
 
     for cx in (current_player_chunk.x - load_radius)..=(current_player_chunk.x + load_radius) {
         for cy in (current_player_chunk.y - load_radius)..=(current_player_chunk.y + load_radius) {
