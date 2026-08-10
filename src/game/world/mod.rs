@@ -1,4 +1,3 @@
-use crate::game::GameState;
 use bevy::prelude::*;
 
 pub mod camera;
@@ -15,18 +14,13 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(LoadedChunks::default())
-            .add_systems(
-                Update,
-                chunk_manager::manage_chunks.run_if(in_state(GameState::Gaming)),
-            )
-            .add_plugins((
-                config::WorldConfigPlugin,
-                chunk_manager::ChunkManagerPlugin,
-                camera::CameraPlugin,
-                generator::GeneratorPlugin,
-                render::WorldRenderPlugin,
-                time::TimePlugin,
-            ));
+        app.add_plugins((
+            config::WorldConfigPlugin,
+            chunk_manager::ChunkManagerPlugin,
+            camera::CameraPlugin,
+            generator::GeneratorPlugin,
+            render::WorldRenderPlugin,
+            time::TimePlugin,
+        ));
     }
 }

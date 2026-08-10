@@ -4,9 +4,13 @@ use bevy_rapier2d::prelude::Velocity;
 
 use crate::{
     constants::TILE_SIZE,
-    game::player::{
-        Player,
-        sprite::{PlayerAnimation, PlayerState},
+    game::{
+        GameState,
+        player::{
+            CurrentPlayerChunk, Player,
+            sprite::{PlayerAnimation, PlayerState},
+        },
+        world::ChunkCoord,
     },
 };
 
@@ -62,11 +66,22 @@ pub fn player_movement(
     }
 }
 
+pub fn update_player_chunk(
+    mut chunk: ResMut<CurrentPlayerChunk>,
+    player_transform: Single<&Transform, With<Player>>,
+) {
+    let Vec3 { x, y, .. } = player_transform.translation;
+    chunk.0 = Some(ChunkCoord::from_world_pos(x, y));
+}
+
 pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, player_movement)
-            .insert_resource(PlayerInputState::default());
+        app.add_systems(
+            Update,
+            (player_movement, update_player_chunk).run_if(in_state(GameState::Gaming)),
+        )
+        .insert_resource(PlayerInputState::default());
     }
 }
