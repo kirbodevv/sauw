@@ -52,7 +52,7 @@ pub fn generate(
             let layer = layer::generate(layer_mapper, height);
             let biome = biome::generate(biome_mapper, layer, climate);
 
-            let index = idx_2d(x, y) as usize;
+            let index = idx_2d(x, y);
 
             climate_map[index] = climate;
             height_map[index] = height;
