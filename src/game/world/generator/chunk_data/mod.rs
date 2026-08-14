@@ -19,14 +19,10 @@ pub mod climate;
 pub mod height;
 pub mod layer;
 
-pub struct BiomeMap(pub [BiomeId; CHUNK_LAYER_VOLUME]);
-pub struct HeightMap(pub [f64; CHUNK_LAYER_VOLUME]);
-pub struct ClimateMap(pub [CellClimate; CHUNK_LAYER_VOLUME]);
-
 pub struct ChunkData {
-    pub climate: ClimateMap,
-    pub height: HeightMap,
-    pub biomes: BiomeMap,
+    pub climate_map: [CellClimate; CHUNK_LAYER_VOLUME],
+    pub height_map: [f64; CHUNK_LAYER_VOLUME],
+    pub biome_map: [BiomeId; CHUNK_LAYER_VOLUME],
 }
 
 pub fn generate(
@@ -61,8 +57,8 @@ pub fn generate(
     }
 
     ChunkData {
-        climate: ClimateMap(climate_map),
-        height: HeightMap(height_map),
-        biomes: BiomeMap(biome_map),
+        climate_map,
+        height_map,
+        biome_map,
     }
 }

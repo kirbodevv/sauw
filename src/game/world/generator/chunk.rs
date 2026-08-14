@@ -43,7 +43,7 @@ pub fn generate_chunk(
         for x in 0..WIDTH {
             for y in 0..HEIGHT {
                 let index = idx_2d(x, y);
-                let biome = biomes.by_id(chunk_data.biomes.0[index]);
+                let biome = biomes.by_id(chunk_data.biome_map[index]);
 
                 let surface = biome.surface;
 
