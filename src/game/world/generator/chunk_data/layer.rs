@@ -1,4 +1,4 @@
-use crate::game::world::generator::mappers::{LayerId, LayerMapper};
+use crate::game::world::generator::mappers::{LayerMapper, layer::LayerId};
 
 pub fn generate(mapper: &LayerMapper, height: f64) -> LayerId {
     LayerId(

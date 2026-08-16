@@ -2,7 +2,7 @@ use crate::game::{
     registry::biome_registry::BiomeId,
     world::generator::{
         chunk_data::climate::CellClimate,
-        mappers::{BiomeMapper, LayerId},
+        mappers::{BiomeMapper, layer::LayerId},
     },
 };
 
