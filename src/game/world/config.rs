@@ -8,6 +8,7 @@ pub fn configure_physics(mut rapier_config: Query<&mut RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
 }
 
+#[derive(Clone)]
 pub struct WorldSeed(pub u32);
 
 #[derive(Resource)]

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use rand::{Rng, SeedableRng, rngs::SmallRng};
 
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME, GROUND_LAYER, OBJECT_LAYER},
@@ -40,6 +41,12 @@ pub fn generate_chunk(
 
         let chunk_data = chunk_data::generate(chunk_coord, &noise, &biome_mapper, &layer_mapper);
 
+        let seed = noise.settings.seed.0 as u64;
+        let x = chunk_coord.x as i64 as u64;
+        let y = chunk_coord.y as i64 as u64;
+
+        let mut objects_rng = SmallRng::seed_from_u64(seed.wrapping_add(x).wrapping_add(y));
+
         for x in 0..WIDTH {
             for y in 0..HEIGHT {
                 let index = idx_2d(x, y);
@@ -50,7 +57,7 @@ pub fn generate_chunk(
                 let mut top = air;
 
                 if let Some(objects) = &biome.objects {
-                    let r: f32 = rand::random();
+                    let r: f32 = objects_rng.random();
 
                     let mut cumulative = 0.0;
 

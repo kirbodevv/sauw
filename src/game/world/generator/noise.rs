@@ -19,15 +19,16 @@ pub struct NoiseSettings {
     pub height_scale: f64,
     pub temperature_scale: f64,
     pub humidity_scale: f64,
+    pub seed: WorldSeed,
 }
 
 impl WorldNoise {
-    pub fn new(seed: &WorldSeed, settings: NoiseSettings) -> Self {
+    pub fn new(settings: NoiseSettings) -> Self {
         Self {
-            terrain: Fbm::<Perlin>::new(seed.0),
-            continent: Fbm::<Perlin>::new(seed.0 + 9999),
-            temp: Perlin::new(seed.0),
-            humid: Perlin::new(seed.0 + 1337),
+            terrain: Fbm::<Perlin>::new(settings.seed.0),
+            continent: Fbm::<Perlin>::new(settings.seed.0 + 9999),
+            temp: Perlin::new(settings.seed.0),
+            humid: Perlin::new(settings.seed.0 + 1337),
             settings,
         }
     }
@@ -49,9 +50,10 @@ pub fn init_noise(
         height_scale: map.height_scale,
         temperature_scale: map.temperature_scale,
         humidity_scale: map.humidity_scale,
+        seed: config.seed.clone(),
     };
 
-    commands.insert_resource(WorldNoise::new(&config.seed, settings));
+    commands.insert_resource(WorldNoise::new(settings));
 }
 
 #[inline]
