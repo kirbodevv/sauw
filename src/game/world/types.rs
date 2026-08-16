@@ -1,23 +1,6 @@
 use bevy::prelude::*;
-use std::collections::HashSet;
 
 use crate::constants::CHUNK_WORLD;
-
-#[derive(Component)]
-pub struct BlockEntity;
-
-#[derive(Component, Clone)]
-pub struct BlockPos {
-    pub x: u8,
-    pub y: u8,
-    pub layer: u8,
-}
-
-impl BlockPos {
-    pub fn new(x: u8, y: u8, layer: u8) -> Self {
-        Self { x, y, layer }
-    }
-}
 
 #[derive(Component)]
 pub struct Chunk;
@@ -35,9 +18,4 @@ impl ChunkCoord {
             y: (y / CHUNK_WORLD).floor() as i32,
         }
     }
-}
-
-#[derive(Default, Resource)]
-pub struct LoadedChunks {
-    pub set: HashSet<ChunkCoord>,
 }

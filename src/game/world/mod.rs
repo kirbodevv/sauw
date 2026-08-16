@@ -2,13 +2,13 @@ use bevy::prelude::*;
 
 pub mod camera;
 pub mod chunk_manager;
-pub mod components;
 pub mod config;
 pub mod generator;
 pub mod render;
 pub mod time;
+pub mod types;
 
-pub use components::*;
+pub use types::*;
 
 pub struct WorldPlugin;
 

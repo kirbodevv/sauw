@@ -6,7 +6,7 @@ mod resources;
 
 pub use resources::*;
 
-use crate::game::{GameState, world::LoadedChunks};
+use crate::game::GameState;
 
 pub struct ChunkManagerPlugin;
 

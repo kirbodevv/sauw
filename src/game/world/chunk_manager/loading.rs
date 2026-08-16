@@ -1,8 +1,6 @@
-use super::RequiredChunks;
+use super::{LoadedChunks, RequiredChunks};
 use crate::game::world::{
-    components::{Chunk, ChunkCoord, LoadedChunks},
-    generator::ChunkGenerateRequest,
-    render::chunk_spawner::DespawnChunk,
+    Chunk, ChunkCoord, generator::ChunkGenerateRequest, render::chunk_spawner::DespawnChunk,
 };
 use bevy::prelude::*;
 
@@ -14,7 +12,6 @@ pub(super) fn spawn_required_chunks(
     for coord in required.set.iter() {
         if !loaded.set.contains(coord) {
             g_writer.write(ChunkGenerateRequest(*coord));
-            loaded.set.insert(*coord);
         }
     }
     loaded.set = required.set.clone();

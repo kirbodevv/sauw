@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    constants::{CHUNK_SIZE, CHUNK_VOLUME},
+    constants::{CHUNK_SIZE, CHUNK_VOLUME, GROUND_LAYER, OBJECT_LAYER},
     game::{
         registry::{biome_registry::BiomeRegistry, block_registry::BlockRegistry},
         world::{
@@ -64,8 +64,8 @@ pub fn generate_chunk(
                     }
                 }
 
-                blocks[idx(x, y, 0)] = surface;
-                blocks[idx(x, y, 1)] = top;
+                blocks[idx(x, y, GROUND_LAYER)] = surface;
+                blocks[idx(x, y, OBJECT_LAYER)] = top;
             }
         }
 

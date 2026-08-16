@@ -12,3 +12,8 @@ pub struct ChunkManager {
 pub struct RequiredChunks {
     pub set: HashSet<ChunkCoord>,
 }
+
+#[derive(Default, Resource)]
+pub struct LoadedChunks {
+    pub set: HashSet<ChunkCoord>,
+}

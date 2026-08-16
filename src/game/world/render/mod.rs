@@ -2,8 +2,10 @@ use bevy::prelude::*;
 
 pub mod chunk_mesh;
 pub mod chunk_spawner;
+pub mod components;
 pub mod y_sort;
 
+pub use components::*;
 pub use y_sort::*;
 
 pub struct WorldRenderPlugin;

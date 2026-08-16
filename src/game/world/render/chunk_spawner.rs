@@ -6,7 +6,7 @@ use bevy_firefly::{
 use bevy_rapier2d::dynamics::RigidBody;
 
 use crate::{
-    constants::{CHUNK_SIZE, CHUNK_VOLUME, TILE_SIZE},
+    constants::{CHUNK_SIZE, CHUNK_VOLUME, OBJECT_LAYER, TILE_SIZE},
     game::{
         GameState,
         assets::{
@@ -15,10 +15,15 @@ use crate::{
         },
         registry::block_registry::{BlockDefinition, BlockId, BlockRegistry},
         world::{
-            BlockEntity, BlockPos, Chunk, ChunkCoord,
+            Chunk, ChunkCoord,
             chunk_manager::ChunkManager,
             generator::idx,
-            render::{YSort, chunk_mesh::spawn_chunk_mesh, y_sort_z},
+            render::{
+                YSort,
+                chunk_mesh::spawn_chunk_mesh,
+                components::{BlockEntity, BlockPos},
+                y_sort_z,
+            },
         },
     },
 };
@@ -71,7 +76,7 @@ pub fn spawn_chunk(
 
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
-                    let block = chunk.blocks[idx(x, y, 1)];
+                    let block = chunk.blocks[idx(x, y, OBJECT_LAYER)];
                     if block == air {
                         continue;
                     }
@@ -79,7 +84,7 @@ pub fn spawn_chunk(
                     spawn_block(
                         parent,
                         block,
-                        BlockPos::new(x as u8, y as u8, 1),
+                        BlockPos::new(x as u8, y as u8, OBJECT_LAYER as u8),
                         &image_assets.block,
                         &image_assets.block_normal,
                         atlases.get(atlas_assets.block.id()).unwrap(),
