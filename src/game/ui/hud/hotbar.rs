@@ -1,6 +1,6 @@
 use crate::game::{
     GameState,
-    assets::resource::ImageAssets,
+    assets::resource::{AtlasAssetsParam, ImageAssets},
     player::{Player, inventory::Inventory},
     registry::item_registry::ItemRegistry,
     ui::hud::HudBottom,
@@ -170,11 +170,13 @@ fn update_hotbar_items(
     item_registry: Res<ItemRegistry>,
     mut q_icons: Query<(&HotbarItemIcon, &mut ImageNode)>,
     mut q_counts: Query<(&HotbarItemCount, &mut Text)>,
-    assets: Res<ImageAssets>,
+    atlas_assets: AtlasAssetsParam,
 ) {
     let Ok(inventory) = q_player.single() else {
         return;
     };
+
+    let atlas = atlas_assets.item_atlas();
 
     for (icon, mut img) in &mut q_icons {
         match inventory
@@ -184,16 +186,13 @@ fn update_hotbar_items(
         {
             Some(stack) => {
                 let def = item_registry.get(stack.item);
-                img.image = assets.item.clone();
-                img.texture_atlas = Some(TextureAtlas {
-                    layout: item_registry.atlas_layout.clone(),
-                    index: def.atlas_index,
-                });
+                img.image = atlas_assets.item_texture();
+                img.rect = Some(atlas.get(def.texture_id).rect_with_padding(0.5));
                 img.color = Color::WHITE;
             }
             None => {
                 img.image = Handle::default();
-                img.texture_atlas = None;
+                img.rect = None;
                 img.color = Color::WHITE.with_alpha(0.0);
             }
         }

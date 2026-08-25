@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     constants::TILE_SIZE,
-    game::{assets::resource::ImageAssets, registry::item_registry::ItemRegistry},
+    game::{assets::resource::AtlasAssetsParam, registry::item_registry::ItemRegistry},
 };
 
 use super::components::{Drop, DroppedBy, PickupLocked, SpawnDrop};
@@ -12,21 +12,21 @@ pub fn spawn_drop(
     mut commands: Commands,
     mut spawn_reader: MessageReader<SpawnDrop>,
     item_registry: Res<ItemRegistry>,
-    assets: Res<ImageAssets>,
+    atlas_assets: AtlasAssetsParam,
 ) {
+    let atlas = atlas_assets.item_atlas();
+
     for event in spawn_reader.read() {
         let item = item_registry.get(event.id);
+        let sprite_rect = atlas.get(item.texture_id).rect_with_padding(0.5);
         let mut entity = commands.spawn((
             Drop {
                 id: event.id,
                 count: event.count,
             },
             Sprite {
-                image: assets.item.clone(),
-                texture_atlas: Some(TextureAtlas {
-                    layout: item_registry.atlas_layout.clone(),
-                    index: item.atlas_index,
-                }),
+                image: atlas_assets.item_texture(),
+                rect: Some(sprite_rect),
                 custom_size: Some(Vec2::splat(16.0)),
                 ..default()
             },

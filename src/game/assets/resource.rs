@@ -25,6 +25,14 @@ impl AtlasAssetsParam<'_> {
     pub fn block_atlas(&self) -> &AtlasAsset {
         self.atlases.get(self.atlas_assets.block.id()).unwrap()
     }
+
+    pub fn item_texture(&self) -> Handle<Image> {
+        self.image_assets.item.clone()
+    }
+
+    pub fn item_atlas(&self) -> &AtlasAsset {
+        self.atlases.get(self.atlas_assets.item.id()).unwrap()
+    }
 }
 
 #[derive(AssetCollection, Resource)]
