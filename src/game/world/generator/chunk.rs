@@ -2,16 +2,18 @@ use bevy::prelude::*;
 use rand::{Rng, SeedableRng, rngs::SmallRng};
 
 use crate::{
-    constants::{CHUNK_SIZE, CHUNK_VOLUME, GROUND_LAYER, OBJECT_LAYER},
+    constants::{CHUNK_VOLUME, GROUND_LAYER, OBJECT_LAYER},
     game::{
         registry::{biome_registry::BiomeRegistry, block_registry::BlockId},
         world::{
+            chunk_positions,
             generator::{
-                ChunkGenerateRequest, chunk_data, idx, idx_2d,
+                ChunkGenerateRequest, chunk_data,
                 mappers::{BiomeMapper, LayerMapper},
                 noise::WorldNoise,
             },
             render::chunk_spawner::SpawnChunk,
+            types::{idx, idx_2d},
         },
     },
 };
@@ -28,9 +30,6 @@ pub fn generate_chunk(
         return;
     }
 
-    const WIDTH: usize = CHUNK_SIZE;
-    const HEIGHT: usize = CHUNK_SIZE;
-
     for chunk in reader.read() {
         let mut blocks = [BlockId::AIR; CHUNK_VOLUME];
 
@@ -44,33 +43,31 @@ pub fn generate_chunk(
 
         let mut objects_rng = SmallRng::seed_from_u64(seed.wrapping_add(x).wrapping_add(y));
 
-        for x in 0..WIDTH {
-            for y in 0..HEIGHT {
-                let index = idx_2d(x, y);
-                let biome = biomes.by_id(chunk_data.biome_map[index]);
+        for (x, y) in chunk_positions() {
+            let index = idx_2d(x, y);
+            let biome = biomes.by_id(chunk_data.biome_map[index]);
 
-                let surface = biome.surface;
+            let surface = biome.surface;
 
-                let mut top = BlockId::AIR;
+            let mut top = BlockId::AIR;
 
-                if let Some(objects) = &biome.objects {
-                    let r: f32 = objects_rng.random();
+            if let Some(objects) = &biome.objects {
+                let r: f32 = objects_rng.random();
 
-                    let mut cumulative = 0.0;
+                let mut cumulative = 0.0;
 
-                    for object in objects {
-                        cumulative += object.chance;
+                for object in objects {
+                    cumulative += object.chance;
 
-                        if r < cumulative {
-                            top = object.block;
-                            break;
-                        }
+                    if r < cumulative {
+                        top = object.block;
+                        break;
                     }
                 }
-
-                blocks[idx(x, y, GROUND_LAYER)] = surface;
-                blocks[idx(x, y, OBJECT_LAYER)] = top;
             }
+
+            blocks[idx(x, y, GROUND_LAYER)] = surface;
+            blocks[idx(x, y, OBJECT_LAYER)] = top;
         }
 
         writer.write(SpawnChunk {

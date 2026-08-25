@@ -6,7 +6,7 @@ use bevy_firefly::{
 use bevy_rapier2d::dynamics::RigidBody;
 
 use crate::{
-    constants::{CHUNK_SIZE, CHUNK_VOLUME, OBJECT_LAYER, TILE_SIZE},
+    constants::{CHUNK_VOLUME, OBJECT_LAYER, TILE_SIZE},
     game::{
         GameState,
         assets::{atlas::TextureId, resource::AtlasAssetsParam},
@@ -14,13 +14,14 @@ use crate::{
         world::{
             Chunk, ChunkCoord,
             chunk_manager::ChunkManager,
-            generator::idx,
+            chunk_positions,
             render::{
                 YSort,
                 chunk_mesh::build_ground_mesh,
                 components::{BlockEntity, BlockPos},
                 y_sort_z,
             },
+            types::idx,
         },
     },
     shared::RenderParam,
@@ -91,24 +92,22 @@ fn spawn_objects(
     atlas_assets: &AtlasAssetsParam,
     chunk_world_y: f32,
 ) {
-    for x in 0..CHUNK_SIZE {
-        for y in 0..CHUNK_SIZE {
-            let block = blocks[idx(x, y, OBJECT_LAYER)];
+    for (x, y) in chunk_positions() {
+        let block = blocks[idx(x, y, OBJECT_LAYER)];
 
-            if block.is_air() {
-                continue;
-            }
-
-            let block = registry.get(block);
-
-            spawn_block(
-                parent,
-                block,
-                BlockPos::new(x as u8, y as u8, OBJECT_LAYER as u8),
-                atlas_assets,
-                chunk_world_y,
-            );
+        if block.is_air() {
+            continue;
         }
+
+        let block = registry.get(block);
+
+        spawn_block(
+            parent,
+            block,
+            BlockPos::new(x as u8, y as u8, OBJECT_LAYER as u8),
+            atlas_assets,
+            chunk_world_y,
+        );
     }
 }
 

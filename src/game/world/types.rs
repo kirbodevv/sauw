@@ -1,6 +1,21 @@
 use bevy::prelude::*;
 
-use crate::constants::CHUNK_WORLD;
+use crate::constants::{CHUNK_SIZE, CHUNK_WORLD};
+
+#[inline]
+pub fn idx(x: usize, y: usize, layer: usize) -> usize {
+    x + y * CHUNK_SIZE + layer * CHUNK_SIZE * CHUNK_SIZE
+}
+
+#[inline]
+pub fn idx_2d(x: usize, y: usize) -> usize {
+    x + y * CHUNK_SIZE
+}
+
+#[inline]
+pub fn chunk_positions() -> impl Iterator<Item = (usize, usize)> {
+    (0..CHUNK_SIZE).flat_map(|x| (0..CHUNK_SIZE).map(move |y| (x, y)))
+}
 
 #[derive(Component)]
 pub struct Chunk;
