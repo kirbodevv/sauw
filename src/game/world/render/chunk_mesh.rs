@@ -20,7 +20,7 @@ pub fn build_ground_mesh(
     chunk_positions().for_each(|(x, y)| {
         let id = blocks[idx(x, y, GROUND_LAYER)];
         let block = registry.get(id);
-        let position = Vec3::new(x as f32 * TILE_SIZE, y as f32 * TILE_SIZE, 0.0);
+        let position = Vec3::new(x as f32, y as f32, 0.0) * TILE_SIZE;
         let size = block.sprite_size;
         let offset = block.sprite_offset;
         if let Some(texture_id) = block.texture_id {
