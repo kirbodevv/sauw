@@ -15,7 +15,7 @@ pub fn build_ground_mesh(
     registry: &BlockRegistry,
     atlas: &AtlasAsset,
 ) -> Mesh {
-    let mut mesh_builder = MeshBuilder::default();
+    let mut builder = MeshBuilder::default();
 
     for x in 0..CHUNK_SIZE {
         for y in 0..CHUNK_SIZE {
@@ -30,8 +30,8 @@ pub fn build_ground_mesh(
             let size = block.sprite_size;
             let offset = block.sprite_offset;
 
-            mesh_builder.append_quad(TextureId::new(block.name), atlas, position, size, offset);
+            builder.append_quad(TextureId::new(block.name), atlas, position, size, offset);
         }
     }
-    mesh_builder.build()
+    builder.build()
 }
