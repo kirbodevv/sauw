@@ -1,24 +1,27 @@
 use bevy::prelude::*;
 
 use crate::{
-    constants::{CHUNK_VOLUME, GROUND_LAYER, TILE_SIZE},
+    constants::TILE_SIZE,
     game::{
         assets::atlas::AtlasAsset,
-        registry::block_registry::{BlockId, BlockRegistry},
-        world::{chunk_positions, types::idx},
+        registry::block_registry::BlockRegistry,
+        world::{
+            chunk_positions,
+            types::{ChunkBlocks, idx_2d},
+        },
     },
     shared::MeshBuilder,
 };
 
 pub fn build_ground_mesh(
-    blocks: &[BlockId; CHUNK_VOLUME],
+    blocks: &ChunkBlocks,
     registry: &BlockRegistry,
     atlas: &AtlasAsset,
 ) -> Mesh {
     let mut builder = MeshBuilder::default();
 
     chunk_positions().for_each(|(x, y)| {
-        let id = blocks[idx(x, y, GROUND_LAYER)];
+        let id = blocks.ground[idx_2d(x, y)];
         let block = registry.get(id);
         let position = Vec3::new(x as f32, y as f32, 0.0) * TILE_SIZE;
         let size = block.sprite_size;

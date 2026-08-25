@@ -6,11 +6,11 @@ use bevy_firefly::{
 use bevy_rapier2d::dynamics::RigidBody;
 
 use crate::{
-    constants::{CHUNK_VOLUME, OBJECT_LAYER, TILE_SIZE},
+    constants::{OBJECT_LAYER, TILE_SIZE},
     game::{
         GameState,
         assets::resource::AtlasAssetsParam,
-        registry::block_registry::{BlockDefinition, BlockId, BlockRegistry},
+        registry::block_registry::{BlockDefinition, BlockRegistry},
         world::{
             Chunk, ChunkCoord,
             chunk_manager::ChunkManager,
@@ -21,7 +21,7 @@ use crate::{
                 components::{BlockEntity, BlockPos},
                 y_sort_z,
             },
-            types::idx,
+            types::{ChunkBlocks, idx_2d},
         },
     },
     shared::RenderParam,
@@ -30,7 +30,7 @@ use crate::{
 #[derive(Message)]
 pub struct SpawnChunk {
     pub chunk_coord: ChunkCoord,
-    pub blocks: [BlockId; CHUNK_VOLUME],
+    pub blocks: ChunkBlocks,
 }
 
 #[derive(Message)]
@@ -72,7 +72,7 @@ pub fn spawn_chunk(
 
 fn spawn_ground(
     parent: &mut ChildSpawnerCommands<'_>,
-    blocks: &[BlockId; CHUNK_VOLUME],
+    blocks: &ChunkBlocks,
     registry: &BlockRegistry,
     atlas_assets: &AtlasAssetsParam,
     render_param: &mut RenderParam,
@@ -88,13 +88,13 @@ fn spawn_ground(
 
 fn spawn_objects(
     parent: &mut ChildSpawnerCommands<'_>,
-    blocks: &[BlockId; CHUNK_VOLUME],
+    blocks: &ChunkBlocks,
     registry: &BlockRegistry,
     atlas_assets: &AtlasAssetsParam,
     chunk_world_y: f32,
 ) {
     for (x, y) in chunk_positions() {
-        let block = blocks[idx(x, y, OBJECT_LAYER)];
+        let block = blocks.objects[idx_2d(x, y)];
 
         if block.is_air() {
             continue;
