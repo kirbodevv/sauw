@@ -1,20 +1,18 @@
 use bevy::prelude::*;
 use rand::{Rng, SeedableRng, rngs::SmallRng};
 
-use crate::{
-    constants::{CHUNK_VOLUME, GROUND_LAYER, OBJECT_LAYER},
-    game::{
-        registry::{biome_registry::BiomeRegistry, block_registry::BlockId},
-        world::{
-            chunk_positions,
-            generator::{
-                ChunkGenerateRequest, chunk_data,
-                mappers::{BiomeMapper, LayerMapper},
-                noise::WorldNoise,
-            },
-            render::chunk_spawner::SpawnChunk,
-            types::{idx, idx_2d},
+use crate::game::{
+    registry::{biome_registry::BiomeRegistry, block_registry::BlockId},
+    world::{
+        chunk_manager::ChunkBlocksStore,
+        chunk_positions,
+        generator::{
+            ChunkGenerateRequest, chunk_data,
+            mappers::{BiomeMapper, LayerMapper},
+            noise::WorldNoise,
         },
+        render::chunk_spawner::SpawnChunk,
+        types::{ChunkBlocks, idx_2d},
     },
 };
 
@@ -25,13 +23,14 @@ pub fn generate_chunk(
     noise: Res<WorldNoise>,
     mut reader: MessageReader<ChunkGenerateRequest>,
     mut writer: MessageWriter<SpawnChunk>,
+    mut store: ResMut<ChunkBlocksStore>,
 ) {
     if reader.is_empty() {
         return;
     }
 
     for chunk in reader.read() {
-        let mut blocks = [BlockId::AIR; CHUNK_VOLUME];
+        let mut blocks = ChunkBlocks::default();
 
         let chunk_coord = chunk.0;
 
@@ -66,9 +65,11 @@ pub fn generate_chunk(
                 }
             }
 
-            blocks[idx(x, y, GROUND_LAYER)] = surface;
-            blocks[idx(x, y, OBJECT_LAYER)] = top;
+            blocks.ground[idx_2d(x, y)] = surface;
+            blocks.objects[idx_2d(x, y)] = top;
         }
+
+        store.blocks.insert(chunk_coord, blocks);
 
         writer.write(SpawnChunk {
             chunk_coord,

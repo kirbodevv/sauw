@@ -1,11 +1,16 @@
 use bevy::prelude::*;
 use std::collections::{HashMap, HashSet};
 
-use crate::game::world::ChunkCoord;
+use crate::game::world::{ChunkCoord, types::ChunkBlocks};
 
 #[derive(Resource, Default)]
 pub struct ChunkManager {
     pub entities: HashMap<ChunkCoord, Entity>,
+}
+
+#[derive(Resource, Default)]
+pub struct ChunkBlocksStore {
+    pub blocks: HashMap<ChunkCoord, ChunkBlocks>,
 }
 
 #[derive(Resource, Default)]
@@ -14,6 +19,6 @@ pub struct RequiredChunks {
 }
 
 #[derive(Default, Resource)]
-pub struct LoadedChunks {
+pub struct PendingChunkSpawns {
     pub set: HashSet<ChunkCoord>,
 }

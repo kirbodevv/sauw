@@ -1,15 +1,28 @@
 use bevy::prelude::*;
 
-use crate::constants::{CHUNK_SIZE, CHUNK_WORLD};
-
-#[inline]
-pub fn idx(x: usize, y: usize, layer: usize) -> usize {
-    x + y * CHUNK_SIZE + layer * CHUNK_SIZE * CHUNK_SIZE
-}
+use crate::{
+    constants::{CHUNK_LAYER_VOLUME, CHUNK_SIZE, CHUNK_WORLD},
+    game::registry::block_registry::BlockId,
+};
 
 #[inline]
 pub fn idx_2d(x: usize, y: usize) -> usize {
     x + y * CHUNK_SIZE
+}
+
+#[derive(Clone, Copy)]
+pub struct ChunkBlocks {
+    pub ground: [BlockId; CHUNK_LAYER_VOLUME],
+    pub objects: [BlockId; CHUNK_LAYER_VOLUME],
+}
+
+impl Default for ChunkBlocks {
+    fn default() -> Self {
+        Self {
+            ground: [BlockId::AIR; CHUNK_LAYER_VOLUME],
+            objects: [BlockId::AIR; CHUNK_LAYER_VOLUME],
+        }
+    }
 }
 
 #[inline]
