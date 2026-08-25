@@ -6,6 +6,14 @@ use crate::{constants::TILE_SIZE, game::registry::Registry};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct BlockId(pub u16);
 
+impl BlockId {
+    pub const AIR: Self = Self(0);
+
+    pub fn is_air(self) -> bool {
+        self == Self::AIR
+    }
+}
+
 pub struct BlockDefinition {
     pub name: &'static str,
     pub sprite_size: Vec2,

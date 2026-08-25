@@ -48,7 +48,6 @@ pub fn spawn_chunk(
     atlas_assets: AtlasAssetsParam,
     mut manager: ResMut<ChunkManager>,
 ) {
-    let air = registry.id_by_name("air");
     for chunk in reader.read() {
         let chunk_world_x = chunk.chunk_coord.x as f32 * CHUNK_SIZE as f32 * TILE_SIZE;
         let chunk_world_y = chunk.chunk_coord.y as f32 * CHUNK_SIZE as f32 * TILE_SIZE;
@@ -73,10 +72,13 @@ pub fn spawn_chunk(
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {
                     let block = chunk.blocks[idx(x, y, OBJECT_LAYER)];
-                    if block == air {
+
+                    if block.is_air() {
                         continue;
                     }
+
                     let block = registry.get(block);
+
                     spawn_block(
                         parent,
                         block,

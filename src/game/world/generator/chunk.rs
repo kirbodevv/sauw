@@ -4,7 +4,7 @@ use rand::{Rng, SeedableRng, rngs::SmallRng};
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME, GROUND_LAYER, OBJECT_LAYER},
     game::{
-        registry::{biome_registry::BiomeRegistry, block_registry::BlockRegistry},
+        registry::{biome_registry::BiomeRegistry, block_registry::BlockId},
         world::{
             generator::{
                 ChunkGenerateRequest, chunk_data, idx, idx_2d,
@@ -18,7 +18,6 @@ use crate::{
 
 pub fn generate_chunk(
     biomes: Res<BiomeRegistry>,
-    blocks: Res<BlockRegistry>,
     layer_mapper: Res<LayerMapper>,
     biome_mapper: Res<BiomeMapper>,
     noise: Res<WorldNoise>,
@@ -32,10 +31,8 @@ pub fn generate_chunk(
     const WIDTH: usize = CHUNK_SIZE;
     const HEIGHT: usize = CHUNK_SIZE;
 
-    let air = blocks.id_by_name("air");
-
     for chunk in reader.read() {
-        let mut blocks = [air; CHUNK_VOLUME];
+        let mut blocks = [BlockId::AIR; CHUNK_VOLUME];
 
         let chunk_coord = chunk.0;
 
@@ -54,7 +51,7 @@ pub fn generate_chunk(
 
                 let surface = biome.surface;
 
-                let mut top = air;
+                let mut top = BlockId::AIR;
 
                 if let Some(objects) = &biome.objects {
                     let r: f32 = objects_rng.random();

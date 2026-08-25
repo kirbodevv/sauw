@@ -22,7 +22,7 @@ pub fn build_ground_mesh(
             let block_id = chunk_blocks[idx(x, y, 0)];
             let block = registry.get(block_id);
 
-            if block.name == "air" {
+            if block_id.is_air() {
                 continue;
             }
 
