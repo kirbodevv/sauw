@@ -13,6 +13,16 @@ pub struct AtlasAssetsParam<'w> {
     pub atlas_assets: Res<'w, AtlasAssets>,
 }
 
+impl AtlasAssetsParam<'_> {
+    pub fn block_texture(&self) -> Handle<Image> {
+        self.image_assets.block.clone()
+    }
+
+    pub fn block_atlas(&self) -> &AtlasAsset {
+        self.atlases.get(self.atlas_assets.block.id()).unwrap()
+    }
+}
+
 #[derive(AssetCollection, Resource)]
 pub struct AtlasAssets {
     #[asset(path = "atlas/block.json")]

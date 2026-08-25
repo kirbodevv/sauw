@@ -46,17 +46,10 @@ pub fn spawn_chunk_mesh(
     atlas_assets: &AtlasAssetsParam,
     render_param: &mut RenderParam,
 ) {
-    let texture = atlas_assets.image_assets.block.clone();
-    let material = render_param.add_material(texture, None);
+    let material = render_param.add_material(atlas_assets.block_texture(), None);
 
-    let ground_mesh = build_ground_mesh(
-        chunk_blocks,
-        registry,
-        atlas_assets
-            .atlases
-            .get(atlas_assets.atlas_assets.block.id())
-            .unwrap(),
-    );
+    let ground_mesh = build_ground_mesh(chunk_blocks, registry, atlas_assets.block_atlas());
+
     parent.spawn((
         Mesh2d(render_param.meshes.add(ground_mesh)),
         MeshMaterial2d(material),
