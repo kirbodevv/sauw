@@ -36,7 +36,6 @@ pub fn build_ground_mesh(
     mesh_builder.build()
 }
 
-#[allow(clippy::too_many_arguments)]
 pub fn spawn_chunk_mesh(
     parent: &mut ChildSpawnerCommands<'_>,
     chunk_blocks: &[BlockId; CHUNK_VOLUME],
