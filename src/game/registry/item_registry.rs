@@ -1,9 +1,7 @@
-use std::collections::HashMap;
-
 use bevy::prelude::*;
 
 use crate::game::{
-    assets::{atlas::AtlasAsset, resource::AtlasAssets},
+    assets::{atlas::TextureId, resource::AtlasAssetsParam},
     registry::Registry,
 };
 
@@ -12,14 +10,14 @@ pub struct ItemId(pub u16);
 
 pub struct ItemDefinition {
     pub name: &'static str,
-    pub atlas_index: usize,
+    pub texture_id: TextureId,
 }
 
 impl Default for ItemDefinition {
     fn default() -> Self {
         Self {
             name: "none",
-            atlas_index: 0,
+            texture_id: TextureId(0),
         }
     }
 }
@@ -27,7 +25,6 @@ impl Default for ItemDefinition {
 #[derive(Resource)]
 pub struct ItemRegistry {
     inner: Registry<ItemDefinition>,
-    pub atlas_layout: Handle<TextureAtlasLayout>,
 }
 
 impl ItemRegistry {
@@ -55,37 +52,16 @@ impl ItemRegistry {
     }
 }
 
-pub fn init_items(
-    mut commands: Commands,
-    assets: Res<AtlasAssets>,
-    atlas_assets: Res<Assets<AtlasAsset>>,
-    mut layouts: ResMut<Assets<TextureAtlasLayout>>,
-) {
-    let atlas = atlas_assets
-        .get(&assets.item)
-        .expect("Item atlas not loaded");
-
-    let mut layout = TextureAtlasLayout::new_empty(UVec2::new(atlas.width, atlas.height));
-    let mut name_to_index: HashMap<&str, usize> = HashMap::new();
-
-    for (name, entry) in &atlas.entries {
-        let [x, y, w, h] = [entry.x(), entry.y(), entry.width(), entry.height()];
-        let idx = layout.add_texture(URect::new(x, y, x + w, y + h));
-        name_to_index.insert(name.get_name(), idx);
-    }
-
-    let atlas_layout = layouts.add(layout);
-
+pub fn init_items(mut commands: Commands, atlas_assets: AtlasAssetsParam) {
+    let atlas = atlas_assets.item_atlas();
     let mut inner = Registry::new("item");
 
     let mut insert_item = |name: &'static str| {
-        inner.insert(
-            ItemDefinition {
-                name,
-                atlas_index: name_to_index.get(name).copied().unwrap_or(0),
-            },
-            name,
-        )
+        let texture_id = atlas
+            .try_id_by_name(name)
+            .unwrap_or_else(|| panic!("Item {:?} has no atlas entry", name));
+
+        inner.insert(ItemDefinition { name, texture_id }, name)
     };
 
     insert_item("aluminium_can");
@@ -110,8 +86,5 @@ pub fn init_items(
     insert_item("vegetable_fiber");
     insert_item("watermelon");
 
-    commands.insert_resource(ItemRegistry {
-        inner,
-        atlas_layout,
-    });
+    commands.insert_resource(ItemRegistry { inner });
 }

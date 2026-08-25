@@ -14,7 +14,7 @@ use crate::{
             sprite::{PlayerAnimation, PlayerState},
         },
         ui::hud::health::SpawnPlayerHearts,
-        world::camera::YSort,
+        world::render::YSort,
     },
 };
 

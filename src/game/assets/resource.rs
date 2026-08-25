@@ -1,10 +1,39 @@
 use crate::game::assets::{
     atlas::AtlasAsset,
     recipe::RecipeAsset,
-    worldgen::{BiomeAsset, BiomeMapperAsset, LayerMapperAsset},
+    worldgen::{BiomeAsset, BiomeMapperAsset, LayerMapperAsset, NoiseSettingsAsset},
 };
-use bevy::prelude::*;
+use bevy::{ecs::system::SystemParam, prelude::*};
 use bevy_asset_loader::asset_collection::AssetCollection;
+
+#[derive(SystemParam)]
+pub struct AtlasAssetsParam<'w> {
+    atlases: Res<'w, Assets<AtlasAsset>>,
+    image_assets: Res<'w, ImageAssets>,
+    atlas_assets: Res<'w, AtlasAssets>,
+}
+
+impl AtlasAssetsParam<'_> {
+    pub fn block_texture(&self) -> Handle<Image> {
+        self.image_assets.block.clone()
+    }
+
+    pub fn block_normal_texture(&self) -> Handle<Image> {
+        self.image_assets.block_normal.clone()
+    }
+
+    pub fn block_atlas(&self) -> &AtlasAsset {
+        self.atlases.get(self.atlas_assets.block.id()).unwrap()
+    }
+
+    pub fn item_texture(&self) -> Handle<Image> {
+        self.image_assets.item.clone()
+    }
+
+    pub fn item_atlas(&self) -> &AtlasAsset {
+        self.atlases.get(self.atlas_assets.item.id()).unwrap()
+    }
+}
 
 #[derive(AssetCollection, Resource)]
 pub struct AtlasAssets {
@@ -67,4 +96,10 @@ pub struct BiomeAssets {
 pub struct RecipeAssets {
     #[asset(path = "recipes", collection(typed))]
     pub recipes: Vec<Handle<RecipeAsset>>,
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct NoiseSettingsAssets {
+    #[asset(path = "worldgen/settings.noise")]
+    pub noise_settings: Handle<NoiseSettingsAsset>,
 }

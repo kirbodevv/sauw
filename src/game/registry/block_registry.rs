@@ -1,13 +1,28 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::Collider;
 
-use crate::{constants::TILE_SIZE, game::registry::Registry};
+use crate::{
+    constants::TILE_SIZE,
+    game::{
+        assets::{atlas::TextureId, resource::AtlasAssetsParam},
+        registry::Registry,
+    },
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct BlockId(pub u16);
 
+impl BlockId {
+    pub const AIR: Self = Self(0);
+
+    pub fn is_air(self) -> bool {
+        self == Self::AIR
+    }
+}
+
 pub struct BlockDefinition {
     pub name: &'static str,
+    pub texture_id: Option<TextureId>,
     pub sprite_size: Vec2,
     pub sprite_offset: Vec2,
     pub collider: Collider,
@@ -37,6 +52,7 @@ impl Default for BlockDefinition {
     fn default() -> Self {
         Self {
             name: "none",
+            texture_id: None,
             sprite_size: Vec2::splat(TILE_SIZE),
             sprite_offset: Vec2::ZERO,
             collider: Collider::cuboid(TILE_SIZE / 2.0, TILE_SIZE / 2.0),
@@ -81,93 +97,70 @@ impl BlockRegistry {
     }
 }
 
-pub fn init_blocks(mut commands: Commands) {
+pub fn init_blocks(mut commands: Commands, atlas_assets: AtlasAssetsParam) {
+    let atlas = atlas_assets.block_atlas();
     let mut inner = Registry::new("block");
 
-    inner.insert(
-        BlockDefinition {
-            name: "air",
-            ..default()
-        },
-        "air",
-    );
+    let mut insert = |def: BlockDefinition| {
+        let texture_id = atlas.try_id_by_name(def.name);
+        inner.insert(BlockDefinition { texture_id, ..def }, def.name);
+    };
 
-    inner.insert(
-        BlockDefinition {
-            name: "grass",
-            ..default()
-        },
-        "grass",
-    );
+    insert(BlockDefinition {
+        name: "air",
+        ..default()
+    });
 
-    inner.insert(
-        BlockDefinition {
-            name: "tree",
-            sprite_size: Vec2::new(32., 64.),
-            sprite_offset: Vec2::new(0., 16.),
-            collider: collider_with_offset(Collider::cuboid(5.0, 2.5), Vec2::new(0.0, -13.0)),
-            occluders: vec![Occluder::new(Vec2::new(6.0, 6.0), Vec2::new(0.0, -12.0))],
-            ..default()
-        },
-        "tree",
-    );
+    insert(BlockDefinition {
+        name: "grass",
+        ..default()
+    });
 
-    inner.insert(
-        BlockDefinition {
-            name: "flowers",
-            y_sort: 0.1,
-            ..default()
-        },
-        "flowers",
-    );
+    insert(BlockDefinition {
+        name: "tree",
+        sprite_size: Vec2::new(32., 64.),
+        sprite_offset: Vec2::new(0., 16.),
+        collider: collider_with_offset(Collider::cuboid(5.0, 2.5), Vec2::new(0.0, -13.0)),
+        occluders: vec![Occluder::new(Vec2::new(6.0, 6.0), Vec2::new(0.0, -12.0))],
+        ..default()
+    });
 
-    inner.insert(
-        BlockDefinition {
-            name: "lily",
-            y_sort: 0.1,
-            sprite_size: Vec2::new(16., 16.),
-            collider: Collider::cuboid(6.0, 6.0),
-            occluders: vec![],
-            ..default()
-        },
-        "lily",
-    );
+    insert(BlockDefinition {
+        name: "flowers",
+        y_sort: 0.1,
+        ..default()
+    });
 
-    inner.insert(
-        BlockDefinition {
-            name: "sand",
-            ..default()
-        },
-        "sand",
-    );
+    insert(BlockDefinition {
+        name: "lily",
+        y_sort: 0.1,
+        sprite_size: Vec2::new(16., 16.),
+        collider: Collider::cuboid(6.0, 6.0),
+        occluders: vec![],
+        ..default()
+    });
 
-    inner.insert(
-        BlockDefinition {
-            name: "stone",
-            ..default()
-        },
-        "stone",
-    );
+    insert(BlockDefinition {
+        name: "sand",
+        ..default()
+    });
 
-    inner.insert(
-        BlockDefinition {
-            name: "water",
-            ..default()
-        },
-        "water",
-    );
+    insert(BlockDefinition {
+        name: "stone",
+        ..default()
+    });
 
-    inner.insert(
-        BlockDefinition {
-            name: "cactus",
-            collider: collider_with_offset(Collider::cuboid(5.0, 2.5), Vec2::new(0.0, -13.0)),
-            occluders: vec![Occluder::new(Vec2::new(6.0, 6.0), Vec2::new(0.0, -12.0))],
-            ..default()
-        },
-        "cactus",
-    );
+    insert(BlockDefinition {
+        name: "water",
+        ..default()
+    });
 
-    let blocks = BlockRegistry { inner };
+    insert(BlockDefinition {
+        name: "cactus",
+        collider: collider_with_offset(Collider::cuboid(5.0, 2.5), Vec2::new(0.0, -13.0)),
+        occluders: vec![Occluder::new(Vec2::new(6.0, 6.0), Vec2::new(0.0, -12.0))],
+        ..default()
+    });
 
-    commands.insert_resource(blocks);
+    commands.insert_resource(BlockRegistry { inner });
 }
