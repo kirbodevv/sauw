@@ -135,12 +135,7 @@ fn spawn_block(
     let local_y = pos.y as f32 * TILE_SIZE + TILE_SIZE / 2.0;
     let atlas_entry = &assets.block_atlas().entries[&TextureId::new(block.name)];
     let padding = 0.5;
-    let sprite_rect = Rect::new(
-        atlas_entry.x() as f32 + padding,
-        atlas_entry.y() as f32 + padding,
-        (atlas_entry.x() + atlas_entry.width()) as f32 - padding,
-        (atlas_entry.y() + atlas_entry.height()) as f32 - padding,
-    );
+    let sprite_rect = atlas_entry.rect_with_padding(padding);
 
     let mut entity = parent.spawn((
         Transform::from_xyz(

@@ -37,6 +37,15 @@ impl AtlasEntryAsset {
     pub fn height(&self) -> u32 {
         self.0[3]
     }
+
+    pub fn rect_with_padding(&self, padding: f32) -> Rect {
+        Rect::new(
+            self.x() as f32 + padding,
+            self.y() as f32 + padding,
+            (self.x() + self.width()) as f32 - padding,
+            (self.y() + self.height()) as f32 - padding,
+        )
+    }
 }
 
 #[derive(Asset, TypePath, Debug, Deserialize)]
