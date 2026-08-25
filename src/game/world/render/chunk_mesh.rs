@@ -3,14 +3,11 @@ use bevy::prelude::*;
 use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME, TILE_SIZE},
     game::{
-        assets::{
-            atlas::{AtlasAsset, TextureId},
-            resource::AtlasAssetsParam,
-        },
+        assets::atlas::{AtlasAsset, TextureId},
         registry::block_registry::{BlockId, BlockRegistry},
         world::generator::idx,
     },
-    shared::{MeshBuilder, RenderParam},
+    shared::MeshBuilder,
 };
 
 pub fn build_ground_mesh(
@@ -37,22 +34,4 @@ pub fn build_ground_mesh(
         }
     }
     mesh_builder.build()
-}
-
-pub fn spawn_chunk_mesh(
-    parent: &mut ChildSpawnerCommands<'_>,
-    chunk_blocks: &[BlockId; CHUNK_VOLUME],
-    registry: &BlockRegistry,
-    atlas_assets: &AtlasAssetsParam,
-    render_param: &mut RenderParam,
-) {
-    let material = render_param.add_material(atlas_assets.block_texture(), None);
-
-    let ground_mesh = build_ground_mesh(chunk_blocks, registry, atlas_assets.block_atlas());
-
-    parent.spawn((
-        Mesh2d(render_param.meshes.add(ground_mesh)),
-        MeshMaterial2d(material),
-        Transform::from_xyz(0.0, 0.0, 0.0),
-    ));
 }

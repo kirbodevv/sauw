@@ -20,7 +20,7 @@ use crate::{
             generator::idx,
             render::{
                 YSort,
-                chunk_mesh::spawn_chunk_mesh,
+                chunk_mesh::build_ground_mesh,
                 components::{BlockEntity, BlockPos},
                 y_sort_z,
             },
@@ -61,13 +61,14 @@ pub fn spawn_chunk(
         ));
 
         chunk_entity.with_children(|parent| {
-            spawn_chunk_mesh(
-                parent,
-                &chunk.blocks,
-                &registry,
-                &atlas_assets,
-                &mut render_param,
-            );
+            let ground_mesh =
+                build_ground_mesh(&chunk.blocks, &registry, atlas_assets.block_atlas());
+
+            parent.spawn((
+                Mesh2d(render_param.add_mesh(ground_mesh)),
+                MeshMaterial2d(render_param.add_material(atlas_assets.block_texture(), None)),
+                Transform::default(),
+            ));
 
             for x in 0..CHUNK_SIZE {
                 for y in 0..CHUNK_SIZE {

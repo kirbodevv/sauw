@@ -14,6 +14,10 @@ pub struct RenderParam<'w> {
 }
 
 impl RenderParam<'_> {
+    pub fn add_mesh(&mut self, mesh: Mesh) -> Handle<Mesh> {
+        self.meshes.add(mesh)
+    }
+
     pub fn add_material(
         &mut self,
         texture: Handle<Image>,
