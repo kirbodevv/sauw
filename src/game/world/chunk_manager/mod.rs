@@ -14,6 +14,7 @@ impl Plugin for ChunkManagerPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<LoadedChunks>()
             .init_resource::<ChunkManager>()
+            .init_resource::<ChunkBlocksStore>()
             .init_resource::<RequiredChunks>()
             .add_systems(
                 Update,

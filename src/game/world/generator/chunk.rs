@@ -4,6 +4,7 @@ use rand::{Rng, SeedableRng, rngs::SmallRng};
 use crate::game::{
     registry::{biome_registry::BiomeRegistry, block_registry::BlockId},
     world::{
+        chunk_manager::ChunkBlocksStore,
         chunk_positions,
         generator::{
             ChunkGenerateRequest, chunk_data,
@@ -22,6 +23,7 @@ pub fn generate_chunk(
     noise: Res<WorldNoise>,
     mut reader: MessageReader<ChunkGenerateRequest>,
     mut writer: MessageWriter<SpawnChunk>,
+    mut store: ResMut<ChunkBlocksStore>,
 ) {
     if reader.is_empty() {
         return;
@@ -66,6 +68,8 @@ pub fn generate_chunk(
             blocks.ground[idx_2d(x, y)] = surface;
             blocks.objects[idx_2d(x, y)] = top;
         }
+
+        store.blocks.insert(chunk_coord, blocks);
 
         writer.write(SpawnChunk {
             chunk_coord,
