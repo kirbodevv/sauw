@@ -18,4 +18,8 @@ impl ChunkCoord {
             y: (y / CHUNK_WORLD).floor() as i32,
         }
     }
+
+    pub fn to_world_pos(self) -> Vec2 {
+        Vec2::new(self.x as f32, self.y as f32) * CHUNK_WORLD
+    }
 }

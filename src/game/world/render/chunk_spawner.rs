@@ -50,19 +50,18 @@ pub fn spawn_chunk(
         blocks,
     } in reader.read()
     {
-        let chunk_world_x = chunk_coord.x as f32 * CHUNK_SIZE as f32 * TILE_SIZE;
-        let chunk_world_y = chunk_coord.y as f32 * CHUNK_SIZE as f32 * TILE_SIZE;
+        let chunk_world_pos = chunk_coord.to_world_pos();
 
         let mut chunk_entity = commands.spawn((
             Chunk,
             *chunk_coord,
             Visibility::default(),
-            Transform::from_xyz(chunk_world_x, chunk_world_y, 0.0),
+            Transform::from_xyz(chunk_world_pos.x, chunk_world_pos.y, 0.0),
         ));
 
         chunk_entity.with_children(|parent| {
             spawn_ground(parent, blocks, &registry, &atlas_assets, &mut render_param);
-            spawn_objects(parent, blocks, &registry, &atlas_assets, chunk_world_y);
+            spawn_objects(parent, blocks, &registry, &atlas_assets, chunk_world_pos.y);
         });
 
         manager.entities.insert(*chunk_coord, chunk_entity.id());
