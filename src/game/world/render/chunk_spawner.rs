@@ -65,11 +65,7 @@ pub fn spawn_chunk(
                 parent,
                 &chunk.blocks,
                 &registry,
-                &atlas_assets.image_assets.block,
-                atlas_assets
-                    .atlases
-                    .get(atlas_assets.atlas_assets.block.id())
-                    .unwrap(),
+                &atlas_assets,
                 &mut render_param,
             );
 
