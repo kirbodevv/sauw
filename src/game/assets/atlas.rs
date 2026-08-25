@@ -8,20 +8,10 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use thiserror::Error;
 
-#[derive(Debug, Deserialize, Eq, Hash, PartialEq)]
-pub struct TextureId(String);
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct TextureId(pub usize);
 
-impl TextureId {
-    pub fn new(name: &str) -> Self {
-        Self(name.to_string())
-    }
-
-    pub fn get_name(&self) -> &str {
-        &self.0
-    }
-}
-
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone, Copy)]
 pub struct AtlasEntryAsset([u32; 4]);
 
 impl AtlasEntryAsset {
@@ -48,11 +38,40 @@ impl AtlasEntryAsset {
     }
 }
 
-#[derive(Asset, TypePath, Debug, Deserialize)]
+#[derive(Debug, Deserialize)]
+struct AtlasAssetRaw {
+    width: u32,
+    height: u32,
+    entries: HashMap<String, AtlasEntryAsset>,
+}
+
+#[derive(Asset, TypePath, Debug)]
 pub struct AtlasAsset {
     pub width: u32,
     pub height: u32,
-    pub entries: HashMap<TextureId, AtlasEntryAsset>,
+    entries: Vec<AtlasEntryAsset>,
+    name_to_id: HashMap<String, usize>,
+}
+
+impl AtlasAsset {
+    pub fn get(&self, id: TextureId) -> &AtlasEntryAsset {
+        &self.entries[id.0]
+    }
+
+    pub fn try_id_by_name(&self, name: &str) -> Option<TextureId> {
+        self.name_to_id.get(name).map(|&id| TextureId(id))
+    }
+
+    pub fn id_by_name(&self, name: &str) -> TextureId {
+        self.try_id_by_name(name)
+            .unwrap_or_else(|| panic!("Unknown texture {:?} in atlas", name))
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = (&str, &AtlasEntryAsset)> {
+        self.name_to_id
+            .iter()
+            .map(move |(name, &id)| (name.as_str(), &self.entries[id]))
+    }
 }
 
 #[derive(Default, TypePath)]
@@ -83,15 +102,28 @@ impl AssetLoader for AtlasAssetLoader {
         let mut bytes = Vec::new();
         reader.read_to_end(&mut bytes).await?;
 
-        let atlas: AtlasAsset = serde_json::from_slice(&bytes)
+        let raw: AtlasAssetRaw = serde_json::from_slice(&bytes)
             .map_err(|e| Self::Error::Io(std::io::Error::other(e)))?;
+
+        let mut entries = Vec::with_capacity(raw.entries.len());
+        let mut name_to_id = HashMap::with_capacity(raw.entries.len());
+
+        for (name, entry) in raw.entries {
+            name_to_id.insert(name, entries.len());
+            entries.push(entry);
+        }
 
         info!(
             target: "asset_loader",
             "Loaded atlas with {} entries",
-            atlas.entries.len()
+            entries.len()
         );
 
-        Ok(atlas)
+        Ok(AtlasAsset {
+            width: raw.width,
+            height: raw.height,
+            entries,
+            name_to_id,
+        })
     }
 }

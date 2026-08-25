@@ -47,7 +47,7 @@ impl MeshBuilder {
         size: Vec2,
         offset: Vec2,
     ) {
-        let atlas_entry = &atlas.entries[&texture];
+        let atlas_entry = &atlas.get(texture);
 
         let tex_x = atlas_entry.x() as f32;
         let tex_y = atlas_entry.y() as f32;

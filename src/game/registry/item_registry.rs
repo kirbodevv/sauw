@@ -68,11 +68,11 @@ pub fn init_items(
     let mut layout = TextureAtlasLayout::new_empty(UVec2::new(atlas.width, atlas.height));
     let mut name_to_index: HashMap<&str, usize> = HashMap::new();
 
-    for (name, entry) in &atlas.entries {
+    atlas.iter().for_each(|(name, entry)| {
         let [x, y, w, h] = [entry.x(), entry.y(), entry.width(), entry.height()];
         let idx = layout.add_texture(URect::new(x, y, x + w, y + h));
-        name_to_index.insert(name.get_name(), idx);
-    }
+        name_to_index.insert(name, idx);
+    });
 
     let atlas_layout = layouts.add(layout);
 
