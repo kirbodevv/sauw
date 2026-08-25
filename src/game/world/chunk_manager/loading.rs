@@ -21,14 +21,14 @@ pub(super) fn spawn_required_chunks(
             return false;
         }
 
-        if *state == ChunkLoadState::Generating {
-            if let Some(blocks) = store.blocks.get(coord) {
-                s_writer.write(SpawnChunk {
-                    chunk_coord: *coord,
-                    blocks: *blocks,
-                });
-                *state = ChunkLoadState::AwaitingSpawn;
-            }
+        if *state == ChunkLoadState::Generating
+            && let Some(blocks) = store.blocks.get(coord)
+        {
+            s_writer.write(SpawnChunk {
+                chunk_coord: *coord,
+                blocks: *blocks,
+            });
+            *state = ChunkLoadState::AwaitingSpawn;
         }
 
         true
