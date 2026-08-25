@@ -9,10 +9,7 @@ use crate::{
     constants::{CHUNK_SIZE, CHUNK_VOLUME, OBJECT_LAYER, TILE_SIZE},
     game::{
         GameState,
-        assets::{
-            atlas::{AtlasAsset, TextureId},
-            resource::AtlasAssetsParam,
-        },
+        assets::{atlas::TextureId, resource::AtlasAssetsParam},
         registry::block_registry::{BlockDefinition, BlockId, BlockRegistry},
         world::{
             Chunk, ChunkCoord,
@@ -48,55 +45,71 @@ pub fn spawn_chunk(
     atlas_assets: AtlasAssetsParam,
     mut manager: ResMut<ChunkManager>,
 ) {
-    for chunk in reader.read() {
-        let chunk_world_x = chunk.chunk_coord.x as f32 * CHUNK_SIZE as f32 * TILE_SIZE;
-        let chunk_world_y = chunk.chunk_coord.y as f32 * CHUNK_SIZE as f32 * TILE_SIZE;
+    for SpawnChunk {
+        chunk_coord,
+        blocks,
+    } in reader.read()
+    {
+        let chunk_world_x = chunk_coord.x as f32 * CHUNK_SIZE as f32 * TILE_SIZE;
+        let chunk_world_y = chunk_coord.y as f32 * CHUNK_SIZE as f32 * TILE_SIZE;
 
         let mut chunk_entity = commands.spawn((
             Chunk,
-            chunk.chunk_coord,
+            *chunk_coord,
             Visibility::default(),
             Transform::from_xyz(chunk_world_x, chunk_world_y, 0.0),
         ));
 
         chunk_entity.with_children(|parent| {
-            let ground_mesh =
-                build_ground_mesh(&chunk.blocks, &registry, atlas_assets.block_atlas());
-
-            parent.spawn((
-                Mesh2d(render_param.add_mesh(ground_mesh)),
-                MeshMaterial2d(render_param.add_material(atlas_assets.block_texture(), None)),
-                Transform::default(),
-            ));
-
-            for x in 0..CHUNK_SIZE {
-                for y in 0..CHUNK_SIZE {
-                    let block = chunk.blocks[idx(x, y, OBJECT_LAYER)];
-
-                    if block.is_air() {
-                        continue;
-                    }
-
-                    let block = registry.get(block);
-
-                    spawn_block(
-                        parent,
-                        block,
-                        BlockPos::new(x as u8, y as u8, OBJECT_LAYER as u8),
-                        &atlas_assets.image_assets.block,
-                        &atlas_assets.image_assets.block_normal,
-                        atlas_assets
-                            .atlases
-                            .get(atlas_assets.atlas_assets.block.id())
-                            .unwrap(),
-                        chunk_world_y,
-                    );
-                }
-            }
+            spawn_ground(parent, blocks, &registry, &atlas_assets, &mut render_param);
+            spawn_objects(parent, blocks, &registry, &atlas_assets, chunk_world_y);
         });
-        manager
-            .entities
-            .insert(chunk.chunk_coord, chunk_entity.id());
+
+        manager.entities.insert(*chunk_coord, chunk_entity.id());
+    }
+}
+
+fn spawn_ground(
+    parent: &mut ChildSpawnerCommands<'_>,
+    blocks: &[BlockId; CHUNK_VOLUME],
+    registry: &BlockRegistry,
+    atlas_assets: &AtlasAssetsParam,
+    render_param: &mut RenderParam,
+) {
+    let ground_mesh = build_ground_mesh(blocks, registry, atlas_assets.block_atlas());
+
+    parent.spawn((
+        Mesh2d(render_param.add_mesh(ground_mesh)),
+        MeshMaterial2d(render_param.add_material(atlas_assets.block_texture(), None)),
+        Transform::default(),
+    ));
+}
+
+fn spawn_objects(
+    parent: &mut ChildSpawnerCommands<'_>,
+    blocks: &[BlockId; CHUNK_VOLUME],
+    registry: &BlockRegistry,
+    atlas_assets: &AtlasAssetsParam,
+    chunk_world_y: f32,
+) {
+    for x in 0..CHUNK_SIZE {
+        for y in 0..CHUNK_SIZE {
+            let block = blocks[idx(x, y, OBJECT_LAYER)];
+
+            if block.is_air() {
+                continue;
+            }
+
+            let block = registry.get(block);
+
+            spawn_block(
+                parent,
+                block,
+                BlockPos::new(x as u8, y as u8, OBJECT_LAYER as u8),
+                atlas_assets,
+                chunk_world_y,
+            );
+        }
     }
 }
 
@@ -112,19 +125,16 @@ pub fn despawn_chunk(
     }
 }
 
-#[allow(clippy::too_many_arguments)]
-pub fn spawn_block(
+fn spawn_block(
     parent: &mut ChildSpawnerCommands<'_>,
     block: &BlockDefinition,
     pos: BlockPos,
-    block_texture: &Handle<Image>,
-    block_normal_texture: &Handle<Image>,
-    block_atlas: &AtlasAsset,
+    assets: &AtlasAssetsParam,
     chunk_world_y: f32,
 ) {
     let local_x = pos.x as f32 * TILE_SIZE + TILE_SIZE / 2.0;
     let local_y = pos.y as f32 * TILE_SIZE + TILE_SIZE / 2.0;
-    let atlas_entry = &block_atlas.entries[&TextureId::new(block.name)];
+    let atlas_entry = &assets.block_atlas().entries[&TextureId::new(block.name)];
     let padding = 0.5;
     let sprite_rect = Rect::new(
         atlas_entry.x() as f32 + padding,
@@ -150,13 +160,13 @@ pub fn spawn_block(
     entity.with_children(|parent| {
         parent.spawn((
             Sprite {
-                image: block_texture.clone(),
+                image: assets.block_texture().clone(),
                 rect: Some(sprite_rect),
                 custom_size: Some(block.sprite_size),
                 ..default()
             },
             Anchor::CENTER,
-            NormalMap::from_image(block_normal_texture.clone()),
+            NormalMap::from_image(assets.block_normal_texture().clone()),
             SpriteHeight(0.0),
             Transform::from_translation(block.sprite_offset.extend(0.0)),
         ));

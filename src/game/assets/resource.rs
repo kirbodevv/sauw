@@ -8,14 +8,18 @@ use bevy_asset_loader::asset_collection::AssetCollection;
 
 #[derive(SystemParam)]
 pub struct AtlasAssetsParam<'w> {
-    pub atlases: Res<'w, Assets<AtlasAsset>>,
-    pub image_assets: Res<'w, ImageAssets>,
-    pub atlas_assets: Res<'w, AtlasAssets>,
+    atlases: Res<'w, Assets<AtlasAsset>>,
+    image_assets: Res<'w, ImageAssets>,
+    atlas_assets: Res<'w, AtlasAssets>,
 }
 
 impl AtlasAssetsParam<'_> {
     pub fn block_texture(&self) -> Handle<Image> {
         self.image_assets.block.clone()
+    }
+
+    pub fn block_normal_texture(&self) -> Handle<Image> {
+        self.image_assets.block_normal.clone()
     }
 
     pub fn block_atlas(&self) -> &AtlasAsset {
