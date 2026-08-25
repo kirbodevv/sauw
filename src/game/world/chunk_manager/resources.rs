@@ -19,6 +19,6 @@ pub struct RequiredChunks {
 }
 
 #[derive(Default, Resource)]
-pub struct LoadedChunks {
+pub struct PendingChunkSpawns {
     pub set: HashSet<ChunkCoord>,
 }
