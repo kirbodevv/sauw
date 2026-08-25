@@ -66,7 +66,7 @@ pub fn spawn_chunk(
             })
             .id();
 
-        manager.entities.insert(*chunk_coord, id);
+        manager.register(*chunk_coord, id);
     }
 }
 
@@ -118,7 +118,7 @@ pub fn despawn_chunk(
     mut manager: ResMut<ChunkManager>,
 ) {
     for chunk in reader.read() {
-        if let Some(entity) = manager.entities.remove(&chunk.chunk_coord) {
+        if let Some(entity) = manager.unregister(&chunk.chunk_coord) {
             commands.entity(entity).despawn();
         }
     }

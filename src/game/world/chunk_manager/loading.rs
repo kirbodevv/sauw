@@ -17,7 +17,7 @@ pub(super) fn spawn_required_chunks(
     config: Res<WorldConfig>,
 ) {
     pending.state.retain(|coord, state| {
-        if manager.entities.contains_key(coord) {
+        if manager.is_spawned(coord) {
             return false;
         }
 
@@ -41,7 +41,7 @@ pub(super) fn spawn_required_chunks(
             break;
         }
 
-        if manager.entities.contains_key(coord) || pending.state.contains_key(coord) {
+        if manager.is_spawned(coord) || pending.state.contains_key(coord) {
             continue;
         }
 
