@@ -44,15 +44,12 @@ pub fn spawn_chunk_mesh(
     block_atlas: &AtlasAsset,
     render_param: &mut RenderParam,
 ) {
-    let material = render_param.materials.add(ColorMaterial {
-        texture: Some(block_texture.clone()),
-        ..default()
-    });
+    let material = render_param.add_material(block_texture.clone(), None);
 
     let ground_mesh = build_ground_mesh(chunk_blocks, registry, block_atlas);
     parent.spawn((
         Mesh2d(render_param.meshes.add(ground_mesh)),
-        MeshMaterial2d(material.clone()),
+        MeshMaterial2d(material),
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
 }

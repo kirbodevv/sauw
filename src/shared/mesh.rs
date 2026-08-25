@@ -13,6 +13,20 @@ pub struct RenderParam<'w> {
     pub materials: ResMut<'w, Assets<ColorMaterial>>,
 }
 
+impl RenderParam<'_> {
+    pub fn add_material(
+        &mut self,
+        texture: Handle<Image>,
+        color: Option<Color>,
+    ) -> Handle<ColorMaterial> {
+        self.materials.add(ColorMaterial {
+            texture: Some(texture.clone()),
+            color: color.unwrap_or_default(),
+            ..default()
+        })
+    }
+}
+
 #[derive(Default)]
 pub struct MeshBuilder {
     positions: Vec<[f32; 3]>,
