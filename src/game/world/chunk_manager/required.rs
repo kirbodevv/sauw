@@ -30,5 +30,14 @@ pub(super) fn compute_required_chunks(
             required.insert(ChunkCoord { x: cx, y: cy });
         }
     }
+
+    let mut ordered: Vec<ChunkCoord> = required.iter().copied().collect();
+    ordered.sort_by_key(|coord| {
+        let dx = (coord.x - player_chunk.x) as i64;
+        let dy = (coord.y - player_chunk.y) as i64;
+        dx * dx + dy * dy
+    });
+
     required_chunks.set = required;
+    required_chunks.ordered = ordered;
 }

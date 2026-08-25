@@ -1,6 +1,7 @@
-use super::{ChunkBlocksStore, ChunkManager, PendingChunkSpawns, RequiredChunks};
+use super::{ChunkBlocksStore, ChunkLoadState, ChunkManager, PendingChunkSpawns, RequiredChunks};
 use crate::game::world::{
     Chunk, ChunkCoord,
+    config::WorldConfig,
     generator::ChunkGenerateRequest,
     render::chunk_spawner::{DespawnChunk, SpawnChunk},
 };
@@ -13,13 +14,34 @@ pub(super) fn spawn_required_chunks(
     manager: Res<ChunkManager>,
     store: Res<ChunkBlocksStore>,
     required: Res<RequiredChunks>,
+    config: Res<WorldConfig>,
 ) {
-    pending
-        .set
-        .retain(|coord| !manager.entities.contains_key(coord));
+    pending.state.retain(|coord, state| {
+        if manager.is_spawned(coord) {
+            return false;
+        }
 
-    for coord in required.set.iter() {
-        if manager.entities.contains_key(coord) || pending.set.contains(coord) {
+        if *state == ChunkLoadState::Generating {
+            if let Some(blocks) = store.blocks.get(coord) {
+                s_writer.write(SpawnChunk {
+                    chunk_coord: *coord,
+                    blocks: *blocks,
+                });
+                *state = ChunkLoadState::AwaitingSpawn;
+            }
+        }
+
+        true
+    });
+
+    let mut budget = config.max_chunk_ops_per_frame;
+
+    for coord in required.ordered.iter() {
+        if budget == 0 {
+            break;
+        }
+
+        if manager.is_spawned(coord) || pending.state.contains_key(coord) {
             continue;
         }
 
@@ -28,11 +50,13 @@ pub(super) fn spawn_required_chunks(
                 chunk_coord: *coord,
                 blocks: *blocks,
             });
+            pending.state.insert(*coord, ChunkLoadState::AwaitingSpawn);
         } else {
             g_writer.write(ChunkGenerateRequest(*coord));
+            pending.state.insert(*coord, ChunkLoadState::Generating);
         }
 
-        pending.set.insert(*coord);
+        budget -= 1;
     }
 }
 

@@ -7,6 +7,7 @@ pub struct WorldSeed(pub u32);
 pub struct WorldConfig {
     pub seed: WorldSeed,
     pub load_radius: i32,
+    pub max_chunk_ops_per_frame: usize,
 }
 
 impl Default for WorldConfig {
@@ -14,6 +15,7 @@ impl Default for WorldConfig {
         Self {
             seed: WorldSeed(0),
             load_radius: 2,
+            max_chunk_ops_per_frame: 4,
         }
     }
 }
