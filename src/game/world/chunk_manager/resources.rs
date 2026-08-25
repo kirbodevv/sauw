@@ -19,7 +19,13 @@ pub struct RequiredChunks {
     pub ordered: Vec<ChunkCoord>,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum ChunkLoadState {
+    Generating,
+    AwaitingSpawn,
+}
+
 #[derive(Default, Resource)]
 pub struct PendingChunkSpawns {
-    pub set: HashSet<ChunkCoord>,
+    pub state: HashMap<ChunkCoord, ChunkLoadState>,
 }
