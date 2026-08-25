@@ -16,6 +16,7 @@ pub struct ChunkBlocksStore {
 #[derive(Resource, Default)]
 pub struct RequiredChunks {
     pub set: HashSet<ChunkCoord>,
+    pub ordered: Vec<ChunkCoord>,
 }
 
 #[derive(Default, Resource)]

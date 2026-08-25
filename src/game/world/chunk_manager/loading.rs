@@ -1,6 +1,7 @@
 use super::{ChunkBlocksStore, ChunkManager, PendingChunkSpawns, RequiredChunks};
 use crate::game::world::{
     Chunk, ChunkCoord,
+    config::WorldConfig,
     generator::ChunkGenerateRequest,
     render::chunk_spawner::{DespawnChunk, SpawnChunk},
 };
@@ -13,12 +14,19 @@ pub(super) fn spawn_required_chunks(
     manager: Res<ChunkManager>,
     store: Res<ChunkBlocksStore>,
     required: Res<RequiredChunks>,
+    config: Res<WorldConfig>,
 ) {
     pending
         .set
         .retain(|coord| !manager.entities.contains_key(coord));
 
-    for coord in required.set.iter() {
+    let mut budget = config.max_chunk_ops_per_frame;
+
+    for coord in required.ordered.iter() {
+        if budget == 0 {
+            break;
+        }
+
         if manager.entities.contains_key(coord) || pending.set.contains(coord) {
             continue;
         }
@@ -33,6 +41,7 @@ pub(super) fn spawn_required_chunks(
         }
 
         pending.set.insert(*coord);
+        budget -= 1;
     }
 }
 
