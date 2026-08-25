@@ -3,8 +3,15 @@ use crate::game::assets::{
     recipe::RecipeAsset,
     worldgen::{BiomeAsset, BiomeMapperAsset, LayerMapperAsset, NoiseSettingsAsset},
 };
-use bevy::prelude::*;
+use bevy::{ecs::system::SystemParam, prelude::*};
 use bevy_asset_loader::asset_collection::AssetCollection;
+
+#[derive(SystemParam)]
+pub struct AtlasAssetsParam<'w> {
+    pub atlases: Res<'w, Assets<AtlasAsset>>,
+    pub image_assets: Res<'w, ImageAssets>,
+    pub atlas_assets: Res<'w, AtlasAssets>,
+}
 
 #[derive(AssetCollection, Resource)]
 pub struct AtlasAssets {

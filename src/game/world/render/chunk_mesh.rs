@@ -7,7 +7,7 @@ use crate::{
         registry::block_registry::{BlockId, BlockRegistry},
         world::generator::idx,
     },
-    shared::MeshBuilder,
+    shared::{MeshBuilder, RenderParam},
 };
 
 pub fn build_ground_mesh(
@@ -26,11 +26,11 @@ pub fn build_ground_mesh(
                 continue;
             }
 
-            let (x, y) = (x as f32 * TILE_SIZE, y as f32 * TILE_SIZE);
+            let position = Vec3::new(x as f32 * TILE_SIZE, y as f32 * TILE_SIZE, 0.0);
             let size = block.sprite_size;
             let offset = block.sprite_offset;
 
-            mesh_builder.append_quad(TextureId::new(block.name), &atlas, x, y, 0.0, size, offset);
+            mesh_builder.append_quad(TextureId::new(block.name), atlas, position, size, offset);
         }
     }
     mesh_builder.build()
@@ -43,17 +43,16 @@ pub fn spawn_chunk_mesh(
     registry: &BlockRegistry,
     block_texture: &Handle<Image>,
     block_atlas: &AtlasAsset,
-    meshes: &mut Assets<Mesh>,
-    materials: &mut Assets<ColorMaterial>,
+    render_param: &mut RenderParam,
 ) {
-    let material = materials.add(ColorMaterial {
+    let material = render_param.materials.add(ColorMaterial {
         texture: Some(block_texture.clone()),
         ..default()
     });
 
     let ground_mesh = build_ground_mesh(chunk_blocks, registry, block_atlas);
     parent.spawn((
-        Mesh2d(meshes.add(ground_mesh)),
+        Mesh2d(render_param.meshes.add(ground_mesh)),
         MeshMaterial2d(material.clone()),
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));

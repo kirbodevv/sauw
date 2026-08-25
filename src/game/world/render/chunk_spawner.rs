@@ -11,7 +11,7 @@ use crate::{
         GameState,
         assets::{
             atlas::{AtlasAsset, TextureId},
-            resource::{AtlasAssets, ImageAssets},
+            resource::AtlasAssetsParam,
         },
         registry::block_registry::{BlockDefinition, BlockId, BlockRegistry},
         world::{
@@ -26,6 +26,7 @@ use crate::{
             },
         },
     },
+    shared::RenderParam,
 };
 
 #[derive(Message)]
@@ -39,16 +40,12 @@ pub struct DespawnChunk {
     pub chunk_coord: ChunkCoord,
 }
 
-#[allow(clippy::too_many_arguments)]
 pub fn spawn_chunk(
-    registry: Res<BlockRegistry>,
     mut commands: Commands,
+    registry: Res<BlockRegistry>,
     mut reader: MessageReader<SpawnChunk>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    atlases: Res<Assets<AtlasAsset>>,
-    image_assets: Res<ImageAssets>,
-    atlas_assets: Res<AtlasAssets>,
+    mut render_param: RenderParam,
+    atlas_assets: AtlasAssetsParam,
     mut manager: ResMut<ChunkManager>,
 ) {
     let air = registry.id_by_name("air");
@@ -68,10 +65,12 @@ pub fn spawn_chunk(
                 parent,
                 &chunk.blocks,
                 &registry,
-                &image_assets.block,
-                atlases.get(atlas_assets.block.id()).unwrap(),
-                &mut meshes,
-                &mut materials,
+                &atlas_assets.image_assets.block,
+                atlas_assets
+                    .atlases
+                    .get(atlas_assets.atlas_assets.block.id())
+                    .unwrap(),
+                &mut render_param,
             );
 
             for x in 0..CHUNK_SIZE {
@@ -85,9 +84,12 @@ pub fn spawn_chunk(
                         parent,
                         block,
                         BlockPos::new(x as u8, y as u8, OBJECT_LAYER as u8),
-                        &image_assets.block,
-                        &image_assets.block_normal,
-                        atlases.get(atlas_assets.block.id()).unwrap(),
+                        &atlas_assets.image_assets.block,
+                        &atlas_assets.image_assets.block_normal,
+                        atlas_assets
+                            .atlases
+                            .get(atlas_assets.atlas_assets.block.id())
+                            .unwrap(),
                         chunk_world_y,
                     );
                 }

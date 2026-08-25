@@ -1,10 +1,17 @@
 use bevy::{
     asset::RenderAssetUsages,
+    ecs::system::SystemParam,
     mesh::{Indices, PrimitiveTopology},
     prelude::*,
 };
 
 use crate::game::assets::atlas::{AtlasAsset, TextureId};
+
+#[derive(SystemParam)]
+pub struct RenderParam<'w> {
+    pub meshes: ResMut<'w, Assets<Mesh>>,
+    pub materials: ResMut<'w, Assets<ColorMaterial>>,
+}
 
 #[derive(Default)]
 pub struct MeshBuilder {
@@ -18,9 +25,7 @@ impl MeshBuilder {
         &mut self,
         texture: TextureId,
         atlas: &AtlasAsset,
-        x: f32,
-        y: f32,
-        z: f32,
+        position: Vec3,
         size: Vec2,
         offset: Vec2,
     ) {
@@ -41,8 +46,10 @@ impl MeshBuilder {
 
         let base = self.positions.len() as u32;
 
-        let x = x + size.x / 2.0 + offset.x;
-        let y = y + size.y / 2.0 + offset.y;
+        let x = position.x + size.x / 2.0 + offset.x;
+        let y = position.y + size.y / 2.0 + offset.y;
+        let z = position.z;
+
         let hw = size.x / 2.0;
         let hh = size.y / 2.0;
 
