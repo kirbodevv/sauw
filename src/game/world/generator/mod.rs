@@ -5,9 +5,9 @@ use crate::game::{
     world::{
         ChunkCoord,
         generator::{
-            chunk::{ChunkGenerationTasks, poll_generation_tasks, spawn_generation_tasks},
             context::{GenerationContextHandle, init_generation_context},
             noise::init_noise,
+            tasks::{ChunkGenerationTasks, poll_generation_tasks, spawn_generation_tasks},
         },
     },
 };
@@ -17,6 +17,7 @@ pub mod chunk_data;
 pub mod context;
 pub mod mappers;
 pub mod noise;
+pub mod tasks;
 
 #[derive(Message)]
 pub struct ChunkGenerateRequest(pub ChunkCoord);
