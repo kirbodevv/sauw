@@ -16,7 +16,7 @@ use crate::{
             chunk_manager::ChunkManager,
             chunk_positions,
             render::{
-                YSort,
+                ChunkMesh, YSort,
                 chunk_mesh::build_ground_mesh,
                 components::{BlockEntity, BlockPos},
                 y_sort_z,
@@ -61,7 +61,14 @@ pub fn spawn_chunk(
                 Transform::from_xyz(pos.x, pos.y, 0.0),
             ))
             .with_children(|parent| {
-                spawn_ground(parent, blocks, &registry, &atlas_assets, &mut render_param);
+                spawn_ground(
+                    parent,
+                    &chunk_coord,
+                    blocks,
+                    &registry,
+                    &atlas_assets,
+                    &mut render_param,
+                );
                 spawn_objects(parent, blocks, &registry, &atlas_assets, pos.y);
             })
             .id();
@@ -72,6 +79,7 @@ pub fn spawn_chunk(
 
 fn spawn_ground(
     parent: &mut ChildSpawnerCommands<'_>,
+    chunk_coord: &ChunkCoord,
     blocks: &ChunkBlocks,
     registry: &BlockRegistry,
     atlas_assets: &AtlasAssetsParam,
@@ -80,6 +88,9 @@ fn spawn_ground(
     let ground_mesh = build_ground_mesh(blocks, registry, atlas_assets.block_atlas());
 
     parent.spawn((
+        ChunkMesh {
+            coord: *chunk_coord,
+        },
         Mesh2d(render_param.add_mesh(ground_mesh)),
         MeshMaterial2d(render_param.add_material(atlas_assets.block_texture(), None)),
         Transform::default(),

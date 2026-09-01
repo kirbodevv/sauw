@@ -9,6 +9,7 @@ mod drop;
 mod heal;
 mod inventory;
 mod load_radius;
+mod rebuild_meshes;
 mod safe_zone;
 mod time;
 mod tp;
@@ -21,6 +22,7 @@ use drop::*;
 use heal::*;
 use inventory::*;
 use load_radius::*;
+use rebuild_meshes::*;
 use safe_zone::*;
 use time::*;
 use tp::*;
@@ -41,6 +43,7 @@ impl Plugin for CommandsPlugin {
             .add_console_command::<TimeCommand, _>(time)
             .add_console_command::<SafeZoneCommand, _>(safe_zone)
             .add_console_command::<CraftCommand, _>(craft)
-            .add_console_command::<DropCommand, _>(drop);
+            .add_console_command::<DropCommand, _>(drop)
+            .add_console_command::<RebuildMeshesCommand, _>(rebuild_meshes);
     }
 }

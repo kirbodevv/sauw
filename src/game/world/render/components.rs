@@ -1,7 +1,14 @@
 use bevy::prelude::*;
 
+use crate::game::world::ChunkCoord;
+
 #[derive(Component)]
 pub struct BlockEntity;
+
+#[derive(Component)]
+pub struct ChunkMesh {
+    pub coord: ChunkCoord,
+}
 
 #[derive(Component, Clone)]
 pub struct BlockPos {

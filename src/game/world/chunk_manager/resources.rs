@@ -9,6 +9,10 @@ pub struct ChunkManager {
 }
 
 impl ChunkManager {
+    pub fn spawned_chunks(&self) -> Vec<ChunkCoord> {
+        self.entities.keys().copied().collect()
+    }
+
     pub fn is_spawned(&self, coord: &ChunkCoord) -> bool {
         self.entities.contains_key(coord)
     }
