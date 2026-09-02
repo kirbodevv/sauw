@@ -10,7 +10,9 @@ use crate::{
             ChunkCoord,
             chunk_manager::{ChunkBlocksStore, ChunkManager},
             idx_2d,
-            render::{BlockPos, ChunkMesh, chunk_mesh::build_ground_mesh, chunk_spawner},
+            render::{
+                BlockEntity, BlockPos, ChunkMesh, chunk_mesh::build_ground_mesh, chunk_spawner,
+            },
         },
     },
     shared::RenderParam,
@@ -90,7 +92,7 @@ pub fn spawn_block(
     mut commands: Commands,
     mut reader: MessageReader<SpawnBlock>,
     assets: AtlasAssetsParam,
-    mut manager: ResMut<ChunkManager>,
+    manager: Res<ChunkManager>,
     blocks: Res<BlockRegistry>,
 ) {
     for event in reader.read() {
@@ -111,12 +113,8 @@ pub fn spawn_block(
             continue;
         };
 
-        let chunk_world_y = chunk_coord.to_world_pos().y;
-
         parent.with_children(|parent| {
-            let entity =
-                chunk_spawner::spawn_block(parent, blocks.get(*id), *pos, &assets, chunk_world_y);
-            manager.register_block(*chunk_coord, *pos, entity);
+            chunk_spawner::spawn_block(parent, blocks.get(*id), *pos, *chunk_coord, &assets);
         });
     }
 }
@@ -124,24 +122,15 @@ pub fn spawn_block(
 pub fn despawn_block(
     mut reader: MessageReader<DespawnBlock>,
     mut commands: Commands,
-    manager: Res<ChunkManager>,
+    query: Query<(Entity, &BlockPos, &ChunkCoord), With<BlockEntity>>,
 ) {
     for event in reader.read() {
-        info!(
-            "DespawnBlock: chunk_coord={:?}, pos={:?}",
-            event.chunk_coord, event.pos
-        );
-        let DespawnBlock { chunk_coord, pos } = event;
-
-        let Some(entity) = manager.block_entity(chunk_coord, pos) else {
-            info!(
-                "DespawnBlock: no entity found for chunk_coord={:?}, pos={:?}",
-                chunk_coord, pos
-            );
-            continue;
-        };
-
-        commands.entity(entity).despawn();
+        for (entity, block_pos, chunk_coord) in &query {
+            if *chunk_coord == event.chunk_coord && *block_pos == event.pos {
+                commands.entity(entity).despawn();
+                break;
+            }
+        }
     }
 }
 

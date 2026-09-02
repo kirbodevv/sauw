@@ -53,8 +53,6 @@ pub fn spawn_chunk(
     {
         let pos = chunk_coord.to_world_pos();
 
-        let mut entities = Vec::new();
-
         let id = commands
             .spawn((
                 Chunk,
@@ -71,20 +69,11 @@ pub fn spawn_chunk(
                     &atlas_assets,
                     &mut render_param,
                 );
-                entities.extend(spawn_objects(
-                    parent,
-                    blocks,
-                    &registry,
-                    &atlas_assets,
-                    pos.y,
-                ));
+                spawn_objects(parent, blocks, &registry, &atlas_assets, *chunk_coord);
             })
             .id();
 
         manager.register(*chunk_coord, id);
-        for (entity, pos) in entities {
-            manager.register_block(*chunk_coord, pos, entity);
-        }
     }
 }
 
@@ -113,9 +102,8 @@ fn spawn_objects(
     blocks: &ChunkBlocks,
     registry: &BlockRegistry,
     atlas_assets: &AtlasAssetsParam,
-    chunk_world_y: f32,
-) -> Vec<(Entity, BlockPos)> {
-    let mut entities = Vec::new();
+    chunk_coord: ChunkCoord,
+) {
     for (x, y) in chunk_positions() {
         let block = blocks.objects[idx_2d(x, y)];
 
@@ -125,10 +113,8 @@ fn spawn_objects(
 
         let block = registry.get(block);
         let pos = BlockPos::new(x as u8, y as u8, OBJECT_LAYER as u8);
-        let entity = spawn_block(parent, block, pos, atlas_assets, chunk_world_y);
-        entities.push((entity, pos));
+        spawn_block(parent, block, pos, chunk_coord, atlas_assets);
     }
-    entities
 }
 
 pub fn despawn_chunk(
@@ -147,14 +133,16 @@ pub fn spawn_block(
     parent: &mut ChildSpawnerCommands<'_>,
     block: &BlockDefinition,
     pos: BlockPos,
+    chunk_coord: ChunkCoord,
     assets: &AtlasAssetsParam,
-    chunk_world_y: f32,
-) -> Entity {
+) {
     let local_x = pos.x as f32 * TILE_SIZE + TILE_SIZE / 2.0;
     let local_y = pos.y as f32 * TILE_SIZE + TILE_SIZE / 2.0;
     let atlas_entry = assets.block_atlas().get(block.texture_id.unwrap());
     let padding = 0.5;
     let sprite_rect = atlas_entry.rect_with_padding(padding);
+
+    let chunk_world_y = chunk_coord.to_world_pos().y;
 
     let mut entity = parent.spawn((
         Transform::from_xyz(
@@ -168,31 +156,30 @@ pub fn spawn_block(
         RigidBody::Fixed,
         block.collider.clone(),
         pos,
+        chunk_coord,
     ));
 
-    entity
-        .with_children(|parent| {
-            parent.spawn((
-                Sprite {
-                    image: assets.block_texture().clone(),
-                    rect: Some(sprite_rect),
-                    custom_size: Some(block.sprite_size),
-                    ..default()
-                },
-                Anchor::CENTER,
-                NormalMap::from_image(assets.block_normal_texture().clone()),
-                SpriteHeight(0.0),
-                Transform::from_translation(block.sprite_offset.extend(0.0)),
-            ));
+    entity.with_children(|parent| {
+        parent.spawn((
+            Sprite {
+                image: assets.block_texture().clone(),
+                rect: Some(sprite_rect),
+                custom_size: Some(block.sprite_size),
+                ..default()
+            },
+            Anchor::CENTER,
+            NormalMap::from_image(assets.block_normal_texture().clone()),
+            SpriteHeight(0.0),
+            Transform::from_translation(block.sprite_offset.extend(0.0)),
+        ));
 
-            for occluder in &block.occluders {
-                parent.spawn((
-                    Occluder2d::rectangle(occluder.size.x, occluder.size.y),
-                    Transform::from_translation(occluder.offset.extend(0.0)),
-                ));
-            }
-        })
-        .id()
+        for occluder in &block.occluders {
+            parent.spawn((
+                Occluder2d::rectangle(occluder.size.x, occluder.size.y),
+                Transform::from_translation(occluder.offset.extend(0.0)),
+            ));
+        }
+    });
 }
 
 pub struct ChunkSpawnerPlugin;
