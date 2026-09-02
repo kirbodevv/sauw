@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::game::world::ChunkCoord;
+use crate::{constants::CHUNK_SIZE, game::world::ChunkCoord};
 
 #[derive(Component)]
 pub struct BlockEntity;
@@ -9,8 +9,7 @@ pub struct BlockEntity;
 pub struct ChunkMesh {
     pub coord: ChunkCoord,
 }
-
-#[derive(Component, Clone)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct BlockPos {
     pub x: u8,
     pub y: u8,
@@ -20,5 +19,13 @@ pub struct BlockPos {
 impl BlockPos {
     pub fn new(x: u8, y: u8, layer: u8) -> Self {
         Self { x, y, layer }
+    }
+
+    pub fn from_world_block_pos(x: i32, y: i32, layer: u8) -> Self {
+        Self::new(
+            (x % CHUNK_SIZE as i32) as u8,
+            (y % CHUNK_SIZE as i32) as u8,
+            layer,
+        )
     }
 }

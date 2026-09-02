@@ -1,11 +1,12 @@
 use bevy::prelude::*;
 use std::collections::{HashMap, HashSet};
 
-use crate::game::world::{ChunkCoord, types::ChunkBlocks};
+use crate::game::world::{ChunkCoord, render::BlockPos, types::ChunkBlocks};
 
 #[derive(Resource, Default)]
 pub struct ChunkManager {
     entities: HashMap<ChunkCoord, Entity>,
+    block_entities: HashMap<(ChunkCoord, BlockPos), Entity>,
 }
 
 impl ChunkManager {
@@ -28,11 +29,51 @@ impl ChunkManager {
     pub fn unregister(&mut self, coord: &ChunkCoord) -> Option<Entity> {
         self.entities.remove(coord)
     }
+
+    pub fn block_entity(&self, coord: &ChunkCoord, pos: &BlockPos) -> Option<Entity> {
+        self.block_entities
+            .get(&(coord.clone(), pos.clone()))
+            .copied()
+    }
+
+    pub fn register_block(&mut self, coord: ChunkCoord, pos: BlockPos, entity: Entity) {
+        self.block_entities.insert((coord, pos), entity);
+    }
+
+    pub fn unregister_block(&mut self, coord: &ChunkCoord, pos: &BlockPos) -> Option<Entity> {
+        self.block_entities.remove(&(coord.clone(), pos.clone()))
+    }
+
+    pub fn unregister_blocks(&mut self, coord: &ChunkCoord) {
+        let blocks = self
+            .block_entities
+            .keys()
+            .filter(|(c, _)| c == coord)
+            .cloned()
+            .collect::<Vec<_>>();
+        for block in blocks {
+            self.block_entities.remove(&block);
+        }
+    }
 }
 
 #[derive(Resource, Default)]
 pub struct ChunkBlocksStore {
-    pub blocks: HashMap<ChunkCoord, ChunkBlocks>,
+    blocks: HashMap<ChunkCoord, ChunkBlocks>,
+}
+
+impl ChunkBlocksStore {
+    pub fn get(&self, coord: &ChunkCoord) -> Option<&ChunkBlocks> {
+        self.blocks.get(coord)
+    }
+
+    pub fn get_mut(&mut self, coord: &ChunkCoord) -> Option<&mut ChunkBlocks> {
+        self.blocks.get_mut(coord)
+    }
+
+    pub fn insert(&mut self, coord: ChunkCoord, blocks: ChunkBlocks) {
+        self.blocks.insert(coord, blocks);
+    }
 }
 
 #[derive(Resource, Default)]

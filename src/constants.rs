@@ -5,3 +5,4 @@ pub const CHUNK_SIZE: usize = 16;
 pub const CHUNK_LAYER_VOLUME: usize = CHUNK_SIZE * CHUNK_SIZE;
 pub const CHUNK_WORLD: f32 = TILE_SIZE * CHUNK_SIZE as f32;
 pub const OBJECT_LAYER: usize = 1;
+pub const GROUND_LAYER: usize = 0;

@@ -22,7 +22,7 @@ pub(super) fn spawn_required_chunks(
         }
 
         if *state == ChunkLoadState::Generating
-            && let Some(blocks) = store.blocks.get(coord)
+            && let Some(blocks) = store.get(coord)
         {
             s_writer.write(SpawnChunk {
                 chunk_coord: *coord,
@@ -45,7 +45,7 @@ pub(super) fn spawn_required_chunks(
             continue;
         }
 
-        if let Some(blocks) = store.blocks.get(coord) {
+        if let Some(blocks) = store.get(coord) {
             s_writer.write(SpawnChunk {
                 chunk_coord: *coord,
                 blocks: *blocks,

@@ -95,6 +95,10 @@ impl BlockRegistry {
     pub fn id_by_name(&self, name: &str) -> BlockId {
         BlockId(self.inner.id_by_name(name) as u16)
     }
+
+    pub fn try_id_by_name(&self, name: &str) -> Option<BlockId> {
+        self.inner.try_id_by_name(name).map(|id| BlockId(id as u16))
+    }
 }
 
 pub fn init_blocks(mut commands: Commands, atlas_assets: AtlasAssetsParam) {

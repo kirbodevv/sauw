@@ -1,22 +1,148 @@
 use bevy::prelude::*;
 
 use crate::{
+    constants::{GROUND_LAYER, OBJECT_LAYER},
     game::{
         GameState,
         assets::resource::AtlasAssetsParam,
-        registry::block_registry::BlockRegistry,
+        registry::block_registry::{BlockId, BlockRegistry},
         world::{
             ChunkCoord,
-            chunk_manager::ChunkBlocksStore,
-            render::{ChunkMesh, chunk_mesh::build_ground_mesh},
+            chunk_manager::{ChunkBlocksStore, ChunkManager},
+            idx_2d,
+            render::{BlockPos, ChunkMesh, chunk_mesh::build_ground_mesh, chunk_spawner},
         },
     },
     shared::RenderParam,
 };
 
 #[derive(Message)]
+pub struct SetBlock {
+    pub id: BlockId,
+    pub x: i32,
+    pub y: i32,
+    pub layer: u8,
+}
+
+#[derive(Message)]
 pub struct RebuildGroundMesh {
     pub chunk_coord: ChunkCoord,
+}
+
+#[derive(Message)]
+pub struct DespawnBlock {
+    pub chunk_coord: ChunkCoord,
+    pub pos: BlockPos,
+}
+
+#[derive(Message)]
+pub struct SpawnBlock {
+    pub id: BlockId,
+    pub chunk_coord: ChunkCoord,
+    pub pos: BlockPos,
+}
+
+pub fn set_block(
+    mut reader: MessageReader<SetBlock>,
+    mut blocks_store: ResMut<ChunkBlocksStore>,
+    mut rebuild_writer: MessageWriter<RebuildGroundMesh>,
+    mut spawn_writer: MessageWriter<SpawnBlock>,
+    mut despawn_writer: MessageWriter<DespawnBlock>,
+) {
+    for event in reader.read() {
+        let SetBlock { id, x, y, layer } = *event;
+
+        let chunk_coord = ChunkCoord::from_world_block_pos(x, y);
+
+        let Some(blocks) = blocks_store.get_mut(&chunk_coord) else {
+            continue;
+        };
+
+        match layer as usize {
+            GROUND_LAYER => {
+                blocks.ground[idx_2d(x as usize, y as usize)] = id;
+                rebuild_writer.write(RebuildGroundMesh { chunk_coord });
+            }
+            OBJECT_LAYER => {
+                let old = blocks.objects[idx_2d(x as usize, y as usize)];
+
+                if !old.is_air() {
+                    despawn_writer.write(DespawnBlock {
+                        chunk_coord,
+                        pos: BlockPos::from_world_block_pos(x, y, layer),
+                    });
+                }
+
+                spawn_writer.write(SpawnBlock {
+                    id,
+                    chunk_coord,
+                    pos: BlockPos::from_world_block_pos(x, y, layer),
+                });
+
+                blocks.objects[idx_2d(x as usize, y as usize)] = id;
+            }
+            _ => continue,
+        }
+    }
+}
+
+pub fn spawn_block(
+    mut commands: Commands,
+    mut reader: MessageReader<SpawnBlock>,
+    assets: AtlasAssetsParam,
+    mut manager: ResMut<ChunkManager>,
+    blocks: Res<BlockRegistry>,
+) {
+    for event in reader.read() {
+        let SpawnBlock {
+            id,
+            chunk_coord,
+            pos,
+        } = event;
+        if id.is_air() {
+            continue;
+        }
+
+        let Some(entity) = manager.entity(&chunk_coord) else {
+            continue;
+        };
+
+        let Ok(mut parent) = commands.get_entity(entity) else {
+            continue;
+        };
+
+        let chunk_world_y = chunk_coord.to_world_pos().y;
+
+        parent.with_children(|parent| {
+            let entity =
+                chunk_spawner::spawn_block(parent, blocks.get(*id), *pos, &assets, chunk_world_y);
+            manager.register_block(*chunk_coord, *pos, entity);
+        });
+    }
+}
+
+pub fn despawn_block(
+    mut reader: MessageReader<DespawnBlock>,
+    mut commands: Commands,
+    manager: Res<ChunkManager>,
+) {
+    for event in reader.read() {
+        info!(
+            "DespawnBlock: chunk_coord={:?}, pos={:?}",
+            event.chunk_coord, event.pos
+        );
+        let DespawnBlock { chunk_coord, pos } = event;
+
+        let Some(entity) = manager.block_entity(chunk_coord, pos) else {
+            info!(
+                "DespawnBlock: no entity found for chunk_coord={:?}, pos={:?}",
+                chunk_coord, pos
+            );
+            continue;
+        };
+
+        commands.entity(entity).despawn();
+    }
 }
 
 pub fn rebuild_ground_mesh(
@@ -28,7 +154,7 @@ pub fn rebuild_ground_mesh(
     mut reader: MessageReader<RebuildGroundMesh>,
 ) {
     for event in reader.read() {
-        let Some(blocks) = blocks_store.blocks.get(&event.chunk_coord) else {
+        let Some(blocks) = blocks_store.get(&event.chunk_coord) else {
             continue;
         };
 
@@ -51,9 +177,15 @@ pub struct ChunkUpdatePlugin;
 
 impl Plugin for ChunkUpdatePlugin {
     fn build(&self, app: &mut App) {
-        app.add_message::<RebuildGroundMesh>().add_systems(
-            Update,
-            rebuild_ground_mesh.run_if(in_state(GameState::Gaming)),
-        );
+        app.add_message::<RebuildGroundMesh>()
+            .add_message::<SetBlock>()
+            .add_message::<DespawnBlock>()
+            .add_message::<SpawnBlock>()
+            .add_systems(
+                Update,
+                (rebuild_ground_mesh, set_block, despawn_block, spawn_block)
+                    .chain()
+                    .run_if(in_state(GameState::Gaming)),
+            );
     }
 }
