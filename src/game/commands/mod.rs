@@ -11,7 +11,6 @@ mod drop;
 mod heal;
 mod inventory;
 mod load_radius;
-mod meshes;
 mod safe_zone;
 mod setblock;
 mod time;
@@ -31,7 +30,6 @@ impl Plugin for CommandsPlugin {
             .add_console_command::<heal::HealCommand, _>(heal::heal)
             .add_console_command::<inventory::InventoryCommand, _>(inventory::inventory)
             .add_console_command::<load_radius::LoadRadiusCommand, _>(load_radius::load_radius)
-            .add_console_command::<meshes::RebuildMeshesCommand, _>(meshes::rebuild_meshes)
             .add_console_command::<safe_zone::SafeZoneCommand, _>(safe_zone::safe_zone)
             .add_console_command::<setblock::SetBlockCommand, _>(
                 setblock::setblock.run_if(resource_exists::<BlockRegistry>),

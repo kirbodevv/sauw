@@ -35,6 +35,12 @@ pub struct ChunkBlocksStore {
     blocks: HashMap<ChunkCoord, ChunkBlocks>,
 }
 
+#[derive(Resource, Default)]
+pub struct DirtyChunks {
+    pub ground: HashSet<ChunkCoord>,
+    pub objects: HashSet<ChunkCoord>,
+}
+
 impl ChunkBlocksStore {
     pub fn get(&self, coord: &ChunkCoord) -> Option<&ChunkBlocks> {
         self.blocks.get(coord)

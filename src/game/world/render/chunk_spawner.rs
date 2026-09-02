@@ -53,32 +53,40 @@ pub fn spawn_chunk(
     {
         let pos = chunk_coord.to_world_pos();
 
-        let id = commands
+        let entity = commands
             .spawn((
                 Chunk,
                 *chunk_coord,
                 Visibility::default(),
                 Transform::from_xyz(pos.x, pos.y, 0.0),
             ))
-            .with_children(|parent| {
-                spawn_ground(
-                    parent,
-                    &chunk_coord,
-                    blocks,
-                    &registry,
-                    &atlas_assets,
-                    &mut render_param,
-                );
-                spawn_objects(parent, blocks, &registry, &atlas_assets, *chunk_coord);
-            })
             .id();
 
-        manager.register(*chunk_coord, id);
+        spawn_ground(
+            &mut commands,
+            entity,
+            &chunk_coord,
+            blocks,
+            &registry,
+            &atlas_assets,
+            &mut render_param,
+        );
+        spawn_objects(
+            &mut commands,
+            entity,
+            blocks,
+            &registry,
+            &atlas_assets,
+            *chunk_coord,
+        );
+
+        manager.register(*chunk_coord, entity);
     }
 }
 
 fn spawn_ground(
-    parent: &mut ChildSpawnerCommands<'_>,
+    commands: &mut Commands,
+    parent: Entity,
     chunk_coord: &ChunkCoord,
     blocks: &ChunkBlocks,
     registry: &BlockRegistry,
@@ -87,7 +95,7 @@ fn spawn_ground(
 ) {
     let ground_mesh = build_ground_mesh(blocks, registry, atlas_assets.block_atlas());
 
-    parent.spawn((
+    commands.entity(parent).with_child((
         ChunkMesh {
             coord: *chunk_coord,
         },
@@ -97,24 +105,27 @@ fn spawn_ground(
     ));
 }
 
-fn spawn_objects(
-    parent: &mut ChildSpawnerCommands<'_>,
+pub fn spawn_objects(
+    commands: &mut Commands,
+    parent: Entity,
     blocks: &ChunkBlocks,
     registry: &BlockRegistry,
     atlas_assets: &AtlasAssetsParam,
     chunk_coord: ChunkCoord,
 ) {
-    for (x, y) in chunk_positions() {
-        let block = blocks.objects[idx_2d(x, y)];
+    commands.entity(parent).with_children(|parent| {
+        for (x, y) in chunk_positions() {
+            let block = blocks.objects[idx_2d(x, y)];
 
-        if block.is_air() {
-            continue;
+            if block.is_air() {
+                continue;
+            }
+
+            let block = registry.get(block);
+            let pos = BlockPos::new(x as u8, y as u8, OBJECT_LAYER as u8);
+            spawn_block(parent, block, pos, chunk_coord, atlas_assets);
         }
-
-        let block = registry.get(block);
-        let pos = BlockPos::new(x as u8, y as u8, OBJECT_LAYER as u8);
-        spawn_block(parent, block, pos, chunk_coord, atlas_assets);
-    }
+    });
 }
 
 pub fn despawn_chunk(

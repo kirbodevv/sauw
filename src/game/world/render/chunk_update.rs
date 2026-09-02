@@ -7,12 +7,10 @@ use crate::{
         assets::resource::AtlasAssetsParam,
         registry::block_registry::{BlockId, BlockRegistry},
         world::{
-            ChunkCoord,
-            chunk_manager::{ChunkBlocksStore, ChunkManager},
+            Chunk, ChunkCoord,
+            chunk_manager::{ChunkBlocksStore, DirtyChunks},
             idx_2d,
-            render::{
-                BlockEntity, BlockPos, ChunkMesh, chunk_mesh::build_ground_mesh, chunk_spawner,
-            },
+            render::{BlockEntity, ChunkMesh, chunk_mesh::build_ground_mesh, chunk_spawner},
         },
     },
     shared::RenderParam,
@@ -26,136 +24,95 @@ pub struct SetBlock {
     pub layer: u8,
 }
 
-#[derive(Message)]
-pub struct RebuildGroundMesh {
-    pub chunk_coord: ChunkCoord,
-}
-
-#[derive(Message)]
-pub struct DespawnBlock {
-    pub chunk_coord: ChunkCoord,
-    pub pos: BlockPos,
-}
-
-#[derive(Message)]
-pub struct SpawnBlock {
-    pub id: BlockId,
-    pub chunk_coord: ChunkCoord,
-    pub pos: BlockPos,
-}
-
 pub fn set_block(
     mut reader: MessageReader<SetBlock>,
     mut blocks_store: ResMut<ChunkBlocksStore>,
-    mut rebuild_writer: MessageWriter<RebuildGroundMesh>,
-    mut spawn_writer: MessageWriter<SpawnBlock>,
-    mut despawn_writer: MessageWriter<DespawnBlock>,
+    mut dirty: ResMut<DirtyChunks>,
 ) {
     for event in reader.read() {
-        let SetBlock { id, x, y, layer } = *event;
-
-        let chunk_coord = ChunkCoord::from_world_block_pos(x, y);
+        let chunk_coord = ChunkCoord::from_world_block_pos(event.x, event.y);
 
         let Some(blocks) = blocks_store.get_mut(&chunk_coord) else {
             continue;
         };
 
-        match layer as usize {
+        let idx = idx_2d(event.x as usize, event.y as usize);
+
+        match event.layer as usize {
             GROUND_LAYER => {
-                blocks.ground[idx_2d(x as usize, y as usize)] = id;
-                rebuild_writer.write(RebuildGroundMesh { chunk_coord });
+                blocks.ground[idx] = event.id;
+                dirty.ground.insert(chunk_coord);
             }
+
             OBJECT_LAYER => {
-                let old = blocks.objects[idx_2d(x as usize, y as usize)];
-
-                if !old.is_air() {
-                    despawn_writer.write(DespawnBlock {
-                        chunk_coord,
-                        pos: BlockPos::from_world_block_pos(x, y, layer),
-                    });
-                }
-
-                spawn_writer.write(SpawnBlock {
-                    id,
-                    chunk_coord,
-                    pos: BlockPos::from_world_block_pos(x, y, layer),
-                });
-
-                blocks.objects[idx_2d(x as usize, y as usize)] = id;
+                blocks.objects[idx] = event.id;
+                dirty.objects.insert(chunk_coord);
             }
-            _ => continue,
+
+            _ => {}
         }
     }
 }
 
-pub fn spawn_block(
+pub fn sync_objects(
     mut commands: Commands,
-    mut reader: MessageReader<SpawnBlock>,
-    assets: AtlasAssetsParam,
-    manager: Res<ChunkManager>,
-    blocks: Res<BlockRegistry>,
-) {
-    for event in reader.read() {
-        let SpawnBlock {
-            id,
-            chunk_coord,
-            pos,
-        } = event;
-        if id.is_air() {
-            continue;
-        }
+    mut dirty: ResMut<DirtyChunks>,
 
-        let Some(entity) = manager.entity(&chunk_coord) else {
+    blocks_store: Res<ChunkBlocksStore>,
+    registry: Res<BlockRegistry>,
+    atlas_assets: AtlasAssetsParam,
+
+    chunks: Query<(Entity, &ChunkCoord), With<Chunk>>,
+    blocks: Query<(Entity, &ChunkCoord), With<BlockEntity>>,
+) {
+    for chunk_coord in dirty.objects.drain() {
+        let Some((chunk_entity, _)) = chunks.iter().find(|(_, coord)| **coord == chunk_coord)
+        else {
             continue;
         };
 
-        let Ok(mut parent) = commands.get_entity(entity) else {
-            continue;
-        };
-
-        parent.with_children(|parent| {
-            chunk_spawner::spawn_block(parent, blocks.get(*id), *pos, *chunk_coord, &assets);
-        });
-    }
-}
-
-pub fn despawn_block(
-    mut reader: MessageReader<DespawnBlock>,
-    mut commands: Commands,
-    query: Query<(Entity, &BlockPos, &ChunkCoord), With<BlockEntity>>,
-) {
-    for event in reader.read() {
-        for (entity, block_pos, chunk_coord) in &query {
-            if *chunk_coord == event.chunk_coord && *block_pos == event.pos {
+        for (entity, block_chunk) in &blocks {
+            if *block_chunk == chunk_coord {
                 commands.entity(entity).despawn();
-                break;
             }
         }
+
+        let Some(chunk_blocks) = blocks_store.get(&chunk_coord) else {
+            continue;
+        };
+
+        chunk_spawner::spawn_objects(
+            &mut commands,
+            chunk_entity,
+            chunk_blocks,
+            &registry,
+            &atlas_assets,
+            chunk_coord,
+        );
     }
 }
 
 pub fn rebuild_ground_mesh(
+    mut dirty: ResMut<DirtyChunks>,
     blocks_store: Res<ChunkBlocksStore>,
     registry: Res<BlockRegistry>,
     atlas_assets: AtlasAssetsParam,
     mut render: RenderParam,
     mut query: Query<(&ChunkMesh, &mut Mesh2d)>,
-    mut reader: MessageReader<RebuildGroundMesh>,
 ) {
-    for event in reader.read() {
-        let Some(blocks) = blocks_store.get(&event.chunk_coord) else {
+    for chunk_coord in dirty.ground.drain() {
+        let Some(blocks) = blocks_store.get(&chunk_coord) else {
             continue;
         };
 
         for (chunk_mesh, mut mesh2d) in &mut query {
-            if chunk_mesh.coord != event.chunk_coord {
+            if chunk_mesh.coord != chunk_coord {
                 continue;
             }
 
             let new_mesh = build_ground_mesh(blocks, &registry, atlas_assets.block_atlas());
 
-            let mesh_handle = render.add_mesh(new_mesh);
-            mesh2d.0 = mesh_handle;
+            mesh2d.0 = render.add_mesh(new_mesh);
 
             break;
         }
@@ -166,13 +123,11 @@ pub struct ChunkUpdatePlugin;
 
 impl Plugin for ChunkUpdatePlugin {
     fn build(&self, app: &mut App) {
-        app.add_message::<RebuildGroundMesh>()
+        app.init_resource::<DirtyChunks>()
             .add_message::<SetBlock>()
-            .add_message::<DespawnBlock>()
-            .add_message::<SpawnBlock>()
             .add_systems(
                 Update,
-                (rebuild_ground_mesh, set_block, despawn_block, spawn_block)
+                (rebuild_ground_mesh, set_block, sync_objects)
                     .chain()
                     .run_if(in_state(GameState::Gaming)),
             );
