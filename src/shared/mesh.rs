@@ -56,11 +56,10 @@ impl MeshBuilder {
         let atlas_w = atlas.width as f32;
         let atlas_h = atlas.height as f32;
 
-        let pad = 0.5;
-        let u0 = (tex_x + pad) / atlas_w;
-        let v0 = (tex_y + pad) / atlas_h;
-        let u1 = (tex_x + tex_w - pad) / atlas_w;
-        let v1 = (tex_y + tex_h - pad) / atlas_h;
+        let u0 = tex_x / atlas_w;
+        let v0 = tex_y / atlas_h;
+        let u1 = (tex_x + tex_w) / atlas_w;
+        let v1 = (tex_y + tex_h) / atlas_h;
 
         let base = self.positions.len() as u32;
 
