@@ -16,7 +16,7 @@ use crate::{
             chunk_manager::ChunkManager,
             chunk_positions,
             render::{
-                YSort,
+                ChunkMesh, YSort,
                 chunk_mesh::build_ground_mesh,
                 components::{BlockEntity, BlockPos},
                 y_sort_z,
@@ -53,25 +53,41 @@ pub fn spawn_chunk(
     {
         let pos = chunk_coord.to_world_pos();
 
-        let id = commands
+        let entity = commands
             .spawn((
                 Chunk,
                 *chunk_coord,
                 Visibility::default(),
                 Transform::from_xyz(pos.x, pos.y, 0.0),
             ))
-            .with_children(|parent| {
-                spawn_ground(parent, blocks, &registry, &atlas_assets, &mut render_param);
-                spawn_objects(parent, blocks, &registry, &atlas_assets, pos.y);
-            })
             .id();
 
-        manager.register(*chunk_coord, id);
+        spawn_ground(
+            &mut commands,
+            entity,
+            &chunk_coord,
+            blocks,
+            &registry,
+            &atlas_assets,
+            &mut render_param,
+        );
+        spawn_objects(
+            &mut commands,
+            entity,
+            blocks,
+            &registry,
+            &atlas_assets,
+            *chunk_coord,
+        );
+
+        manager.register(*chunk_coord, entity);
     }
 }
 
 fn spawn_ground(
-    parent: &mut ChildSpawnerCommands<'_>,
+    commands: &mut Commands,
+    parent: Entity,
+    chunk_coord: &ChunkCoord,
     blocks: &ChunkBlocks,
     registry: &BlockRegistry,
     atlas_assets: &AtlasAssetsParam,
@@ -79,37 +95,37 @@ fn spawn_ground(
 ) {
     let ground_mesh = build_ground_mesh(blocks, registry, atlas_assets.block_atlas());
 
-    parent.spawn((
+    commands.entity(parent).with_child((
+        ChunkMesh {
+            coord: *chunk_coord,
+        },
         Mesh2d(render_param.add_mesh(ground_mesh)),
         MeshMaterial2d(render_param.add_material(atlas_assets.block_texture(), None)),
         Transform::default(),
     ));
 }
 
-fn spawn_objects(
-    parent: &mut ChildSpawnerCommands<'_>,
+pub fn spawn_objects(
+    commands: &mut Commands,
+    parent: Entity,
     blocks: &ChunkBlocks,
     registry: &BlockRegistry,
     atlas_assets: &AtlasAssetsParam,
-    chunk_world_y: f32,
+    chunk_coord: ChunkCoord,
 ) {
-    for (x, y) in chunk_positions() {
-        let block = blocks.objects[idx_2d(x, y)];
+    commands.entity(parent).with_children(|parent| {
+        for (x, y) in chunk_positions() {
+            let block = blocks.objects[idx_2d(x, y)];
 
-        if block.is_air() {
-            continue;
+            if block.is_air() {
+                continue;
+            }
+
+            let block = registry.get(block);
+            let pos = BlockPos::new(x as u8, y as u8, OBJECT_LAYER as u8);
+            spawn_block(parent, block, pos, chunk_coord, atlas_assets);
         }
-
-        let block = registry.get(block);
-
-        spawn_block(
-            parent,
-            block,
-            BlockPos::new(x as u8, y as u8, OBJECT_LAYER as u8),
-            atlas_assets,
-            chunk_world_y,
-        );
-    }
+    });
 }
 
 pub fn despawn_chunk(
@@ -124,18 +140,20 @@ pub fn despawn_chunk(
     }
 }
 
-fn spawn_block(
+pub fn spawn_block(
     parent: &mut ChildSpawnerCommands<'_>,
     block: &BlockDefinition,
     pos: BlockPos,
+    chunk_coord: ChunkCoord,
     assets: &AtlasAssetsParam,
-    chunk_world_y: f32,
 ) {
     let local_x = pos.x as f32 * TILE_SIZE + TILE_SIZE / 2.0;
     let local_y = pos.y as f32 * TILE_SIZE + TILE_SIZE / 2.0;
     let atlas_entry = assets.block_atlas().get(block.texture_id.unwrap());
     let padding = 0.5;
     let sprite_rect = atlas_entry.rect_with_padding(padding);
+
+    let chunk_world_y = chunk_coord.to_world_pos().y;
 
     let mut entity = parent.spawn((
         Transform::from_xyz(
@@ -149,6 +167,7 @@ fn spawn_block(
         RigidBody::Fixed,
         block.collider.clone(),
         pos,
+        chunk_coord,
     ));
 
     entity.with_children(|parent| {

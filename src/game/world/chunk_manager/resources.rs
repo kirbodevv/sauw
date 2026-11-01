@@ -9,6 +9,10 @@ pub struct ChunkManager {
 }
 
 impl ChunkManager {
+    pub fn spawned_chunks(&self) -> Vec<ChunkCoord> {
+        self.entities.keys().copied().collect()
+    }
+
     pub fn is_spawned(&self, coord: &ChunkCoord) -> bool {
         self.entities.contains_key(coord)
     }
@@ -28,7 +32,27 @@ impl ChunkManager {
 
 #[derive(Resource, Default)]
 pub struct ChunkBlocksStore {
-    pub blocks: HashMap<ChunkCoord, ChunkBlocks>,
+    blocks: HashMap<ChunkCoord, ChunkBlocks>,
+}
+
+#[derive(Resource, Default)]
+pub struct DirtyChunks {
+    pub ground: HashSet<ChunkCoord>,
+    pub objects: HashSet<ChunkCoord>,
+}
+
+impl ChunkBlocksStore {
+    pub fn get(&self, coord: &ChunkCoord) -> Option<&ChunkBlocks> {
+        self.blocks.get(coord)
+    }
+
+    pub fn get_mut(&mut self, coord: &ChunkCoord) -> Option<&mut ChunkBlocks> {
+        self.blocks.get_mut(coord)
+    }
+
+    pub fn insert(&mut self, coord: ChunkCoord, blocks: ChunkBlocks) {
+        self.blocks.insert(coord, blocks);
+    }
 }
 
 #[derive(Resource, Default)]

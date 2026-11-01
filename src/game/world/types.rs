@@ -40,6 +40,10 @@ pub struct ChunkCoord {
 }
 
 impl ChunkCoord {
+    pub fn from_world_block_pos(x: i32, y: i32) -> Self {
+        Self::from_world_pos(x as f32, y as f32)
+    }
+
     pub fn from_world_pos(x: f32, y: f32) -> Self {
         Self {
             x: (x / CHUNK_WORLD).floor() as i32,

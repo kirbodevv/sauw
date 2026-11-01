@@ -65,6 +65,6 @@ pub fn poll_generation_tasks(
     mut store: ResMut<ChunkBlocksStore>,
 ) {
     for (coord, blocks) in tasks.poll() {
-        store.blocks.insert(coord, blocks);
+        store.insert(coord, blocks);
     }
 }
